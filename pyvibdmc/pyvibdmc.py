@@ -8,7 +8,7 @@ Handles the primary functions
 import numpy as np
 import h5py
 import os
-from data import *
+from .data import *
 
 class DMC:
     def __init__(self,
@@ -230,4 +230,6 @@ if __name__ == "__main__":
                    masses=None,
                    startStructure = Constants.convert(
                        np.array([[0.00000]]),"angstroms",to_AU=True))
-    dmc_HO.run()
+    # myDMC = pyvibdmc.DMC(potential=HODMC)
+    print(type(dmc_HO))
+    # dmc_HO.run()
