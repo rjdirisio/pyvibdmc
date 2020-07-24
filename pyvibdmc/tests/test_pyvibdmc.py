@@ -3,7 +3,6 @@ Unit and regression test for the pyvibdmc package.
 """
 import numpy as np
 from ..data import *
-from ..potentials import *
 # Import package, test suite, and other packages as needed
 
 import pyvibdmc
@@ -19,6 +18,7 @@ def test_initDmcObj():
     assert isinstance(myDMC, pyvibdmc.DMC_Sim)
 
 def test_runDMC():
+    from ..potentials import *
     myDMC = pyvibdmc.DMC_Sim(simName="DMC_disc_test",
                  weighting='discrete',
                  initialWalkers=1000,

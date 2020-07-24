@@ -5,21 +5,11 @@ A general purpose diffusion monte carlo code for studying vibrational problems
 Handles the primary functions
 """
 import numpy as np
-import h5py
 import os
-import pickle
 
 from .data import *
 from .simulation_utilities import *
 from .potentials import *
-
-def DMC_Restart(ckptFolder="pyvibdmc/simulation_results/",
-                simName='DMC_Sim',
-                timeStep=100):
-    dmcSim = SimArchivist.reloadSim(ckptFolder=ckptFolder,
-                                    simName=simName,
-                                    timeStep=timeStep)
-    return dmcSim
 
 class DMC_Sim:
     def __init__(self,
@@ -95,7 +85,7 @@ class DMC_Sim:
         self._walkerV = np.zeros(self.initialWalkers)
         self._vrefAr = np.zeros(self.nTimeSteps)
         self._popAr = np.zeros(self.nTimeSteps)
-        self._alpha = 1.0 / (2.0 * deltaT)  # simulation parameter - adjustable
+        self._alpha = 1.0 / (2.0 * deltaT)
         if startStructure is None:
             self.walkerC = np.zeros((self.initialWalkers, len(atoms), dimensions))
         else:
@@ -193,6 +183,7 @@ class DMC_Sim:
         for propStep in self._propSteps:
             self.walkerC = self.moveRandomly(self.walkerC)
             self._walkerV = self.potential(self.walkerC,self.atoms)
+
             if propStep == 0:
                 v_ref = self.getVref()
 
@@ -229,6 +220,15 @@ class DMC_Sim:
                     keyz=['vrefVsTau','popVsTau'],
                     valz=[np.column_stack((ts, vrefCM)),np.column_stack((ts, self._popAr))]
                     )
+
+def DMC_Restart(ckptFolder="pyvibdmc/simulation_results/",
+                simName='DMC_Sim',
+                timeStep=100):
+    dmcSim = SimArchivist.reloadSim(ckptFolder=ckptFolder,
+                                    simName=simName,
+                                    timeStep=timeStep)
+    return dmcSim
+
 
 if __name__ == "__main__":
     # Do something if this file is invoked on its own
