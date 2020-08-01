@@ -18,7 +18,7 @@ def test_initDmcObj():
     assert isinstance(myDMC, pyvibdmc.DMC_Sim)
 
 def test_runDMC():
-    from ..potentials import *
+    from ..potentials.PythonPots.harmonicOscillator1D import *
     myDMC = pyvibdmc.DMC_Sim(simName="DMC_disc_test",
                  weighting='discrete',
                  initialWalkers=1000,

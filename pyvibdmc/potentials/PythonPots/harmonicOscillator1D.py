@@ -1,5 +1,5 @@
 import numpy as np
-from ..data import *
+from ...data import *
 
 def HODMC(cds,atmStr):
     """Compulsory cds, atmStr input"""

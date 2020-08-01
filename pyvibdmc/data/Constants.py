@@ -41,6 +41,6 @@ class Constants:
         return m
 
 if __name__ == '__main__':
-    print(masses)
+    print(massDict)
     atoms = ['H','C','C']
     print([Constants.mass(a) for a in atoms])
