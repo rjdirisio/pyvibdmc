@@ -18,7 +18,7 @@ def test_initDmcObj():
     assert isinstance(myDMC, pyvibdmc.DMC_Sim)
 
 def test_runDMC():
-    from ..potentials.PythonPots.harmonicOscillator1D import *
+    from ..potentials.PythonPots.harmonicOscillator1D import HODMC
     myDMC = pyvibdmc.DMC_Sim(simName="DMC_disc_test",
                  weighting='discrete',
                  initialWalkers=1000,
@@ -29,7 +29,6 @@ def test_runDMC():
                  atoms=['H'],
                  dimensions=1,
                  deltaT=5,
-                 D=0.5,
                  potential=HODMC,
                  masses=None,
                  startStructure=Constants.convert(
@@ -38,7 +37,7 @@ def test_runDMC():
     assert True
 
 def test_restartDMC():
-    myDMC = pyvibdmc.DMC_Restart(ckptFolder='pyvibdmc/simulation_results/',
+    myDMC = pyvibdmc.DMC_Restart(ckptFolder='exSimResults',
                                  simName='DMC_disc_test',
                                  timeStep=500)
     myDMC.run()

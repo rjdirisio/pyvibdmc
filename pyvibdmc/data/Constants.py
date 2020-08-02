@@ -23,7 +23,7 @@ massDict = {'H': 1.00782503, 'D': 2.01410178, 'T': 3.01604928, 'He': 4.00260325,
 class Constants:
     """Thanks Mark for this silly little class."""
     atomic_units = {
-        "wavenumbers" : 4.55634e-6,
+        "wavenumbers" : 4.556335281212229e-6,
         "angstroms" : 1/0.529177,
         "amu" : 1.000000000000000000/6.02213670000e23/9.10938970000e-28   #1822.88839  g/mol -> a.u.
     }

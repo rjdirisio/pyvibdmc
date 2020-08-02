@@ -11,26 +11,27 @@ from .data import *
 from .simulation_utilities import *
 from .potentials import *
 
+
 class DMC_Sim:
     def __init__(self,
-                simName="DMC_Sim",
-                outputFolder="pyvibdmc/simulation_results/",
-                weighting='discrete',
-                initialWalkers=10000,
-                nTimeSteps=10000,
-                equilTime=2000,
-                ckptSpacing=1000,
-                wfnSpacing=1000,
-                DwSteps=50,
-                atoms=[],
-                dimensions=3,
-                deltaT=5,
-                potential=None,
-                masses=None,
-                startStructure=None,
-                branch_every=1,
-                timeStep=0
-                ):
+                 simName="DMC_Sim",
+                 outputFolder="pyvibdmc/exSimResults",
+                 weighting='discrete',
+                 initialWalkers=10000,
+                 nTimeSteps=10000,
+                 equilTime=2000,
+                 ckptSpacing=1000,
+                 wfnSpacing=1000,
+                 DwSteps=50,
+                 atoms=[],
+                 dimensions=3,
+                 deltaT=5,
+                 potential=None,
+                 masses=None,
+                 startStructure=None,
+                 branch_every=1,
+                 timeStep=0
+                 ):
         """
         :param simName:Simulation name for saving wavefunctions
         :type simName:str
@@ -78,7 +79,7 @@ class DMC_Sim:
         self._branch_step = np.arange(0, nTimeSteps, self.branch_every)
         self._chkptStep = np.arange(equilTime, nTimeSteps, ckptSpacing)
         self._wfnSaveStep = np.arange(equilTime, nTimeSteps, wfnSpacing)
-        self._propSteps = np.arange(timeStep,nTimeSteps)
+        self._propSteps = np.arange(timeStep, nTimeSteps)
         self._dwSaveStep = self._chkptStep + self.DwSteps
         self._whoFrom = None  # Not descendant weighting yet
         self._walkerV = np.zeros(self.initialWalkers)
@@ -153,7 +154,7 @@ class DMC_Sim:
         vref = Vbar - (self._alpha * correction)
         return vref
 
-    def countUpDescWeights(self,dwts):
+    def countUpDescWeights(self, dwts):
         if self.weighting == 'discrete':
             unique, counts = np.unique(self._whoFrom, return_counts=True)
             dwts[unique] = counts
@@ -161,7 +162,7 @@ class DMC_Sim:
             for q in range(len(self.contWts)):
                 dwts[q] = np.sum(self.contWts[self._whoFrom == q])
 
-    def updateSimArs(self,propStep,Vref):
+    def updateSimArs(self, propStep, Vref):
         self._vrefAr[propStep] = Vref
         if self.weighting == 'discrete':
             self._popAr[propStep] = len(self.walkerC)
@@ -181,13 +182,13 @@ class DMC_Sim:
         DW = False
         for propStep in self._propSteps:
             self.walkerC = self.moveRandomly(self.walkerC)
-            self._walkerV = self.potential(self.walkerC,self.atoms)
+            self._walkerV = self.potential(self.walkerC, self.atoms)
 
             if propStep == 0:
                 v_ref = self.getVref()
 
             if propStep in self._chkptStep:
-                SimArchivist.chkpt(self,propStep)
+                SimArchivist.chkpt(self, propStep)
 
             if propStep in self._wfnSaveStep:
                 dwts = np.zeros(len(self.walkerC))
@@ -198,9 +199,10 @@ class DMC_Sim:
             if propStep in self._dwSaveStep:
                 DW = False
                 self.countUpDescWeights(dwts=dwts)
-                SimArchivist.saveH5(fname=self.outputFolder + "/" + self.simName + "_wfn_" + str(propStep - self.DwSteps) + "ts",
-                            keyz=['coords','desc_weights','atoms'],
-                            valz = [parent,dwts,self.DwSteps,self.atoms])
+                SimArchivist.saveH5(
+                    fname=self.outputFolder + "/" + self.simName + "_wfn_" + str(propStep - self.DwSteps) + "ts.hdf5",
+                    keyz=['coords', 'desc_weights', 'atoms'],
+                    valz=[parent, dwts, self.DwSteps, self.atoms])
 
             if propStep in self._branch_step:
                 self.contWts, self._whoFrom, self.walkerC, self._walkerV = self.birthOrDeath_vec(v_ref, DW)
@@ -209,16 +211,17 @@ class DMC_Sim:
                     self.contWts = self.contWts * np.exp(-1.0 * (self._walkerV - v_ref) * self.deltaT)
 
             v_ref = self.getVref()
-            self.updateSimArs(propStep,v_ref)
+            self.updateSimArs(propStep, v_ref)
 
     def run(self):
         self.propagate()
         vrefCM = Constants.convert(self._vrefAr, "wavenumbers", to_AU=False)
         ts = np.arange(self.nTimeSteps)
         SimArchivist.saveH5(fname=self.outputFolder + "/" + self.simName + "_simInfo.hdf5",
-                    keyz=['vrefVsTau','popVsTau'],
-                    valz=[np.column_stack((ts, vrefCM)),np.column_stack((ts, self._popAr))]
-                    )
+                            keyz=['vrefVsTau', 'popVsTau'],
+                            valz=[np.column_stack((ts, vrefCM)), np.column_stack((ts, self._popAr))]
+                            )
+
 
 def DMC_Restart(ckptFolder="pyvibdmc/simulation_results/",
                 simName='DMC_Sim',
