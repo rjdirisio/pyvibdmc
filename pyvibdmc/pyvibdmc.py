@@ -9,8 +9,6 @@ import os
 
 from .data import *
 from .simulation_utilities import *
-from .potentials import *
-
 
 class DMC_Sim:
     def __init__(self,
@@ -56,8 +54,6 @@ class DMC_Sim:
         :type dimensions:int
         :param deltaT: The length of the time step; how many atomic units of time are you going in one time step.
         :type deltaT: int
-        :param D: Diffusion Coefficient.  Usually set at 0.5
-        :type D:float
         :param potential: Takes in coordinates, gives back energies
         :type potential: function
         :param masses:For feeding in artificial masses in atomic units.  If not, then the atoms param will designate masses
@@ -76,10 +72,12 @@ class DMC_Sim:
         self.DwSteps = DwSteps
         self.branch_every = branch_every
         self.deltaT = deltaT
-        self._branch_step = np.arange(0, nTimeSteps, self.branch_every)
-        self._chkptStep = np.arange(equilTime, nTimeSteps, ckptSpacing)
-        self._wfnSaveStep = np.arange(equilTime, nTimeSteps, wfnSpacing)
-        self._propSteps = np.arange(timeStep, nTimeSteps)
+        #make the rest of these properties
+        #prob add 1 to all of these nTimeSteps:
+        self._branch_step = np.arange(0, self.nTimeSteps, self.branch_every)
+        self._chkptStep = np.arange(equilTime, self.nTimeSteps, ckptSpacing)
+        self._wfnSaveStep = np.arange(equilTime, self.nTimeSteps, wfnSpacing)
+        self._propSteps = np.arange(timeStep, self.nTimeSteps)
         self._dwSaveStep = self._chkptStep + self.DwSteps
         self._whoFrom = None  # Not descendant weighting yet
         self._walkerV = np.zeros(self.initialWalkers)
@@ -137,7 +135,10 @@ class DMC_Sim:
         return self.contWts, self._whoFrom, self.walkerC, self._walkerV
 
     def moveRandomly(self, walkerC):
-        disps = np.random.normal(0.0, self.sigmas, size=np.shape(walkerC.transpose(0, 2, 1))).transpose(0, 2, 1)
+        disps = np.random.normal(0.0,
+                                 self.sigmas,
+                                 size=np.shape(walkerC.transpose(0, 2, 1))
+                                 ).transpose(0, 2, 1)
         return walkerC + disps
 
     def getVref(self):  # Use potential of all walkers to calculate vref
@@ -223,9 +224,10 @@ class DMC_Sim:
                             )
 
 
-def DMC_Restart(ckptFolder="pyvibdmc/simulation_results/",
+def DMC_Restart(timeStep,
+                ckptFolder="pyvibdmc/simulation_results/",
                 simName='DMC_Sim',
-                timeStep=100):
+                ):
     dmcSim = SimArchivist.reloadSim(ckptFolder=ckptFolder,
                                     simName=simName,
                                     timeStep=timeStep)

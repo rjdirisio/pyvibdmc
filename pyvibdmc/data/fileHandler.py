@@ -52,8 +52,8 @@ class fileHandler:
             fl.write("\n")
         fl.close()
         
-if __name__ == '__main__':
-    fll = 'test.xyz'
-    atmList = ["O","O","O","H","H","H","H","H","H","H"]
-    xx = fileHandler.extractXYZ(fll,atmList)
-    fileHandler.writeXYZ(xx,'myExit.xyz',atmList)
+# if __name__ == '__main__':
+#     fll = 'test.xyz'
+#     atmList = ["O","O","O","H","H","H","H","H","H","H"]
+#     xx = fileHandler.extractXYZ(fll,atmList)
+#     fileHandler.writeXYZ(xx,'myExit.xyz',atmList)

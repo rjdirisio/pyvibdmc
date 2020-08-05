@@ -37,7 +37,7 @@ def test_runDMC():
     assert True
 
 def test_restartDMC():
-    myDMC = pyvibdmc.DMC_Restart(ckptFolder='exSimResults',
+    myDMC = pyvibdmc.DMC_Restart(ckptFolder='pyvibdmc/exSimResults',
                                  simName='DMC_disc_test',
                                  timeStep=500)
     myDMC.run()
