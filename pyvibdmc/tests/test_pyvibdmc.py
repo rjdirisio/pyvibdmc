@@ -18,27 +18,41 @@ def test_initDmcObj():
     assert isinstance(myDMC, pyvibdmc.DMC_Sim)
 
 def test_runDMC():
+    import os
+    #TODO: remove old sim data
+
     from ..potentials.PythonPots.harmonicOscillator1D import HODMC
-    myDMC = pyvibdmc.DMC_Sim(simName="DMC_disc_test",
+    myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_disc_test",
                  weighting='discrete',
-                 initialWalkers=1000,
-                 nTimeSteps=1000,
-                 equilTime=50,
-                 ckptSpacing=50,
-                 DwSteps=50,
+                 num_walkers=1000,
+                 num_timesteps=10000,
+                 equil_steps=1000,
+                 chkpt_every=1000,
+                 wfn_every=100,
+                 desc_steps=50,
                  atoms=['H'],
                  dimensions=1,
-                 deltaT=5,
+                 delta_t=5,
                  potential=HODMC,
                  masses=None,
-                 startStructure=Constants.convert(
-                     np.array([[0.00000]]), "angstroms", to_AU=True))
+                 start_structures=Constants.convert(
+                     np.zeros((1,1,1)), "angstroms", to_AU=True))
     myDMC.run()
     assert True
 
 def test_restartDMC():
-    myDMC = pyvibdmc.DMC_Restart(ckptFolder='pyvibdmc/exSimResults',
-                                 simName='DMC_disc_test',
-                                 timeStep=500)
+    myDMC = pyvibdmc.DMC_Restart(chkpt_folder='pyvibdmc/exSimResults',
+                                 sim_name='DMC_disc_test',
+                                 time_step=1000)
+    myDMC.run()
+    assert True
+
+def test_restartDMC_updateParams():
+    myDMC = pyvibdmc.DMC_Restart(chkpt_folder='pyvibdmc/exSimResults',
+                                 sim_name='DMC_disc_test',
+                                 time_step=1000)
+    myDMC.num_timesteps=20000
+    myDMC.initialize()
+
     myDMC.run()
     assert True

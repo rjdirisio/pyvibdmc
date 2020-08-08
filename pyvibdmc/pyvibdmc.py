@@ -12,89 +12,121 @@ from .simulation_utilities import *
 
 class DMC_Sim:
     def __init__(self,
-                 simName="DMC_Sim",
-                 outputFolder="pyvibdmc/exSimResults",
+                 sim_name="DMC_Sim",
+                 output_folder="exSimResults",
                  weighting='discrete',
-                 initialWalkers=10000,
-                 nTimeSteps=10000,
-                 equilTime=2000,
-                 ckptSpacing=1000,
-                 wfnSpacing=1000,
-                 DwSteps=50,
+                 num_walkers=10000,
+                 num_timesteps=10000,
+                 equil_steps=2000,
+                 chkpt_every=1000,
+                 wfn_every=1000,
+                 desc_steps=50,
                  atoms=[],
                  dimensions=3,
-                 deltaT=5,
+                 delta_t=5,
                  potential=None,
                  masses=None,
-                 startStructure=None,
+                 start_structures=None,
                  branch_every=1,
-                 timeStep=0
+                 cur_timestep=0
                  ):
         """
-        :param simName:Simulation name for saving wavefunctions
-        :type simName:str
-        :param outputFolder:The folder where the results will be stored, including wavefunctions and energies
-        :type outputFolder:str
+        :param sim_name:Simulation name for saving wavefunctions
+        :type sim_name:str
+        :param output_folder:The folder where the results will be stored, including wavefunctions and energies
+        :type output_folder:str
         :param weighting:Discrete or Continuous weighting DMC.  Continuous means that there are fixed number of walkers
         :type weighting:str
-        :param initialWalkers:Number of walkers we will start the simulation with
-        :type initialWalkers:int
-        :param nTimeSteps:Total time steps we will be propStepagating the walkers.  nTimeSteps*deltaT = total time in A.U.
-        :type nTimeSteps:int
-        :param equilTime: Time before we start collecting wavefunctions
-        :type equilTime:int
-        :param ckptSpacing:How many time steps in between we will propagate before collecting another wavefunction
+        :param num_walkers:Number of walkers we will start the simulation with
+        :type num_walkers:int
+        :param num_timesteps:Total time steps we will be propStepagating the walkers.  num_timesteps*delta_t = total time in A.U.
+        :type num_timesteps:int
+        :param equil_steps: Time before we start collecting wavefunctions
+        :type equil_steps:int
+        :param chkpt_every:How many time steps in between we will propagate before collecting another wavefunction
         every time we collect a wavefunction, we checkpoint the simulation
-        :type ckptSpacing:int
-        :param DwSteps:Number of time steps for descendant weighting.
-        :type DwSteps: int
+        :type chkpt_every:int
+        :param desc_steps:Number of time steps for descendant weighting.
+        :type desc_steps: int
         :param atoms:List of atoms for the simulation
         :type atoms:list
         :param dimensions: 3 leads to a 3N dimensional simulation. This should always be 3 for real systems.
         :type dimensions:int
-        :param deltaT: The length of the time step; how many atomic units of time are you going in one time step.
-        :type deltaT: int
+        :param delta_t: The length of the time step; how many atomic units of time are you going in one time step.
+        :type delta_t: int
         :param potential: Takes in coordinates, gives back energies
         :type potential: function
         :param masses:For feeding in artificial masses in atomic units.  If not, then the atoms param will designate masses
         :type masses: list
-        :param startStructure:An initial structure to initialize all your walkers
-        :type startStructure:np.ndarray
+        :param start_structures:An initial structure to initialize all your walkers
+        :type start_structures:np.ndarray
+        :param branch_every:Branch the the walkers (cont. weighting, check if weights are too high, discr. weighting, if
+                                                    the walker's potential value is too high).
+        :type branch_every:int
+        :param cur_timestep: The current time step, should be zero unless you are restarting
+        :type cur_timestep: int
+
         """
 
         self.atoms = atoms
-        self.simName = simName
-        self.outputFolder = outputFolder
-        self.initialWalkers = initialWalkers
-        self.nTimeSteps = nTimeSteps
+        self.sim_name = sim_name
+        self.output_folder = output_folder
+        self.num_walkers = num_walkers
+        self.num_timesteps = num_timesteps
         self.potential = potential
         self.weighting = weighting
-        self.DwSteps = DwSteps
+        self.desc_steps = desc_steps
         self.branch_every = branch_every
-        self.deltaT = deltaT
-        #make the rest of these properties
-        #prob add 1 to all of these nTimeSteps:
-        self._branch_step = np.arange(0, self.nTimeSteps, self.branch_every)
-        self._chkptStep = np.arange(equilTime, self.nTimeSteps, ckptSpacing)
-        self._wfnSaveStep = np.arange(equilTime, self.nTimeSteps, wfnSpacing)
-        self._propSteps = np.arange(timeStep, self.nTimeSteps)
-        self._dwSaveStep = self._chkptStep + self.DwSteps
-        self._whoFrom = None  # Not descendant weighting yet
-        self._walkerV = np.zeros(self.initialWalkers)
-        self._vrefAr = np.zeros(self.nTimeSteps)
-        self._popAr = np.zeros(self.nTimeSteps)
-        self._alpha = 1.0 / (2.0 * deltaT)
-        if startStructure is None:
-            self.walkerC = np.zeros((self.initialWalkers, len(atoms), dimensions))
+        self.delta_t = delta_t
+        self.start_structures=start_structures
+        self.masses = masses
+        self.equil_steps = equil_steps
+        self.chkpt_every = chkpt_every
+        self.wfn_every = wfn_every
+        self.dimensions = dimensions
+        self.cur_timestep = cur_timestep
+        self.initialize()
+
+    def initialize(self):
+        # Initialize the rest of the (private) variables needed for the simulation
+        # Arrays used to mark important events througout the simulation
+        self._propSteps = np.arange(self.cur_timestep, self.num_timesteps)
+        self._branch_step = np.arange(self.cur_timestep, self.num_timesteps + self.branch_every, self.branch_every)
+        self._chkptStep = np.arange(self.equil_steps, self.num_timesteps + self.chkpt_every, self.chkpt_every)
+        self._wfnSaveStep = np.arange(self.equil_steps, self.num_timesteps + self.wfn_every, self.wfn_every)
+        self._dwSaveStep = self._chkptStep + self.desc_steps
+
+        # Arrays that carry data throughout the simulation
+        self._who_from = None  # Descendant weighting doesn't happen right away, no need to init
+        self._walker_vs = np.zeros(self.num_walkers)
+        self._vref_vs_tau = np.zeros(self.num_timesteps)
+        self._pop_vs_tau = np.zeros(self.num_timesteps)
+
+        if len(self.start_structures.shape) !=3:
+            raise Exception("Start structure must have format (nxmxd), where n = 1 or num_walkers, m = num atoms, "
+                            "d = dims")
+        elif self.start_structures.shape[0] == 1:
+            self._walker_coords = np.repeat(self.start_structures,
+                                     self.num_walkers, axis=0)
+        elif self.start_structures.shape[0] == self.start_structures:
+            self._walker_coords = self.start_structures
         else:
-            self.walkerC = np.repeat(np.expand_dims(startStructure, axis=0), self.initialWalkers, axis=0)
-        if masses is None:
-            masses = np.array([Constants.mass(a) for a in self.atoms])
-        self.sigmas = np.sqrt((2 * 0.5 * deltaT) / masses)
-        if not os.path.isdir(self.outputFolder):
-            os.makedirs(self.outputFolder)
+            raise Exception("You broke the initial walkers input or didn't provide a starting geometry..."
+                            "The format is (nxmxd), where n = 1 or num_walkers, m = num_atoms, d = dims")
+        if self.masses is None:
+            self.masses = np.array([Constants.mass(a) for a in self.atoms])
+        if len(self.masses) != len(self.atoms):
+            raise Exception("Your number of atoms list does not match your number of self.masses you provided.")
+
+        # Constants for simulation
+        self._sigmas = np.sqrt((2 * 0.5 * self.delta_t) / self.masses)
+        self._alpha = 1.0/(2.0*self.delta_t)
+
+        # Where to save the data
+        if not os.path.isdir(self.output_folder):
+            os.makedirs(self.output_folder)
         if self.weighting == 'continuous':
-            self.contWts = np.ones(self.initialWalkers)
+            self.contWts = np.ones(self.num_walkers)
         else:
             self.contWts = None
 
@@ -105,41 +137,45 @@ class DMC_Sim:
          to an update of the weights and a potential branching of a large weight walker to the smallest one
          """
         if self.weighting == 'discrete':
-            randNums = np.random.random(len(self.walkerC))
-            deathMask = np.logical_or((1 - np.exp(-1. * (self._walkerV - vref) * self.deltaT)) < randNums,
-                                      self._walkerV < vref)
-            self.walkerC = self.walkerC[deathMask]
-            self._walkerV = self._walkerV[deathMask]
+            randNums = np.random.random(len(self._walker_coords))
+
+            deathMask = np.logical_or((1 - np.exp(-1. * (self._walker_vs - vref) * self.delta_t)) < randNums,
+                                      self._walker_vs < vref)
+            self._walker_coords = self._walker_coords[deathMask]
+            self._walker_vs = self._walker_vs[deathMask]
             randNums = randNums[deathMask]
             if Desc:
-                self._whoFrom = self._whoFrom[deathMask]
+                self._who_from = self._who_from[deathMask]
 
-            birthMask = np.logical_and((np.exp(-1. * (self._walkerV - vref) * self.deltaT) - 1) > randNums,
-                                       self._walkerV < vref)
-            self.walkerC = np.concatenate((self.walkerC, self.walkerC[birthMask]))
-            self._walkerV = np.concatenate((self._walkerV, self._walkerV[birthMask]))
+            birthMask = np.logical_and((np.exp(-1. * (self._walker_vs - vref) * self.delta_t) - 1) > randNums,
+                                       self._walker_vs < vref)
+            self._walker_coords = np.concatenate((self._walker_coords,
+                                           self._walker_coords[birthMask]))
+            self._walker_vs = np.concatenate((self._walker_vs,
+                                              self._walker_vs[birthMask]))
             if Desc:
-                self._whoFrom = np.concatenate((self._whoFrom, self._whoFrom[birthMask]))
+                self._who_from = np.concatenate((self._who_from,
+                                                 self._who_from[birthMask]))
         else:
-            self.contWts = self.contWts * np.exp(-1.0 * (self._walkerV - vref) * self.deltaT)
-            thresh = 1.0 / self.initialWalkers
+            self.contWts = self.contWts * np.exp(-1.0 * (self._walker_vs - vref) * self.delta_t)
+            thresh = 1.0 / self.num_walkers
             killMark = np.where(self.contWts < thresh)[0]
             for walker in killMark:
                 maxWalker = np.argmax(self.contWts)
-                self.walkerC[walker] = np.copy(self.walkerC[maxWalker])
-                self._walkerV[walker] = np.copy(self._walkerV[maxWalker])
+                self._walker_coords[walker] = np.copy(self._walker_coords[maxWalker])
+                self._walker_vs[walker] = np.copy(self._walker_vs[maxWalker])
                 if Desc:
-                    self._whoFrom[walker] = self._whoFrom[maxWalker]
+                    self._who_from[walker] = self._who_from[maxWalker]
                 self.contWts[maxWalker] /= 2.0
                 self.contWts[walker] = np.copy(self.contWts[maxWalker])
-        return self.contWts, self._whoFrom, self.walkerC, self._walkerV
+        return self.contWts, self._who_from, self._walker_coords, self._walker_vs
 
-    def moveRandomly(self, walkerC):
+    def moveRandomly(self, _walker_coords):
         disps = np.random.normal(0.0,
-                                 self.sigmas,
-                                 size=np.shape(walkerC.transpose(0, 2, 1))
+                                 self._sigmas,
+                                 size=np.shape(_walker_coords.transpose(0, 2, 1))
                                  ).transpose(0, 2, 1)
-        return walkerC + disps
+        return _walker_coords + disps
 
     def getVref(self):  # Use potential of all walkers to calculate vref
         """
@@ -147,28 +183,28 @@ class DMC_Sim:
              or weight.
          """
         if self.weighting == 'discrete':
-            Vbar = np.average(self._walkerV)
-            correction = (len(self._walkerV) - self.initialWalkers) / self.initialWalkers
+            Vbar = np.average(self._walker_vs)
+            correction = (len(self._walker_vs) - self.num_walkers) / self.num_walkers
         else:
-            Vbar = np.average(self._walkerV, weights=self.contWts)
-            correction = (np.sum(self.contWts - np.ones(self.initialWalkers))) / self.initialWalkers
+            Vbar = np.average(self._walker_vs, weights=self.contWts)
+            correction = (np.sum(self.contWts - np.ones(self.num_walkers))) / self.num_walkers
         vref = Vbar - (self._alpha * correction)
         return vref
 
     def countUpDescWeights(self, dwts):
         if self.weighting == 'discrete':
-            unique, counts = np.unique(self._whoFrom, return_counts=True)
+            unique, counts = np.unique(self._who_from, return_counts=True)
             dwts[unique] = counts
         else:
             for q in range(len(self.contWts)):
-                dwts[q] = np.sum(self.contWts[self._whoFrom == q])
+                dwts[q] = np.sum(self.contWts[self._who_from == q])
 
     def updateSimArs(self, propStep, Vref):
-        self._vrefAr[propStep] = Vref
+        self._vref_vs_tau[propStep] = Vref
         if self.weighting == 'discrete':
-            self._popAr[propStep] = len(self.walkerC)
+            self._pop_vs_tau[propStep] = len(self._walker_coords)
         else:
-            self._popAr[propStep] = np.sum(self.contWts)
+            self._pop_vs_tau[propStep] = np.sum(self.contWts)
 
     def propagate(self):
         """
@@ -182,55 +218,58 @@ class DMC_Sim:
          """
         DW = False
         for propStep in self._propSteps:
-            self.walkerC = self.moveRandomly(self.walkerC)
-            self._walkerV = self.potential(self.walkerC, self.atoms)
+            self.cur_timestep = propStep
+            ###What potentially would be parallelized, and what couple be divorced from the rest of the loop
+            self._walker_coords = self.moveRandomly(self._walker_coords)
+            self._walker_vs = self.potential(self._walker_coords, self.atoms)
+            ###
 
-            if propStep == 0:
+            if propStep == self._propSteps[0]:
                 v_ref = self.getVref()
 
             if propStep in self._chkptStep:
                 SimArchivist.chkpt(self, propStep)
 
             if propStep in self._wfnSaveStep:
-                dwts = np.zeros(len(self.walkerC))
-                parent = np.copy(self.walkerC)
-                self._whoFrom = np.arange(len(self.walkerC))
+                dwts = np.zeros(len(self._walker_coords))
+                parent = np.copy(self._walker_coords)
+                self._who_from = np.arange(len(self._walker_coords))
                 DW = True
 
             if propStep in self._dwSaveStep:
                 DW = False
                 self.countUpDescWeights(dwts=dwts)
                 SimArchivist.saveH5(
-                    fname=self.outputFolder + "/" + self.simName + "_wfn_" + str(propStep - self.DwSteps) + "ts.hdf5",
+                    fname=f"{self.output_folder}/{self.sim_name}_wfn_{propStep - self.desc_steps}ts.hdf5",
                     keyz=['coords', 'desc_weights', 'atoms'],
-                    valz=[parent, dwts, self.DwSteps, self.atoms])
+                    valz=[parent, dwts, self.desc_steps, self.atoms])
 
             if propStep in self._branch_step:
-                self.contWts, self._whoFrom, self.walkerC, self._walkerV = self.birthOrDeath_vec(v_ref, DW)
+                self.contWts, self._who_from, self._walker_coords, self._walker_vs = self.birthOrDeath_vec(v_ref, DW)
             else:
                 if self.weighting == 'continuous':
-                    self.contWts = self.contWts * np.exp(-1.0 * (self._walkerV - v_ref) * self.deltaT)
+                    self.contWts = self.contWts * np.exp(-1.0 * (self._walker_vs - v_ref) * self.delta_t)
 
             v_ref = self.getVref()
             self.updateSimArs(propStep, v_ref)
 
     def run(self):
         self.propagate()
-        vrefCM = Constants.convert(self._vrefAr, "wavenumbers", to_AU=False)
-        ts = np.arange(self.nTimeSteps)
-        SimArchivist.saveH5(fname=self.outputFolder + "/" + self.simName + "_simInfo.hdf5",
+        vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+        ts = np.arange(self.num_timesteps)
+        SimArchivist.saveH5(fname=f"{self.output_folder}/{self.sim_name}_simInfo.hdf5",
                             keyz=['vrefVsTau', 'popVsTau'],
-                            valz=[np.column_stack((ts, vrefCM)), np.column_stack((ts, self._popAr))]
-                            )
+                            valz=[np.column_stack((ts, vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
 
-
-def DMC_Restart(timeStep,
-                ckptFolder="pyvibdmc/simulation_results/",
-                simName='DMC_Sim',
+def DMC_Restart(time_step,
+                chkpt_folder = "simulation_results/",
+                sim_name = 'DMC_Sim',
                 ):
-    dmcSim = SimArchivist.reloadSim(ckptFolder=ckptFolder,
-                                    simName=simName,
-                                    timeStep=timeStep)
+    dmcSim = SimArchivist.reloadSim(chkpt_folder,
+                                    sim_name,
+                                    time_step)
+
+
     return dmcSim
 
 
