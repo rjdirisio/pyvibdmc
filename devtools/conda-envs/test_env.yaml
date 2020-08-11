@@ -5,6 +5,11 @@ dependencies:
   - python
   - pip
 
+    # Package dependencies
+   - numpy
+   # - matplotlib #will be necessary in the future
+   - h5py
+
     # Testing
   - pytest
   - pytest-cov
