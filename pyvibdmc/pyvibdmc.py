@@ -267,16 +267,12 @@ class DMC_Sim:
                             valz=[np.column_stack((ts, vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
 
 
-
-
-
 def DMC_Restart(time_step, chkpt_folder="exSimulation_results/", sim_name='DMC_Sim'):
     dmc_sim = SimArchivist.reloadSim(chkpt_folder,
                                      sim_name,
                                      time_step)
     fileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
     return dmc_sim
-
 
 if __name__ == "__main__":
     # Do something if this file is invoked on its own

@@ -6,16 +6,10 @@ dependencies:
   - pip
 
     # Package dependencies
-   - numpy
-   # - matplotlib #will be necessary in the future
-   - h5py
+  - numpy
+  - h5py
 
     # Testing
   - pytest
   - pytest-cov
   - codecov
-
-    # Pip-only installs
-  #- pip:
-  #  - codecov
-
