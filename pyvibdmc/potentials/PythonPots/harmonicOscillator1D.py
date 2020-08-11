@@ -1,6 +1,4 @@
-import numpy as np
-from ...data import *
-
+from ...simulation_utilities import *
 def HODMC(cds,atmStr):
     """Compulsory cds, atmStr input"""
     if len(atmStr) == 2:

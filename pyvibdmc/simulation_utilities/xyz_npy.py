@@ -1,9 +1,9 @@
-__all__ = ['fileHandler']
+__all__ = ['xyz_npy']
 import numpy as np
-class fileHandler:
+class xyz_npy:
     """This short class handles xyz <-> npy conversion, like a manual version of openBabel. """
-    @classmethod
-    def extractXYZ(cls,fname,atmStr):
+    @staticmethod
+    def extractXYZ(fname,atmStr):
         import pandas as pd
         """
         Extracts the coordinates from an xyz file and returns it as an np array of dimension nxmx3,
@@ -23,8 +23,8 @@ class fileHandler:
         nAts = len(atmStr)
         return xx.reshape(int(nLines/nAts),nAts,3)
 
-    @classmethod
-    def writeXYZ(cls,xx, fname,atmStrings,cmt=None):
+    @staticmethod
+    def writeXYZ(xx, fname,atmStrings,cmt=None):
         """
         Writes a numpy array of x,y,z coordinates to a .xyz file
         :param fname:name of xyz file
