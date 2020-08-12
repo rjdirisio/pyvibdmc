@@ -112,7 +112,7 @@ class DMC_Sim:
         elif self.start_structures.shape[0] == 1:
             self._walker_coords = np.repeat(self.start_structures,
                                             self.num_walkers, axis=0)
-        elif self.start_structures.shape[0] == self.start_structures:
+        elif self.start_structures.shape[0] == self.num_walkers:
             self._walker_coords = self.start_structures
         else:
             raise Exception("You broke the initial walkers input or didn't provide a starting geometry..."
@@ -121,7 +121,7 @@ class DMC_Sim:
             self.masses = np.array([Constants.mass(a) for a in self.atoms])
         if len(self.masses) != len(self.atoms):
             raise Exception("Your number of atoms list does not match your number of self.masses you provided.")
-
+        self._atm_nums = get_atomic_num(self.atoms)
         # Constants for simulation
         self._sigmas = np.sqrt((2 * 0.5 * self.delta_t) / self.masses)
         self._alpha = 1.0 / (2.0 * self.delta_t)
@@ -135,7 +135,7 @@ class DMC_Sim:
         else:
             self.contWts = None
 
-    def birthOrDeath_vec(self, vref, Desc):
+    def birthOrDeath_vec(self, Desc):
         """
         Chooses whether or not the walker made a bad enough random walk to be removed from the simulation.
         For discrete weighting, this leads to removal or duplication of the walkers.  For continuous, this leads
@@ -144,16 +144,16 @@ class DMC_Sim:
         if self.weighting == 'discrete':
             randNums = np.random.random(len(self._walker_coords))
 
-            deathMask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - vref) * self.delta_t)) < randNums,
-                                      self._walker_pots < vref)
+            deathMask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t)) < randNums,
+                                      self._walker_pots < self._vref)
             self._walker_coords = self._walker_coords[deathMask]
             self._walker_pots = self._walker_pots[deathMask]
             randNums = randNums[deathMask]
             if Desc:
                 self._who_from = self._who_from[deathMask]
 
-            birthMask = np.logical_and((np.exp(-1. * (self._walker_pots - vref) * self.delta_t) - 1) > randNums,
-                                       self._walker_pots < vref)
+            birthMask = np.logical_and((np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1) > randNums,
+                                       self._walker_pots < self._vref)
             self._walker_coords = np.concatenate((self._walker_coords,
                                                   self._walker_coords[birthMask]))
             self._walker_pots = np.concatenate((self._walker_pots,
@@ -162,7 +162,7 @@ class DMC_Sim:
                 self._who_from = np.concatenate((self._who_from,
                                                  self._who_from[birthMask]))
         else:
-            self.contWts = self.contWts * np.exp(-1.0 * (self._walker_pots - vref) * self.delta_t)
+            self.contWts = self.contWts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
             thresh = 1.0 / self.num_walkers
             killMark = np.where(self.contWts < thresh)[0]
             for walker in killMark:
@@ -181,9 +181,9 @@ class DMC_Sim:
                                  size=np.shape(_walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
         return _walker_coords + disps
 
-    def getVref(self):  # Use potential of all walkers to calculate vref
+    def getVref(self):  # Use potential of all walkers to calculate self._vref
         """
-             Use the energy of all walkers to calculate vref with a correction for the fluctuation in the population
+             Use the energy of all walkers to calculate self._vref with a correction for the fluctuation in the population
              or weight.
          """
         if self.weighting == 'discrete':
@@ -192,8 +192,7 @@ class DMC_Sim:
         else:
             Vbar = np.average(self._walker_pots, weights=self.contWts)
             correction = (np.sum(self.contWts - np.ones(self.num_walkers))) / self.num_walkers
-        vref = Vbar - (self._alpha * correction)
-        return vref
+        self._vref = Vbar - (self._alpha * correction)
 
     def countUpDescWeights(self, dwts):
         """At the end of descendent weighting, count up which walkers came from other walkers (descendants)"""
@@ -225,12 +224,10 @@ class DMC_Sim:
         for prop_step in self._prop_steps:
             self.cur_timestep = prop_step
             self._walker_coords = self.moveRandomly(self._walker_coords)
-            ###What potentially would be parallelized, and what couple be divorced from the rest of the loop
-            self._walker_pots = self.potential(self._walker_coords, self.atoms)
-            ###
+            self._walker_pots = self.potential(self._walker_coords)
 
             if prop_step == self._prop_steps[0]:
-                v_ref = self.getVref()
+                self.getVref()
 
             if prop_step in self._chkptStep:
                 SimArchivist.chkpt(self, prop_step)
@@ -244,27 +241,33 @@ class DMC_Sim:
             if prop_step in self._dwSaveStep:
                 DW = False
                 self.countUpDescWeights(dwts=dwts)
+                vref_cm = Constants.convert(self._vref_vs_tau, 'wavenumbers', to_AU=False)
                 SimArchivist.saveH5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step - self.desc_steps}ts.hdf5",
-                    keyz=['coords', 'desc_weights', 'atoms'],
-                    valz=[parent, dwts, self.desc_steps, self.atoms])
+                    keyz=['coords', 'desc_weights', 'desc_time', 'atoms', 'vref'],
+                    valz=[parent,
+                          dwts,
+                          self.desc_steps,
+                          self._atm_nums,
+                          vref_cm])
 
             if prop_step in self._branch_step:
-                self.contWts, self._who_from, self._walker_coords, self._walker_pots = self.birthOrDeath_vec(v_ref, DW)
+                self.contWts, self._who_from, self._walker_coords, self._walker_pots = self.birthOrDeath_vec(DW)
             else:
                 if self.weighting == 'continuous':
-                    self.contWts = self.contWts * np.exp(-1.0 * (self._walker_pots - v_ref) * self.delta_t)
+                    self.contWts = self.contWts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
 
-            v_ref = self.getVref()
-            self.updateSimArs(prop_step, v_ref)
+            self.getVref()
+            self.updateSimArs(prop_step, self._vref)
 
     def run(self):
         self.propagate()
-        vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+        _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+        print('approximate ZPE (temporary printout)', np.average(_vrefCM[100:]))
         ts = np.arange(self.num_timesteps)
         SimArchivist.saveH5(fname=f"{self.output_folder}/{self.sim_name}_simInfo.hdf5",
-                            keyz=['vrefVsTau', 'popVsTau'],
-                            valz=[np.column_stack((ts, vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
+                            keyz=['self._vrefVsTau', 'popVsTau'],
+                            valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
 
 
 def DMC_Restart(time_step, chkpt_folder="exSimulation_results/", sim_name='DMC_Sim'):

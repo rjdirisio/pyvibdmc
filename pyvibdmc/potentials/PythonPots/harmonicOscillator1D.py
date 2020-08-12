@@ -1,11 +1,8 @@
 from ...simulation_utilities import *
-def HODMC(cds,atmStr):
+def HODMC(cds):
     """Compulsory cds, atmStr input"""
-    if len(atmStr) == 2:
-        masses = [Constants.mass(x, to_AU=True) for x in atmStr]
-    elif len(atmStr) == 1 or type(atmStr)==str:
-        mass = Constants.mass(*atmStr, to_AU=True)
-    else:
-        raise Exception
-    omega = Constants.convert(3000., 'wavenumbers', to_AU=True)
+    massH = Constants.mass('H',to_AU=True)
+    mass = massH
+    # mass = (massH*massO)/(massH+massO) #reduced mass of OH stretch
+    omega = Constants.convert(3600., 'wavenumbers', to_AU=True)
     return np.squeeze(0.5 * mass * omega ** 2 * cds ** 2)
