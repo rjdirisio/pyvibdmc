@@ -1,8 +1,8 @@
 PyVibDMC
 ==============================
 [//]: # (Badges)
-[![Travis Build Status](https://travis-ci.com/REPLACE_WITH_OWNER_ACCOUNT/PyVibDMC.svg?branch=master)](https://travis-ci.com/REPLACE_WITH_OWNER_ACCOUNT/PyVibDMC)
-[![codecov](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/PyVibDMC/branch/master/graph/badge.svg)](https://codecov.io/gh/REPLACE_WITH_OWNER_ACCOUNT/PyVibDMC/branch/master)
+[![Travis Build Status](https://travis-ci.com/rjdirisio/PyVibDMC.svg?branch=master)](https://travis-ci.com/rjdirisio/PyVibDMC)
+[![codecov](https://codecov.io/gh/rjdirisio/PyVibDMC/branch/master/graph/badge.svg)](https://codecov.io/gh/rjdirisio/PyVibDMC/branch/master)
 
 
 A general purpose diffusion monte carlo code for studying vibrational problems
