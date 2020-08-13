@@ -266,7 +266,7 @@ class DMC_Sim:
         print('approximate ZPE (temporary printout)', np.average(_vrefCM[100:]))
         ts = np.arange(self.num_timesteps)
         SimArchivist.saveH5(fname=f"{self.output_folder}/{self.sim_name}_simInfo.hdf5",
-                            keyz=['self._vrefVsTau', 'popVsTau'],
+                            keyz=['vrefVsTau', 'popVsTau'],
                             valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
 
 
