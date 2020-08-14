@@ -8,6 +8,7 @@ action, go to self.propagate()
 """
 import numpy as np
 import os
+import multiprocessing as mp
 
 from .simulation_utilities import *
 
@@ -27,6 +28,7 @@ class DMC_Sim:
                  dimensions=3,
                  delta_t=5,
                  potential=None,
+                 pool=None,
                  masses=None,
                  start_structures=None,
                  branch_every=1,
@@ -76,6 +78,7 @@ class DMC_Sim:
         self.num_walkers = num_walkers
         self.num_timesteps = num_timesteps
         self.potential = potential
+        self.pool = pool
         self.weighting = weighting.lower()
         self.desc_steps = desc_steps
         self.branch_every = branch_every
@@ -122,6 +125,7 @@ class DMC_Sim:
         if len(self.masses) != len(self.atoms):
             raise Exception("Your number of atoms list does not match your number of self.masses you provided.")
         self._atm_nums = get_atomic_num(self.atoms)
+
         # Constants for simulation
         self._sigmas = np.sqrt((2 * 0.5 * self.delta_t) / self.masses)
         self._alpha = 1.0 / (2.0 * self.delta_t)
@@ -135,6 +139,12 @@ class DMC_Sim:
         else:
             self.contWts = None
 
+        #multiprocessing pool
+        if self.pool is not None and self.pool > 1:
+
+            self._mp_pool = mp.Pool(self.pool)
+        else:
+            self._mp_pool = None
     def birthOrDeath_vec(self, Desc):
         """
         Chooses whether or not the walker made a bad enough random walk to be removed from the simulation.
@@ -223,14 +233,23 @@ class DMC_Sim:
         DW = False
         for prop_step in self._prop_steps:
             self.cur_timestep = prop_step
+            if self.cur_timestep % 10 == 0:
+                print(self.cur_timestep)
             self._walker_coords = self.moveRandomly(self._walker_coords)
-            self._walker_pots = self.potential(self._walker_coords)
+            self._walker_pots = self.potential(self._walker_coords,self._mp_pool)
 
             if prop_step == self._prop_steps[0]:
                 self.getVref()
 
             if prop_step in self._chkptStep:
+                """Temporary Fix"""
+                if self._mp_pool is not None:
+                    self._mp_pool.close()
+                    self._mp_pool = None
                 SimArchivist.chkpt(self, prop_step)
+                if self._mp_pool is None and (self.pool is not None and self.pool > 1):
+                    self._mp_pool = mp.Pool(self.pool)
+                """/Temporary fix"""
 
             if prop_step in self._wfnSaveStep:
                 dwts = np.zeros(len(self._walker_coords))
@@ -268,7 +287,8 @@ class DMC_Sim:
         SimArchivist.saveH5(fname=f"{self.output_folder}/{self.sim_name}_simInfo.hdf5",
                             keyz=['vrefVsTau', 'popVsTau'],
                             valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
-
+        if self._mp_pool is not None:
+            self._mp_pool.close()
 
 def DMC_Restart(time_step, chkpt_folder="exSimulation_results/", sim_name='DMC_Sim'):
     dmc_sim = SimArchivist.reloadSim(chkpt_folder,
