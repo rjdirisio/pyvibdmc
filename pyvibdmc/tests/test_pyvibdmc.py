@@ -9,24 +9,36 @@ import pyvibdmc
 from ..simulation_utilities import *
 import pytest
 import sys
-sim_ex_dir = "exSimResults"
+import os
+sim_ex_dir = "pyvibdmc/exSimResults"
 
 
 def test_pyvibdmc_imported():
+    print(os.getcwd(),'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     """Sample test, will always pass so long as import statement worked"""
     assert "pyvibdmc" in sys.modules
 
 def test_runDMC():
-    import shutil,os
+    print(os.getcwd(),'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    import shutil
     if os.path.isdir(sim_ex_dir):
         shutil.rmtree(sim_ex_dir)
 
-    from ..potentials.PythonPots.harmonicOscillator1D import HODMC
+    #initialize potential
+    potDir = os.path.join(os.path.dirname(__file__),
+                            '../potentials/PythonPots/')
+    pyFile = 'harmonicOscillator1D.py'
+    potFunc = 'HODMC'
+    HOpot = Potential(potential_function=potFunc,
+                      python_file=pyFile,
+                      potential_directory=potDir,
+                      pool=0)
+
     myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_disc_test",
-                             output_folder="exSimResults",
+                             output_folder=sim_ex_dir,
                              weighting='discrete',
-                             num_walkers=10000,
-                             num_timesteps=10000,
+                             num_walkers=1000,
+                             num_timesteps=1000,
                              equil_steps=1000,
                              chkpt_every=1000,
                              wfn_every=500,
@@ -34,7 +46,7 @@ def test_runDMC():
                              atoms=['H'],
                              dimensions=1,
                              delta_t=5,
-                             potential=HODMC,
+                             potential=HOpot.getpot,
                              masses=None,
                              start_structures=np.zeros((1,1,1))
                              )

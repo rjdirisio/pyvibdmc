@@ -5,8 +5,8 @@ import numpy as np
 class Potential:
     def __init__(self,
                  potential_function,
-                 python_file,
                  potential_directory,
+                 python_file,
                  pool=0
                  ):
         """
@@ -54,12 +54,11 @@ class Potential:
         return v
 
 if __name__ == "__main__":
-    pth = "/mnt/c/Users/rjdir/Dropbox/Grad School/pyvibdmc/pyvibdmc/potentials/FortPots/Bowman_H5O2"
+    pth = "/home/netid.washington.edu/rjdiri/Documents/developmentPyVibDMC/Bowman_H5O2/src"
     pot = Potential(potential_function="callPot",
-                    python_file="testPot.py",
                     potential_directory=pth,
+                    python_file="testPot.py",
                     pool=4)
     cds = np.random.random((1000,7,3))
     vv = pot.getpot(cds)
-    print(type(vv))
     print(vv)
