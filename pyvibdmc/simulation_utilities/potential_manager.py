@@ -36,6 +36,7 @@ class Potential:
         module = self.pyFile.split(".")[0]
         x = importlib.import_module(module)
         self._pot = getattr(x, self.pot_func)
+
         if self.pool > 1:
             #initialize pool
             self._potPool = mp.Pool(self.pool)

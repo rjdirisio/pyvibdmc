@@ -24,7 +24,7 @@ def test_runDMC():
     from ..potentials.PythonPots.harmonicOscillator1D import HODMC
     myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_disc_test",
                              output_folder="exSimResults",
-                             weighting='continuous',
+                             weighting='discrete',
                              num_walkers=10000,
                              num_timesteps=10000,
                              equil_steps=1000,

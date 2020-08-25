@@ -7,6 +7,7 @@ action, go to self.propagate()
 
 """
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 import multiprocessing as mp
 
@@ -163,6 +164,7 @@ class DMC_Sim:
                 self._who_from = self._who_from[deathMask]
 
             exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1
+            ct = 1
             while np.amax(exTerm) > 0.0:
                 randNums = np.random.random(len(self._walker_coords))
                 birthMask = np.logical_and(exTerm > randNums,
@@ -175,6 +177,7 @@ class DMC_Sim:
                     self._who_from = np.concatenate((self._who_from,
                                                      self._who_from[birthMask]))
                 exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1+ct)
+                ct += 1
 
 
         else:
@@ -289,6 +292,12 @@ class DMC_Sim:
         self.propagate()
         _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
         print('approximate ZPE (temporary printout)', np.average(_vrefCM[100:]))
+
+        plt.plot(_vrefCM)
+        plt.xlabel("Time Step")
+        plt.ylabel("Vref (wavenumbers)")
+        plt.savefig(f"{self.output_folder}/vrefVsTau.png")
+
         ts = np.arange(self.num_timesteps)
         SimArchivist.saveH5(fname=f"{self.output_folder}/{self.sim_name}_simInfo.hdf5",
                             keyz=['vrefVsTau', 'popVsTau'],
