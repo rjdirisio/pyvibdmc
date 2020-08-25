@@ -162,15 +162,21 @@ class DMC_Sim:
             if Desc:
                 self._who_from = self._who_from[deathMask]
 
-            birthMask = np.logical_and((np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1) > randNums,
-                                       self._walker_pots < self._vref)
-            self._walker_coords = np.concatenate((self._walker_coords,
-                                                  self._walker_coords[birthMask]))
-            self._walker_pots = np.concatenate((self._walker_pots,
-                                                self._walker_pots[birthMask]))
-            if Desc:
-                self._who_from = np.concatenate((self._who_from,
-                                                 self._who_from[birthMask]))
+            exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1
+            while np.amax(exTerm) > 0.0:
+                randNums = np.random.random(len(self._walker_coords))
+                birthMask = np.logical_and(exTerm > randNums,
+                                           self._walker_pots < self._vref)
+                self._walker_coords = np.concatenate((self._walker_coords,
+                                                      self._walker_coords[birthMask]))
+                self._walker_pots = np.concatenate((self._walker_pots,
+                                                    self._walker_pots[birthMask]))
+                if Desc:
+                    self._who_from = np.concatenate((self._who_from,
+                                                     self._who_from[birthMask]))
+                exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1+ct)
+
+
         else:
             self.contWts = self.contWts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
             thresh = 1.0 / self.num_walkers
