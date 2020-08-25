@@ -8,6 +8,7 @@ dependencies:
     # Package dependencies
   - numpy
   - h5py
+  - matplotlib
 
     # Testing
   - pytest
