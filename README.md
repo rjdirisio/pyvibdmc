@@ -16,7 +16,9 @@ in the repository directory.
 This package requires the following:
 
 -numpy
+
 -matplotlib
+
 -A potential energy surface (PES) for a system of interest, which can be called using a Python function (Documentation pending on this).
 
 Features should be developed on branches. To create and switch to a branch, use the command
