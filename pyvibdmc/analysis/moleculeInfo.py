@@ -11,19 +11,19 @@ class molecInfo:
         if len(self.xx.shape) == 2: #if only one geometry, make two
             self.xx = np.expand_dims(self.xx,axis=0)
 
-    @classmethod
-    def dotPdt(cls,v1,v2):
+    @staticmethod
+    def dotPdt(v1,v2):
         """Fancy threaded,vectorized dot product"""
         new_v1 = np.expand_dims(v1,axis=1)
         new_v2 = np.expand_dims(v2,axis=2)
         return np.matmul(new_v1, new_v2).squeeze()
 
-    @classmethod
-    def expVal(cls,thing,dw):
-        if len(thing.shape) > 1:
-            return np.average(thing,axis=0,weights=dw)
+    @staticmethod
+    def expVal(operator,dw):
+        if len(operator.shape) > 1:
+            return np.average(operator,axis=0,weights=dw)
         else:
-            return np.average(thing,weights=dw)
+            return np.average(operator,weights=dw)
 
 
     def bondLength(self, atm1, atm2):
@@ -76,3 +76,17 @@ class molecInfo:
         th = np.arccos(vecc[:, -1] / r)  #z/r
         phi = np.arctan2(vecc[:, 1], vecc[:, 0]) #y/x
         return r,th,phi
+        
+    @staticmethod    
+    def projection_1D(attr,descWeights,binNum=25,range=None,normalize=True):
+        amp,binEdge = np.histogram(attr,bins=binNum, range=range, weights=descWeights, density=normalize)
+        xx = 0.5*(binEdge[1:]+binEdge[:-1]) #get bin centers
+        return np.column_stack((xx,amp))
+
+    @staticmethod    
+    def projection_2D():
+        raise NotImplementedError
+    
+    
+    
+    

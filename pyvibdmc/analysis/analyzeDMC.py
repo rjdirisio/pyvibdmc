@@ -13,10 +13,18 @@ class SimInfo():
         'font.size':14}
         plt.rcParams.update(params) 
         
-    def _loadH5(self):
+    def _load_sim_H5(self):
         with h5py.File(self.fname,'r') as f:
             self.vrefVsTau = f['vrefVsTau'][:]
             self.popVsTau  = f['popVsTau'][:]
+
+    @staticmethod
+    def get_wfn(wfn_fl):
+        with h5py.File(wfn_fl,'r') as f:
+            cds = f['coords'][:]
+            cds = Constants.convert(cds,'angstroms',to_AU=False)
+            dw = f['desc_weights'][:]
+        return cds,dw
         
     def get_vref(self):
         return self.vrefVsTau

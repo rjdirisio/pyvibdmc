@@ -31,7 +31,9 @@ class Potential:
     def _init_pot(self):
         import importlib
         """Go to potential directory that houses python function and assign a self._pot variable to it"""
+        self._curdir = os.getcwd()
         os.chdir(self.pot_dir)
+
         sys.path.insert(0, self.pot_dir)
         module = self.pyFile.split(".")[0]
         x = importlib.import_module(module)
@@ -43,14 +45,18 @@ class Potential:
         else:
             self._potPool = None
 
+        os.chdir(self._curdir)     
+        
     def getpot(self,cds):
         """Uses the potential function we got to call potential"""
+        os.chdir(self.pot_dir)
         if self._potPool is not None:
             cds = np.array_split(cds,self.pool)
             res = self._potPool.map(self._pot,cds)
             v = np.concatenate((res))
         else:
             v = self._pot(cds)
+        os.chdir(self._curdir)
         return v
 
 if __name__ == "__main__":

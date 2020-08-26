@@ -10,7 +10,7 @@ from ..simulation_utilities import *
 import pytest
 import sys
 import os
-sim_ex_dir = "pyvibdmc/exSimResults"
+sim_ex_dir = "exSimResults"
 
 
 def test_pyvibdmc_imported():
