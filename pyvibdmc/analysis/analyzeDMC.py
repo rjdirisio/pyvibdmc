@@ -51,8 +51,4 @@ class SimInfo():
         starts at 0)"""
         return np.average(self.vrefVsTau[onwards:,1])
 
-class waveFunction():
-    def __init__(self,wfnName):
-        self.fname = fileName
-
 
