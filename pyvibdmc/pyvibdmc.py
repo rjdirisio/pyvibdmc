@@ -8,8 +8,6 @@ action, go to self.propagate()
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-import multiprocessing as mp
 
 from .simulation_utilities import *
 
@@ -289,8 +287,21 @@ class DMC_Sim:
                             keyz=['vrefVsTau', 'popVsTau'],
                             valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
 
-def DMC_Restart(time_step, chkpt_folder="exSimulation_results/", sim_name='DMC_Sim'):
-    dmc_sim = SimArchivist.reloadSim(chkpt_folder,
+    def __deepcopy__(self, memodict={}):
+        cls = self.__class__
+        res = cls.__new__(cls)
+        memodict[id(self)] = res
+        for k,v in self.__dict__.items():
+            if k != 'potential':
+                setattr(res,k,copy.deepcopy(v,memodict))
+        return res
+
+def DMC_Restart(potential,
+                time_step,
+                chkpt_folder="exSimulation_results/",
+                sim_name='DMC_Sim'):
+    dmc_sim = SimArchivist.reloadSim(potential,
+                                     chkpt_folder,
                                      sim_name,
                                      time_step)
     fileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)

@@ -60,11 +60,11 @@ class Potential:
         return v
 
 if __name__ == "__main__":
-    pth = "/home/netid.washington.edu/rjdiri/Documents/developmentPyVibDMC/Bowman_H5O2/src"
+    pth = "/home/rjdirisio/Documents/Bowman_H5O2/src/"
     pot = Potential(potential_function="callPot",
                     potential_directory=pth,
                     python_file="testPot.py",
-                    pool=4)
+                    pool=2)
     cds = np.random.random((1000,7,3))
     vv = pot.getpot(cds)
     print(vv)

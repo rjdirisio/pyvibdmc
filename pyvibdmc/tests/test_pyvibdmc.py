@@ -32,7 +32,7 @@ def test_runDMC():
     HOpot = Potential(potential_function=potFunc,
                       python_file=pyFile,
                       potential_directory=potDir,
-                      pool=0)
+                      pool=2)
 
     myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_disc_test",
                              output_folder=sim_ex_dir,
@@ -54,18 +54,37 @@ def test_runDMC():
     assert True
 
 def test_restartDMC():
-    myDMC = pyvibdmc.DMC_Restart(chkpt_folder=sim_ex_dir,
+    potDir = os.path.join(os.path.dirname(__file__),
+                            '../potentials/PythonPots/')
+    pyFile = 'harmonicOscillator1D.py'
+    potFunc = 'HODMC'
+    HOpot = Potential(potential_function=potFunc,
+                      python_file=pyFile,
+                      potential_directory=potDir,
+                      pool=2)
+
+    myDMC = pyvibdmc.DMC_Restart(potential=HOpot.getpot,
+                                 chkpt_folder=sim_ex_dir,
                                  sim_name='DMC_disc_test',
                                  time_step=1000)
     myDMC.run()
     assert True
 
-def test_restartDMC_updateParams():
-    myDMC = pyvibdmc.DMC_Restart(chkpt_folder=sim_ex_dir,
-                                 sim_name='DMC_disc_test',
-                                 time_step=1000)
-    myDMC.num_timesteps=6000
-    myDMC.initialize()
-
-    myDMC.run()
-    assert True
+# def test_restartDMC_updateParams():
+#     potDir = os.path.join(os.path.dirname(__file__),
+#                             '../potentials/PythonPots/')
+#     pyFile = 'harmonicOscillator1D.py'
+#     potFunc = 'HODMC'
+#     HOpot = Potential(potential_function=potFunc,
+#                       python_file=pyFile,
+#                       potential_directory=potDir,
+#                       pool=0)
+#     myDMC = pyvibdmc.DMC_Restart(potential=HOpot.getpot,
+#                                  chkpt_folder=sim_ex_dir,
+#                                  sim_name='DMC_disc_test',
+#                                  time_step=1000)
+#     myDMC.num_timesteps=6000
+#     myDMC.initialize()
+#
+#     myDMC.run()
+#     assert True
