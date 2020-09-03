@@ -9,9 +9,9 @@ class SimArchivist:
     def saveH5(fname, keyz, valz):
         """
         Helper function to take in keys and values and save them in an hdf5 file
-        @param fname: The name of the hdf5 file to be saved
-        @param keyz: The keys used in saving the hdf5 file
-        @param valz: The values that correspond to each key
+        :param fname: The name of the hdf5 file to be saved
+        :param keyz: The keys used in saving the hdf5 file
+        :param valz: The values that correspond to each key
         """
         with h5py.File(fname, 'w') as hf:
             for key, val in zip(keyz, valz):
@@ -31,7 +31,7 @@ class SimArchivist:
     def reloadSim(potential,chkpt_folder, sim_name, time_step):
         """
         Given a .pickle file, reinitialize the DMC object and reassign potential.
-        @return: DMC Object for one to run.
+        :return: DMC Object for one to run.
         """
         with open(f"{chkpt_folder}/chkpts/{sim_name}_{time_step}.pickle", "rb") as handle:
             dmcObj =  pickle.load(handle)

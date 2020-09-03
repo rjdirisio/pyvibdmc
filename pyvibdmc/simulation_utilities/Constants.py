@@ -21,8 +21,8 @@ massDict = {'H': 1.00782503, 'D': 2.01410178, 'T': 3.01604928, 'He': 4.00260325,
 
 def get_atomic_num(atms):
     """
-    @param atms: A list (or single string) of atomic element symbols
-    @return: The atomic numbers of each of the atom strings you provide
+    :param atms: A list (or single string) of atomic element symbols
+    :return: The atomic numbers of each of the atom strings you provide
     """
     if type(atms) is not list: atms = [atms]
     atm_strings = list(massDict.keys())
@@ -30,8 +30,8 @@ def get_atomic_num(atms):
 
 def get_atomic_string(atomic_num):
     """
-    @param: atomic_num: The atomic numbers of each of the atom strings you provide
-    @return: A list of atomic element symbols
+    :param: atomic_num: The atomic numbers of each of the atom strings you provide
+    :return: A list of atomic element symbols
     """
     if type(atomic_num) is not list: atms = [atomic_num]
     atm_strings = list(massDict.keys())
@@ -51,13 +51,13 @@ class Constants:
     @classmethod
     def convert(cls, val, unit, to_AU = True):
         """
-        @param val: The value or values that will be converted
-        @type val: np.ndarray
-        @param unit: The units (not atomic units) that we will be converting to or from
-        @type unit: str
-        @param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
-        @type to_AU:boolean
-        @return: converted values
+        :param val: The value or values that will be converted
+        :type val: np.ndarray
+        :param unit: The units (not atomic units) that we will be converting to or from
+        :type unit: str
+        :param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
+        :type to_AU:boolean
+        :return: converted values
         """
         vv = cls.atomic_units[unit]
         return (val * vv) if to_AU else (val / vv)
@@ -66,11 +66,11 @@ class Constants:
     def mass(cls, atom, to_AU = True):
         """
         Given a string that corresponds to an atomic element, output the atomic mass of that element
-        @param atom: The string of an atomic element
-        @type atom:str
-        @param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
-        @type to_AU:boolean
-        @return: mass in atomic units unless user changes to_AU to False, then AMU
+        :param atom: The string of an atomic element
+        :type atom:str
+        :param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
+        :type to_AU:boolean
+        :return: mass in atomic units unless user changes to_AU to False, then AMU
         """
         m = massDict[atom]
         if to_AU:

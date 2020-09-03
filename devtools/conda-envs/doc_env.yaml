@@ -1,0 +1,19 @@
+name: documentation
+channels:
+dependencies:
+    # Base depends
+  - python
+  - pip
+
+    # Package dependencies
+  - numpy
+  - h5py
+  - matplotlib
+
+    # Testing
+  - pytest
+  - pytest-cov
+  - codecov
+
+cd ../
+touch .readthedocs.yml

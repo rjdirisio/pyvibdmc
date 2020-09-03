@@ -32,43 +32,48 @@ class DMC_Sim:
                  branch_every=1,
                  cur_timestep=0
                  ):
+
         """
         The main object that you will use to run the DMC simulation. You will instantiate an object DMC_SIM(...)
         and then use object.run() to begin the simulation.
-        @param sim_name:Simulation name for saving wavefunctions
-        @type sim_name:str
-        @param output_folder:The folder where the results will be stored, including wavefunctions and energies
-        @type output_folder:str
-        @param weighting:Discrete or Continuous weighting DMC.  Continuous means that there are fixed number of walkers
-        @type weighting:str
-        @param num_walkers:Number of walkers we will start the simulation with
-        @type num_walkers:int
-        @param num_timesteps:Total time steps we will be prop_stepagating the walkers.  num_timesteps*delta_t = total time in A.U.
-        @type num_timesteps:int
-        @param equil_steps: Time before we start collecting wavefunctions
-        @type equil_steps:int
-        @param chkpt_every:How many time steps in between we will propagate before collecting another wavefunction
-        every time we collect a wavefunction, we checkpoint the simulation
-        @type chkpt_every:int
-        @param desc_steps:Number of time steps for descendant weighting.
-        @type desc_steps: int
-        @param atoms:List of atoms for the simulation
-        @type atoms:list
-        @param dimensions: 3 leads to a 3N dimensional simulation. This should always be 3 for real systems.
-        @type dimensions:int
-        @param delta_t: The length of the time step; how many atomic units of time are you going in one time step.
-        @type delta_t: int
-        @param potential: Takes in coordinates, gives back energies
-        @type potential: function
-        @param masses:For feeding in artificial masses in atomic units.  If not, then the atoms param will designate masses
-        @type masses: list
-        @param start_structures:An initial structure to initialize all your walkers
-        @type start_structures:np.ndarray
-        @param branch_every:Branch the the walkers (cont. weighting, check if weights are too high, discr. weighting, if
-                                                    the walker's potential value is too high).
-        @type branch_every:int
-        @param cur_timestep: The current time step, should be zero unless you are restarting
-        @type cur_timestep: int0
+
+        :param sim_name:Simulation name for saving wavefunctions
+        :type sim_name:str
+        :param output_folder:The folder where the results will be stored, including wavefunctions and energies
+        :type output_folder:str
+        :param weighting:Discrete or Continuous weighting DMC.  Continuous means that there are fixed number of walkers
+        :type weighting:str
+        :param num_walkers:Number of walkers we will start the simulation with
+        :type num_walkers:int
+        :param num_timesteps:Total time steps we will be prop_stepagating the walkers.  num_timesteps*delta_t = total time in A.U.
+        :type num_timesteps:int
+        :param equil_steps: Time before we start collecting wavefunctions
+        :type equil_steps:int
+        :param chkpt_every:How many time steps in between we will propagate before collecting another wavefunction
+        :very time we collect a wavefunction, we checkpoint the simulation
+        :type chkpt_every:int
+        :param desc_steps:Number of time steps for descendant weighting.
+        :type desc_steps: int
+        :param atoms:List of atoms for the simulation
+        :type atoms:list
+        :param dimensions: 3 leads to a 3N dimensional simulation. This should always be 3 for real systems.
+        :type dimensions:int
+        :param delta_t: The length of the time step; how many atomic units of time are you going in one time step.
+        :type delta_t: int
+        :param potential: Takes in coordinates, gives back energies
+        :type potential: function
+        :param masses:For feeding in artificial masses in atomic units.  If not, then the atoms param will designate masses
+        :type masses: list
+        :param start_structures:An initial structure to initialize all your walkers
+        :type start_structures:np.ndarray
+        :param branch_every:Branch the the walkers (cont. weighting, check if weights are too high, discr. weighting, if
+        the walker's potential value is too high).
+        :type branch_every:int
+        :param cur_timestep: The current time step, should be zero unless you are restarting
+        :type cur_timestep: int
+
+        :Example:
+
         """
 
         self.atoms = atoms
@@ -76,7 +81,7 @@ class DMC_Sim:
         self.output_folder = output_folder
         self.num_walkers = num_walkers
         self.num_timesteps = num_timesteps
-        self.potential = potential
+        self.potential = potential.getpot
         self.weighting = weighting.lower()
         self.desc_steps = desc_steps
         self.branch_every = branch_every
@@ -146,8 +151,8 @@ class DMC_Sim:
         Chooses whether or not the walker made a bad enough random walk to be removed from the simulation.
         For discrete weighting, this leads to removal or duplication of the walkers.  For continuous, this leads
         to an update of the weights and a potential branching of a large weight walker to the smallest one
-        @param Desc: A boolean that checks if descendent weighting should be occuring right now.
-        @return: Updated Continus Weights , the "who from" array for descendent weighting, walker coords, and pot vals.
+        :param Desc: A boolean that checks if descendent weighting should be occuring right now.
+        :return: Updated Continus Weights , the "who from" array for descendent weighting, walker coords, and pot vals.
          """
         if self.weighting == 'discrete':
             randNums = np.random.random(len(self._walker_coords))
@@ -194,8 +199,8 @@ class DMC_Sim:
     def moveRandomly(self, _walker_coords):
         """
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion
-        @param _walker_coords: The coordinates array that stores the xyz vals of each of the walkers.
-        @return: The displaced walker coordinates
+        :param _walker_coords: The coordinates array that stores the xyz vals of each of the walkers.
+        :return: The displaced walker coordinates
         """
         disps = np.random.normal(0.0,
                                  self._sigmas,
@@ -218,7 +223,8 @@ class DMC_Sim:
     def countUpDescWeights(self, dwts):
         """
         At the end of descendent weighting, count up which walkers came from other walkers (descendants)
-        @param dwts: The array in which the descendent weights will be stored
+
+        :param dwts: The array in which the descendent weights will be stored
         """
         if self.weighting == 'discrete':
             unique, counts = np.unique(self._who_from, return_counts=True)
@@ -229,8 +235,8 @@ class DMC_Sim:
 
     def updateSimArs(self, prop_step, Vref):
         """
-        @param prop_step:  the time step that we are currently on
-        @param Vref: the reference energy that will be added to the internal lists.
+        :param prop_step:  the time step that we are currently on
+        :param Vref: the reference energy that will be added to the internal lists.
         """
         self._vref_vs_tau[prop_step] = Vref
         if self.weighting == 'discrete':
@@ -324,6 +330,8 @@ def DMC_Restart(potential,
                                      chkpt_folder,
                                      sim_name,
                                      time_step)
+    dmc_sim.cur_timestep = time_step
+    dmc_sim._initialize()
     fileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
     return dmc_sim
 
