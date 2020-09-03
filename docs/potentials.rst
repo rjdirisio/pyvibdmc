@@ -1,4 +1,4 @@
-Potential Energy Surface Interface with PyVibDMC
+Potential Energy Surface Interface
 =========================================================
 
 PyVibDMC Requires the potential energy surface to be callable from Python.
@@ -60,7 +60,9 @@ Now, after we made sure this ran to completion, we can call this potential as do
 
 C/C++ Potentials: ctypes
 -------------------------------------------------------
-For C/C++ Potentials, we require a bit more legwork on the Python side. Once you compile a shared object
+For C/C++ Potentials, we require a bit more legwork on the Python side. We will use
+`ctypes <https://docs.python.org/3/library/ctypes.html>`_.
+Once you compile a shared object
 ``.so`` file that calls the potential of interest, using the ``ctypes`` module, we can load in that call in Python.
 Say we had a shared library called ``lib_expot.so`` that takes in a pointer to an int, a pointer to the 2D coordinate
 array (num_atomsx3), and a pointer to the 1D potential array.
@@ -89,7 +91,10 @@ Here is the example of how to load that in and call it::
           example_fun(ctypes.byref(nw),v,x[num])
           vpot[num] = v[0]
 
-You may then use this function in the ``Potential`` object by doing::
+In this example, all the looping is done on the Python side, and so only one geometry is fed to the
+``example_fun`` at a time. Indeed, one could loop over the geometres on the C/C++ side and get a speed-up.
+
+Nonetheless, you may then use this Python function in the ``Potential`` object by doing::
 
    Potential(potential_function='call_a_cpot',
               python_file='call_cpot.py',
@@ -104,9 +109,10 @@ a Python call. This is not recommended as it will be slow, as hard drive reads/w
 a hard drive vs an SSD).  Nonetheless, here is an example of how to do such a thing::
 
    #pot_call_exec.py
+   import subprocess as sub
    def call_exec(cds):
       exportCoords(coordz,'coords.txt') #some function that writes the coordinates to file
-      ub.run('./pot_executable',cwd='...',shell=True)
+      sub.run('./pot_executable',cwd='...',shell=True)
       pots = np.loadtxt('pots.txt')
       return pots
 
