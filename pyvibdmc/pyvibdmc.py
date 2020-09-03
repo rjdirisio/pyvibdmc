@@ -1,11 +1,8 @@
 """
-pyvibdmc.py
-A general purpose diffusion monte carlo code for studying vibrational problems.
-
 This is the main file, which runs the DMC code itself.  To see the basic algorithm in
 action, go to self.propagate()
-
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 

@@ -11,7 +11,9 @@ Welcome to PyVibDMC's documentation!
    :caption: Contents:
 
    getting_started
+   potential
    api
+
 
 
 
