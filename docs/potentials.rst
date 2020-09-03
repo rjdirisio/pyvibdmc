@@ -111,7 +111,7 @@ a hard drive vs an SSD).  Nonetheless, here is an example of how to do such a th
    #pot_call_exec.py
    import subprocess as sub
    def call_exec(cds):
-      exportCoords(coordz,'coords.txt') #some function that writes the coordinates to file
+      exportCoords(cds,'coords.txt') #some function that writes the coordinates to file
       sub.run('./pot_executable',cwd='...',shell=True)
       pots = np.loadtxt('pots.txt')
       return pots
