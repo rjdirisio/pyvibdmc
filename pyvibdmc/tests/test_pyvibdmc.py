@@ -46,7 +46,7 @@ def test_runDMC():
                              atoms=['H'],
                              dimensions=1,
                              delta_t=5,
-                             potential=HOpot.getpot,
+                             potential=HOpot,
                              masses=None,
                              start_structures=np.zeros((1,1,1))
                              )

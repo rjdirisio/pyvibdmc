@@ -7,7 +7,7 @@ PyVibDMC Requires the potential energy surface to be callable from Python.
 
 - All calculations inside the DMC simulation are done in atomic units.
 
-- ``PyVibDMC`` passes only the coordinates, in Bohr, as a nxmx3 (n=num_geoms,m=num_atoms,3=xyz) NumPy array to the Python potential function. Your function must only take in coords as an argu ent ``def example_call(coords):`` All other attributes you must pass to the Fortran/C side must be done inside your python function.
+- ``PyVibDMC`` passes only the coordinates, in Bohr, as a nxmx3 (n=num_geoms,m=num_atoms,3=xyz) NumPy array to the Python potential function. Your function must only take in coords as an argument ``def example_call(coords):`` All other attributes you must pass to the Fortran/C side must be done inside your python function.
 
 - ``PyVibDMC`` expects the function to return a 1D NumPy array of potential values in Hartree.
 

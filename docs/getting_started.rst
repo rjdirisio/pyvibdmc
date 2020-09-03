@@ -2,18 +2,19 @@ Getting Started
 ===============
 
 This page details how to get started with `PyVibDMC <https://github.com/rjdirisio/pyvibdmc>`_.
+This package is still under development, so clone at your own risk!
 
 Dependencies (All pre-installed with Anaconda3)
 -------------------------------------------------------
-- `numpy`
-- `matplotlib`
+- numpy
+- matplotlib
 - h5py
 
 Installation
 ------------
-**These instructions assume you have the python package manager** `conda` **installed.**
+**These instructions assume you have the python package manager** ``conda`` **installed.**
 
-To install PyVibDMC, first clone it. Then, `cd` into to the project directory.
+To install PyVibDMC, first clone it. Then, ``cd`` into to the project directory.
 to do a developmental install:
 
 ``pip install -e .``
@@ -21,7 +22,7 @@ to do a developmental install:
 
 Usage
 --------
-Once installed, Then, one can `import pyvibdmc` from any directory.
+Once installed, Then, one can ``import pyvibdmc`` from any directory.
 This example will go over how to run the sample water monomer Fortran Potential::
 
     from pyvibdmc import DMC_Sim #the simulation class
