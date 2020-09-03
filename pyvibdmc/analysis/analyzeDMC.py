@@ -1,9 +1,15 @@
 import matplotlib.pyplot as plt
 from ..simulation_utilities import *
 
-class SimInfo():
+class SimInfo:
+    """
+    Object that takes in a .hdf5 file (one of the outputs of the simulation) and provides tools for analysis.
+
+    :param h5Name: hdf5 file
+    :type str
+    """
     def __init__(self,h5Name):
-        self.fname = h5Name    
+        self.fname = h5Name
         self._loadH5()
         self._mplIinit
     

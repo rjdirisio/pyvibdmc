@@ -3,6 +3,7 @@ import glob as glob
 
 class fileManager():
     """Helping with creating or deleting files as necessary throughout the simulation"""
+
     @staticmethod
     def delete_future_checkpoints(chkpt_folder, sim_name, time_step):
         """

@@ -1,7 +1,7 @@
 import numpy as np
 
 class xyz_npy:
-    """This short class handles xyz <-> npy conversion, like a manual version of openBabel. """
+    """Handler of xyz <-> npy conversion, like a personal version of openBabel."""
     @staticmethod
     def extractXYZ(fname,atmStr):
         import pandas as pd

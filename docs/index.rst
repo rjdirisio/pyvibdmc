@@ -12,7 +12,6 @@ Welcome to PyVibDMC's documentation!
 
    getting_started
    potentials
-   api
 
 
 

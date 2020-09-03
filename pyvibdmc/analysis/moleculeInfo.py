@@ -5,21 +5,23 @@ class molecInfo:
     def __init__(self,coordinates):
         """Takes xyz coordinates of an molecule, and calculates attributes associated with the molecule. This is built
         with DMC wave functions in mind, but can be used for any xyz atom. This class handles bond lengths, angles, etc.
-        @param coordinates: nxmx3 array, n = number of geometries (or walkers), m = number of atoms, 3 is x y z
-        @type coordinates: np.ndarray"""
+
+        :param coordinates: mx3 array, or nxmx3 array, n = number of geometries, m = number of atoms, 3 is x y z
+        :type coordinates: np.ndarray"""
         self.xx = coordinates
         if len(self.xx.shape) == 2: #if only one geometry, make two
             self.xx = np.expand_dims(self.xx,axis=0)
 
     @staticmethod
     def dotPdt(v1,v2):
-        """Fancy threaded,vectorized dot product"""
+        """Takes two stacks of vectors and dots the pairs of vectors together"""
         new_v1 = np.expand_dims(v1,axis=1)
         new_v2 = np.expand_dims(v2,axis=2)
         return np.matmul(new_v1, new_v2).squeeze()
 
     @staticmethod
     def expVal(operator,dw):
+        """DMC equivalent of <\psi_0 | A | \psi_0>"""
         if len(operator.shape) > 1:
             return np.average(operator,axis=0,weights=dw)
         else:
@@ -27,6 +29,15 @@ class molecInfo:
 
 
     def bondLength(self, atm1, atm2):
+        """
+        Computes the norm of the vector between two atoms.
+        :param atm1: desired atom number 1  (python index starts at 0)
+        :type atm1: int
+        :param atm2: desired atom number 2
+        :type atm2: int
+        :return: norm of x[atm1]-x[atm2]
+        """
+
         return la.norm(self.xx[:,atm1] - self.xx[:,atm2],axis=1)
 
     def bondAngle(self, atm1,atmMid,atm3):
@@ -61,11 +72,12 @@ class molecInfo:
     def getComponent(self,atm,xyz):
         """Get x, y, or z component of a vector that corresponds to a particular atom in the predetermined cooridnate
         system.
-        @param atm: atom's index
-        @type: int
-        @param xyz: Either 0 (x), 1 (y), or 2 (z)
-        @type xyz: int
-        @return: """
+        :param atm: atom's index
+        :type: int
+        :param xyz: Either 0 (x), 1 (y), or 2 (z)
+        :type xyz: int
+        :return: vector of x, y, or z components of a stack of vectors
+        """
         return self.xx[:,atm,xyz]
 
     @staticmethod
@@ -79,6 +91,15 @@ class molecInfo:
         
     @staticmethod    
     def projection_1D(attr,descWeights,binNum=25,range=None,normalize=True):
+        """
+        Project the probability amplitude onto a particular coordinate; 1D Histogram.
+        :param attr: the coordinate to be projected onto
+        :param descWeights: the descendant weights for \psi**2
+        :param binNum: Number of bins in histogram (higher number, more number of walkers needed)
+        :param range: Range over which attr is histogrammed
+        :param normalize: Normalizes the wave function along coordinate
+        :return: x,y (bin centers, amplitude at bins)
+        """
         amp,binEdge = np.histogram(attr,bins=binNum, range=range, weights=descWeights, density=normalize)
         xx = 0.5*(binEdge[1:]+binEdge[:-1]) #get bin centers
         return np.column_stack((xx,amp))

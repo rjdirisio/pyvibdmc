@@ -2,6 +2,8 @@ import numpy as np
 import numpy.linalg as la
 
 class molRotator:
+    """A helper class that will rotate a stack of molecules and generate 3D rotation matrices using vectorized
+    numpy operations."""
     @classmethod
     def rotateGeoms(cls, rotMs, geoms):
         """Takes in a stack of rotation matrices and applies it to a stack of geometries."""
