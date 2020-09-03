@@ -5,12 +5,11 @@ dependencies:
   - python
   - pip
 
-    # Package dependencies
+    # Dependencies
   - numpy
   - h5py
   - matplotlib
 
-    # Testing
-  - pytest
-  - pytest-cov
-  - codecov
+   # Pip-only installs
+  #- pip:
+  #  - codecov
