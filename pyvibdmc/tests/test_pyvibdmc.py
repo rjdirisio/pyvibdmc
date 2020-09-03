@@ -26,7 +26,7 @@ def test_runDMC():
 
     #initialize potential
     potDir = os.path.join(os.path.dirname(__file__),
-                            '../potentials/PythonPots/')
+                          '../sample_potentials/PythonPots/')
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'HODMC'
     HOpot = Potential(potential_function=potFunc,
@@ -55,7 +55,7 @@ def test_runDMC():
 
 def test_restartDMC():
     potDir = os.path.join(os.path.dirname(__file__),
-                            '../potentials/PythonPots/')
+                          '../sample_potentials/PythonPots/')
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'HODMC'
     HOpot = Potential(potential_function=potFunc,
@@ -72,7 +72,7 @@ def test_restartDMC():
 
 # def test_restartDMC_updateParams():
 #     potDir = os.path.join(os.path.dirname(__file__),
-#                             '../potentials/PythonPots/')
+#                             '../sample_potentials/PythonPots/')
 #     pyFile = 'harmonicOscillator1D.py'
 #     potFunc = 'HODMC'
 #     HOpot = Potential(potential_function=potFunc,

@@ -20,17 +20,28 @@ massDict = {'H': 1.00782503, 'D': 2.01410178, 'T': 3.01604928, 'He': 4.00260325,
  'Lv': 293.20449, 'Ts': 292.20746, 'Og': 294.21392}
 
 def get_atomic_num(atms):
+    """
+    @param atms: A list (or single string) of atomic element symbols
+    @return: The atomic numbers of each of the atom strings you provide
+    """
     if type(atms) is not list: atms = [atms]
     atm_strings = list(massDict.keys())
     return [atm_strings.index(n)+1 for n in atms]
 
 def get_atomic_string(atomic_num):
+    """
+    @param: atomic_num: The atomic numbers of each of the atom strings you provide
+    @return: A list of atomic element symbols
+    """
     if type(atomic_num) is not list: atms = [atomic_num]
     atm_strings = list(massDict.keys())
     return [atm_strings[anum] for anum in atomic_num]
 
 class Constants:
-    """Thanks, Mark Boyer, for this silly little class."""
+    """
+    Thanks, Mark Boyer, for this silly little class.
+    Converter that handles energy, distance, and mass conversions for DMC. Can be expanded upon.
+    """
     atomic_units = {
         "wavenumbers" : 4.556335281212229e-6,
         "angstroms" : 1/0.529177,
@@ -39,11 +50,28 @@ class Constants:
 
     @classmethod
     def convert(cls, val, unit, to_AU = True):
+        """
+        @param val: The value or values that will be converted
+        @type val: np.ndarray
+        @param unit: The units (not atomic units) that we will be converting to or from
+        @type unit: str
+        @param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
+        @type to_AU:boolean
+        @return: converted values
+        """
         vv = cls.atomic_units[unit]
         return (val * vv) if to_AU else (val / vv)
 
     @classmethod
     def mass(cls, atom, to_AU = True):
+        """
+        Given a string that corresponds to an atomic element, output the atomic mass of that element
+        @param atom: The string of an atomic element
+        @type atom:str
+        @param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
+        @type to_AU:boolean
+        @return: mass in atomic units unless user changes to_AU to False, then AMU
+        """
         m = massDict[atom]
         if to_AU:
             m = cls.convert(m,'amu')

@@ -4,4 +4,4 @@ API Documentation
 .. autosummary::
    :toctree: autosummary
 
-   pyvibdmc.canvas
+   pyvibdmc.pyvibdmc

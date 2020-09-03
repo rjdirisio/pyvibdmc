@@ -29,8 +29,12 @@ class Potential:
         self._init_pot()
 
     def _init_pot(self):
+        """
+        Given the directory, this will cd over to the potential directory and (optionally) start a pool there, which
+        can call the python function that calls the potential.
+        """
         import importlib
-        """Go to potential directory that houses python function and assign a self._pot variable to it"""
+        # Go to potential directory that houses python function and assign a self._pot variable to it
         self._curdir = os.getcwd()
         os.chdir(self.pot_dir)
 
@@ -48,7 +52,11 @@ class Potential:
         os.chdir(self._curdir)     
         
     def getpot(self,cds):
-        """Uses the potential function we got to call potential"""
+        """
+        Uses the potential function we got to call potential
+        @param cds: A stack of geometries (nxmx3, n=num_geoms;m=num_atoms;3=x,y,z) whose energies we need
+        @type cds: np.ndarray
+        """
         os.chdir(self.pot_dir)
         if self._potPool is not None:
             cds = np.array_split(cds,self.pool)

@@ -108,4 +108,4 @@ ENV/
 # There are reports this comes from LLVM profiling, but also Xcode 9.
 *profraw
 #My simulation results I use for testing
-/pyvibdmc/simulation_results/
+exSimResults/
