@@ -9,4 +9,5 @@ dependencies:
   - numpy
   - h5py
   - matplotlib
-  - sphinx-autoapi
+  - pip:
+    - sphinx-autoapi
