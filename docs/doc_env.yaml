@@ -9,4 +9,3 @@ dependencies:
   - numpy
   - h5py
   - matplotlib
-  - autoapi
