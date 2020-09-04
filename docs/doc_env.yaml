@@ -9,7 +9,4 @@ dependencies:
   - numpy
   - h5py
   - matplotlib
-
-   # Pip-only installs
-  #- pip:
-  #  - codecov
+  - autoapi
