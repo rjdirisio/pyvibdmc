@@ -13,13 +13,13 @@ This repository is currently under development. To do a development, install, do
 
 in the repository directory.
 
-This package requires the following:
+This package requires the following (all included with anaconda3):
 
--numpy
+- NumPy
 
--matplotlib
+- Matplotlib
 
--A potential energy surface (PES) for a system of interest, which can be called using a Python function (Documentation pending on this).
+- A potential energy surface (PES) for a system of interest, which can be called using a Python function (See Documentation).
 
 Features should be developed on branches. To create and switch to a branch, use the command
 

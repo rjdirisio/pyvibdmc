@@ -35,7 +35,7 @@ necessary to compile ``h2opes_v2.f`` before generating the extension. It is opti
 A file called ``h2o_pot.cpython...so`` will be generated.  This Python module is now importable inside Python.
 This is done in ``callPartridgePot.py``::
 
-   # fort_water_pot.py
+   # callPartridgePot.py
    from h2o_pot import calc_hoh_pot
    import numpy as np
 

@@ -69,8 +69,6 @@ class DMC_Sim:
                  branch_every=1,
                  cur_timestep=0
                  ):
-
-
         self.atoms = atoms
         self.sim_name = sim_name
         self.output_folder = output_folder
@@ -194,6 +192,7 @@ class DMC_Sim:
     def moveRandomly(self, _walker_coords):
         """
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion
+
         :param _walker_coords: The coordinates array that stores the xyz vals of each of the walkers.
         :return: The displaced walker coordinates
         """
