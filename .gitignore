@@ -109,3 +109,5 @@ ENV/
 *profraw
 #My simulation results I use for testing
 /exSimResults/
+#Pycharm
+/pyvibdmc/.idea/

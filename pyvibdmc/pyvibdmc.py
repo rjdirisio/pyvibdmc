@@ -26,8 +26,7 @@ class DMC_Sim:
     :type num_timesteps: int
     :param equil_steps: Time before we start collecting wavefunctions
     :type equil_steps: int
-    :param chkpt_every: How many time steps in between we will propagate before collecting another wavefunction
-    :very time we collect a wavefunction, we checkpoint the simulation
+    :param chkpt_every: How many time steps in between we will propagate before collecting another wavefunction every time we collect a wavefunction, we checkpoint the simulation
     :type chkpt_every: int
     :param desc_steps: Number of time steps for descendant weighting.
     :type desc_steps: int
@@ -43,8 +42,7 @@ class DMC_Sim:
     :type masses: list
     :param start_structures: An initial structure to initialize all your walkers
     :type start_structures: np.ndarray
-    :param branch_every: Branch the the walkers (cont. weighting, check if weights are too high, discr. weighting, if
-    the walker's potential value is too high).
+    :param branch_every: Branch the the walkers (cont. weighting, check if weights are too high, discr. weighting, if the walker's potential value is too high).
     :type branch_every: int
     :param cur_timestep: The current time step, should be zero unless you are restarting
     :type cur_timestep: int

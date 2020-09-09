@@ -53,7 +53,8 @@ extensions = [
 autoapi_dirs = ['../pyvibdmc']
 autoapi_ignore = ["*/sample_potentials/*",
                   "*/tests/*",
-                  "*/_version.py",]
+                  "*/*version*",
+                  "*/*git_revision*"]
 # autosummary_generate = True
 napoleon_google_docstring = False
 napoleon_use_param = False
