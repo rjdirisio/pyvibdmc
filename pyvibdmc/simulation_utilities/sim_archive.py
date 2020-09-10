@@ -6,7 +6,7 @@ class SimArchivist:
     """A utility class for saving wave functions, checkpoint files, and reloading DMC sims"""
 
     @staticmethod
-    def saveH5(fname, keyz, valz):
+    def save_h5(fname, keyz, valz):
         """
         Helper function to take in keys and values and save them in an hdf5 file
         :param fname: The name of the hdf5 file to be saved
@@ -28,12 +28,11 @@ class SimArchivist:
             pickle.dump(cheq, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
-    def reloadSim(potential,chkpt_folder, sim_name, time_step):
+    def reload_sim(chkpt_folder, sim_name, time_step):
         """
         Given a .pickle file, reinitialize the DMC object and reassign potential.
         :return: DMC Object for one to run.
         """
         with open(f"{chkpt_folder}/chkpts/{sim_name}_{time_step}.pickle", "rb") as handle:
-            dmcObj =  pickle.load(handle)
-        dmcObj.potential = potential
+            dmcObj = pickle.load(handle)
         return dmcObj

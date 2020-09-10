@@ -30,7 +30,7 @@ def get_atomic_num(atms):
 
 def get_atomic_string(atomic_num):
     """
-    :param: atomic_num: The atomic numbers of each of the atom strings you provide
+    :param atomic_num: The atomic numbers of each of the atom strings you provide
     :return: A list of atomic element symbols
     """
     if type(atomic_num) is not list: atms = [atomic_num]
@@ -77,7 +77,3 @@ class Constants:
             m = cls.convert(m,'amu')
         return m
 
-if __name__ == '__main__':
-    print(massDict)
-    atoms = ['H','C','C']
-    print([Constants.mass(a) for a in atoms])
