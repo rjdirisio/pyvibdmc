@@ -292,7 +292,7 @@ class DMC_Sim:
         _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
         print('Approximate ZPE', np.average(_vrefCM[len(_vrefCM)//4:]))
         ts = np.arange(len(_vrefCM))
-        SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_simInfo.hdf5",
+        SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
                              keyz=['vref_vs_tau', 'pop_vs_tau'],
                              valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
 

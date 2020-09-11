@@ -19,7 +19,8 @@ This package requires the following (all included with anaconda3):
 
 - Matplotlib
 
-- A potential energy surface (PES) for a system of interest, which can be called using a Python function (See Documentation).
+- A potential energy surface (PES) for a system of interest, which can be called using a Python function 
+(See [Documentation](https://pyvibdmc.readthedocs.io/en/latest/potentials.html)).
 
 Features should be developed on branches. To create and switch to a branch, use the command
 
