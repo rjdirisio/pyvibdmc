@@ -25,8 +25,8 @@ def test_runDMC():
         shutil.rmtree(sim_ex_dir)
 
     #initialize potential
-    potDir = os.path.join(os.path.dirname(__file__),
-                          '../sample_potentials/PythonPots/')
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/') # only necesary for testing
+    # purposes
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'HODMC'
     HOpot = Potential(potential_function=potFunc,

@@ -6,6 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/docs/_build" />
       <excludeFolder url="file://$MODULE_DIR$/exSimResults/chkpts" />
       <excludeFolder url="file://$MODULE_DIR$/exSimResults/wfns" />
+      <excludeFolder url="file://$MODULE_DIR$/pyvibdmc.egg-info" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (base)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

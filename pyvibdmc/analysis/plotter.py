@@ -29,7 +29,7 @@ class Plotter:
             plt.plot(vref[:, 0], vref[:, 1], 'k')
         plt.xlabel("Time step")
         plt.ylabel(r"Vref ($\mathrm{cm^{-1}}$)")
-        plt.savefig(save_name, dpi=300)
+        plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()
 
     @staticmethod
@@ -49,7 +49,7 @@ class Plotter:
             plt.plot(vref[:, 0], vref[:, 1], 'k')
         plt.xlabel("Time step")
         plt.ylabel(r"Population, Weights")
-        plt.savefig(save_name, dpi=300)
+        plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()
 
     @staticmethod
@@ -69,12 +69,11 @@ class Plotter:
         :param save_name: name of the .png file that this plot will be saved to
         :type save_name: str
         """
-
         plt.plot(hist[:,0], hist[:,1]) # bins,amps
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title)
-        plt.savefig(save_name, dpi=300)
+        plt.savefig(save_name, bbox_inches='tight',dpi=300)
         plt.close()
 
     @staticmethod
@@ -104,5 +103,5 @@ class Plotter:
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title)
-        plt.savefig(save_name, dpi=300)
+        plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()

@@ -35,8 +35,7 @@ class Potential:
         # Go to potential directory that houses python function and assign a self._pot variable to it
         self._curdir = os.getcwd()
         os.chdir(self.pot_dir)
-
-        sys.path.insert(0, self.pot_dir)
+        sys.path.insert(0, os.getcwd())
         module = self.pyFile.split(".")[0]
         x = importlib.import_module(module)
         self._pot = getattr(x, self.pot_func)

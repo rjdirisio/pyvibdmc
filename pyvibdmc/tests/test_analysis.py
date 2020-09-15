@@ -1,5 +1,6 @@
 import pyvibdmc
 from ..analysis import *
+from ..simulation_utilities import *
 import numpy as np
 import pytest
 import sys
@@ -27,3 +28,18 @@ def test_ana_wfn_blens():
     bond_lengths = ana_o.bond_length(0, 2)  # OH bond length
     print(bond_lengths)
     assert np.allclose(bond_lengths,expected_blens)
+
+def test_sim_data_zpe():
+    test_sim = SimInfo('pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    zpe = test_sim.get_zpe(onwards=100)
+    assert True
+
+def test_plt_data():
+    test_sim = SimInfo('pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    Plotter.plt_vref_vs_tau(test_sim.get_vref(),'pyvibdmc/sample_sim_data/test_vref.png')
+    assert True
+
+def test_sim_combine_wfns():
+    test_sim = SimInfo('pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    combined_wfns,dws = test_sim.combineWfns([700,800,900]) #the time steps you want to include
+    assert True

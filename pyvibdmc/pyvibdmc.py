@@ -99,11 +99,11 @@ class DMC_Sim:
 
         # Arrays that carry data throughout the simulation
         self._who_from = None  # Descendant weighting doesn't happen right away, no need to init
-        self._walker_pots = None #will get returned from potential function
+        self._walker_pots = None  # will get returned from potential function
         self._vref_vs_tau = np.zeros(self.num_timesteps)
         self._pop_vs_tau = np.zeros(self.num_timesteps)
 
-        #Set up coordinates array
+        # Set up coordinates array
         if self.start_structures is None:
             raise Exception("Please supply a starting structure for your chemical system.")
         elif len(self.start_structures.shape) != 3:
@@ -119,7 +119,7 @@ class DMC_Sim:
                   "INTENTIONAL.")
             self._walker_coords = self.start_structures
 
-        #Set up masses and sigmas
+        # Set up masses and sigmas
         if self.masses is None:
             self.masses = np.array([Constants.mass(a) for a in self.atoms])
         if len(self.masses) != len(self.atoms):
@@ -133,13 +133,12 @@ class DMC_Sim:
         # Where to save the data
         fileManager.create_filesystem(self.output_folder)
 
-        #Weighting technique
+        # Weighting technique
         if self.weighting == 'continuous':
             self._cont_wts = np.ones(self.num_walkers)
-            self._thresh = 1/self.num_walkers #continuous weighting threshold
+            self._thresh = 1 / self.num_walkers  # continuous weighting threshold
         else:
             self._cont_wts = None
-
 
     def birth_or_death(self, Desc):
         """
@@ -151,31 +150,32 @@ class DMC_Sim:
         :return: Updated Continus Weights , the "who from" array for descendent weighting, walker coords, and pot vals.
          """
         if self.weighting == 'discrete':
-            randNums = np.random.random(len(self._walker_coords))
+            rand_nums = np.random.random(len(self._walker_coords))
 
-            deathMask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t)) < randNums,
+            death_mask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t)) < rand_nums,
                                       self._walker_pots < self._vref)
-            self._walker_coords = self._walker_coords[deathMask]
-            self._walker_pots = self._walker_pots[deathMask]
-            randNums = randNums[deathMask]
+            self._walker_coords = self._walker_coords[death_mask]
+            self._walker_pots = self._walker_pots[death_mask]
+            rand_nums = rand_nums[death_mask]
             if Desc:
-                self._who_from = self._who_from[deathMask]
+                self._who_from = self._who_from[death_mask]
 
             exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1
             ct = 1
             while np.amax(exTerm) > 0.0:
                 if ct != 1:
-                    randNums = np.random.random(len(self._walker_coords)) #get new random numbers for probability of birth
-                birthMask = np.logical_and(exTerm > randNums,
+                    rand_nums = np.random.random(
+                        len(self._walker_coords))  # get new random numbers for probability of birth
+                birth_mask = np.logical_and(exTerm > rand_nums,
                                            self._walker_pots < self._vref)
                 self._walker_coords = np.concatenate((self._walker_coords,
-                                                      self._walker_coords[birthMask]))
+                                                      self._walker_coords[birth_mask]))
                 self._walker_pots = np.concatenate((self._walker_pots,
-                                                    self._walker_pots[birthMask]))
+                                                    self._walker_pots[birth_mask]))
                 if Desc:
                     self._who_from = np.concatenate((self._who_from,
-                                                     self._who_from[birthMask]))
-                exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1+ct)
+                                                     self._who_from[birth_mask]))
+                exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1 + ct)
                 ct += 1
         else:
             self._cont_wts = self._cont_wts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
@@ -254,18 +254,18 @@ class DMC_Sim:
             if prop_step == self._prop_steps[0]:
                 self.calc_vref()
 
-            #If we are at a checkpoint
+            # If we are at a checkpoint
             if prop_step in self._chkpt_step:
                 SimArchivist.chkpt(self, prop_step)
 
-            #If we are at a spot to begin descendant weighting
+            # If we are at a spot to begin descendant weighting
             if prop_step in self.__wfn_save_step:
                 dwts = np.zeros(len(self._walker_coords))
                 parent = np.copy(self._walker_coords)
                 self._who_from = np.arange(len(self._walker_coords))
                 DW = True
 
-            #If desc weighting is over, save the wfn and weights
+            # If desc weighting is over, save the wfn and weights
             if prop_step in self._dw_save_step:
                 DW = False
                 dwts = self.calc_desc_weights(dwts)
@@ -275,14 +275,14 @@ class DMC_Sim:
                     keyz=['coords', 'desc_weights', 'desc_time', 'atoms', 'vref_vs_tau'],
                     valz=[parent, dwts, self.desc_steps, self._atm_nums, vref_cm])
 
-            #Birth/Death
+            # Birth/Death
             if prop_step in self._branch_step:
                 self.birth_or_death(DW)
             else:
-                if self.weighting == 'continuous': #update weights but no branching
+                if self.weighting == 'continuous':  # update weights but no branching
                     self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
 
-            #Update Vref and update two simulation arrays
+            # Update Vref and update two simulation arrays
             self.calc_vref()
             self.update_sim_arrays(prop_step)
 
@@ -290,7 +290,7 @@ class DMC_Sim:
         """This function calls propagate and saves simulation results"""
         self.propagate()
         _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
-        print('Approximate ZPE', np.average(_vrefCM[len(_vrefCM)//4:]))
+        print('Approximate ZPE', np.average(_vrefCM[len(_vrefCM) // 4:]))
         ts = np.arange(len(_vrefCM))
         SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
                              keyz=['vref_vs_tau', 'pop_vs_tau'],
@@ -304,23 +304,25 @@ class DMC_Sim:
         cls = self.__class__
         res = cls.__new__(cls)
         memodict[id(self)] = res
-        for k,v in self.__dict__.items():
+        for k, v in self.__dict__.items():
             if k != 'potential':
-                setattr(res,k,copy.deepcopy(v,memodict))
+                setattr(res, k, copy.deepcopy(v, memodict))
         return res
+
 
 def DMC_Restart(potential,
                 time_step,
                 chkpt_folder="exSimulation_results/",
                 sim_name='DMC_Sim'):
     dmc_sim = SimArchivist.reload_sim(chkpt_folder,
-                                     sim_name,
-                                     time_step)
+                                      sim_name,
+                                      time_step)
     dmc_sim.cur_timestep = time_step
     dmc_sim.potential = potential
     dmc_sim._initialize()
     fileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
     return dmc_sim
+
 
 if __name__ == "__main__":
     # Do something if this file is invoked on its own

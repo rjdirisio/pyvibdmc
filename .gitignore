@@ -3,7 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions...include *.so for example
+# Source code /  C extensions...include *.so for example
+*.o
+*.so
+*.cpython*.so
+*.cpython*
 
 # Distribution / packaging
 .Python
@@ -23,10 +27,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
-#Simulation Data
-*.pickle
-*.hdf5
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -111,3 +111,7 @@ ENV/
 /exSimResults/
 #Pycharm
 /pyvibdmc/.idea/
+
+#Pictures
+*.png
+*.jpg
