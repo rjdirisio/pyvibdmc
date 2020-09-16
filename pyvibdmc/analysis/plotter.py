@@ -77,7 +77,7 @@ class Plotter:
         plt.close()
 
     @staticmethod
-    def plt_hist2d(bins,hist_2d, xlabel, ylabel=r'Probability Amplitude ($\mathrm{\Psi^{2}}$)', title='',
+    def plt_hist2d(binsx, binsy, hist_2d, xlabel, ylabel, title='',
                    save_name="histogram.png"):
         """
         Plots the 2D-histogram generated from AnalyzeWfn.projection_2d.
@@ -97,9 +97,10 @@ class Plotter:
         """
 
         from matplotlib import cm
-        plt.contour(bins[:,0], bins[:,1], hist_2d, 'k')
-        plt.contourf(bins[:,0], bins[:,1], hist_2d, cmap=cm.viridis)
-        plt.colorbar()
+        plt.contour(binsx, binsy, hist_2d, colors='k')
+        plt.contourf(binsx, binsy, hist_2d, cmap=cm.viridis)
+        cb = plt.colorbar()
+        cb.set_label(r'Probability Amplitude ($\rm{\Psi^{2}}$)', rotation=270,labelpad=20)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title)

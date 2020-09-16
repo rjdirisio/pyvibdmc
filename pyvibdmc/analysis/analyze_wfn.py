@@ -22,7 +22,15 @@ class AnalyzeWfn:
 
     @staticmethod
     def expVal(operator, dw):
-        """DMC equivalent of <\psi_0 | A | \psi_0> using Monte Carlo Integration"""
+        """
+        Calculation of an expectation value using Monte Carlo Integration
+
+        :param operator: array of bond lengths, bond angles, potentials, dipole moments, etc.
+        :type operator: np.ndarray
+        :param dw: Descendant Weights
+        :type dw: np.ndarray
+        :return: Expectation value (single float)
+        """
         if len(operator.shape) > 1:
             return np.average(operator, axis=0, weights=dw)
         else:
@@ -79,7 +87,8 @@ class AnalyzeWfn:
 
     def dihedral(self, vec1, vec2, vec3):
         """Looking down vec2, calculate dihedral angle
-        # https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
+        https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
+        https://en.wikipedia.org/w/index.php?title=Dihedral_angle&oldid=689165217#Angle_between_three_vectors
         """
         crossterm1 = np.cross(np.cross(vec1, vec2, axis=1),
                               np.cross(vec2, vec3, axis=1), axis=1)
@@ -119,7 +128,7 @@ class AnalyzeWfn:
     @staticmethod
     def projection_1d(attr, desc_weights, bin_num=25, range=None, normalize=True):
         """
-        Project the probability amplitude onto a particular coordinate; 1D Histogram.
+        Project the probability amplitude onto a particular coordinate, 1D Histogram.
         
         :param attr: the coordinate to be projected onto (bond length, bond angle, etc.)
         :type attr: np.ndarray
@@ -144,7 +153,7 @@ class AnalyzeWfn:
     @staticmethod
     def projection_2d(attr1, attr2, desc_weights, bin_num=[25, 25], range=None, normalize=True):
         """
-        Project the probability amplitude onto a 2 coordinates; 2D Histogram.
+        Project the probability amplitude onto a 2 coordinates, 2D Histogram.
 
         :param attr1: coordinate 1 to be projected onto (bond length, bond angle, etc.)
         :type attr: np.ndarray
@@ -167,4 +176,6 @@ class AnalyzeWfn:
                                                         weights=desc_weights,
                                                         density=normalize)
         amps = amps.T  # to get x and y to match up with what is expected
-        return np.column_stack((bin_edges_x, bin_edges_y)), amps
+        bins_x = 0.5 * (bin_edges_x[1:] + bin_edges_x[:-1])
+        bins_y = 0.5 * (bin_edges_y[1:] + bin_edges_y[:-1])
+        return bins_x, bins_y, amps

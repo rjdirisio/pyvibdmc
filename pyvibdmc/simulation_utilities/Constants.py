@@ -19,6 +19,7 @@ massDict = {'H': 1.00782503, 'D': 2.01410178, 'T': 3.01604928, 'He': 4.00260325,
  'Mt': 276.15159, 'Ds': 281.16451, 'Rg': 280.16514, 'Cn': 285.17712, 'Nh': 284.17873, 'Fl': 289.19042, 'Mc': 288.19274,
  'Lv': 293.20449, 'Ts': 292.20746, 'Og': 294.21392}
 
+
 def get_atomic_num(atms):
     """
     :param atms: A list (or single string) of atomic element symbols
@@ -28,6 +29,7 @@ def get_atomic_num(atms):
     atm_strings = list(massDict.keys())
     return [atm_strings.index(n)+1 for n in atms]
 
+
 def get_atomic_string(atomic_num):
     """
     :param atomic_num: The atomic numbers of each of the atom strings you provide
@@ -36,6 +38,7 @@ def get_atomic_string(atomic_num):
     if type(atomic_num) is not list: atms = [atomic_num]
     atm_strings = list(massDict.keys())
     return [atm_strings[anum] for anum in atomic_num]
+
 
 class Constants:
     """

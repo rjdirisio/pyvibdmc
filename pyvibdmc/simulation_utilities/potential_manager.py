@@ -1,6 +1,9 @@
 import multiprocessing as mp
-import os,sys
+import os
+import sys
+
 import numpy as np
+
 
 class Potential:
     """
@@ -13,6 +16,7 @@ class Potential:
     :param pool: Will create a pool of <pool> processes using Python"s multiprocessing module. This should never be larger than the number of processors on the machine this code is run.
     :type: int
     """
+
     def __init__(self,
                  potential_function,
                  potential_directory,
@@ -41,14 +45,14 @@ class Potential:
         self._pot = getattr(x, self.pot_func)
 
         if self.pool > 1:
-            #initialize pool
+            # initialize pool
             self._potPool = mp.Pool(self.pool)
         else:
             self._potPool = None
 
-        os.chdir(self._curdir)     
-        
-    def getpot(self,cds):
+        os.chdir(self._curdir)
+
+    def getpot(self, cds):
         """
         Uses the potential function we got to call potential
         :param cds: A stack of geometries (nxmx3, n=num_geoms;m=num_atoms;3=x,y,z) whose energies we need
@@ -56,11 +60,10 @@ class Potential:
         """
         os.chdir(self.pot_dir)
         if self._potPool is not None:
-            cds = np.array_split(cds,self.pool)
-            res = self._potPool.map(self._pot,cds)
+            cds = np.array_split(cds, self.pool)
+            res = self._potPool.map(self._pot, cds)
             v = np.concatenate((res))
         else:
             v = self._pot(cds)
         os.chdir(self._curdir)
         return v
-

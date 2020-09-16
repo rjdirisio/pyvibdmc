@@ -1,7 +1,8 @@
 import os
 import glob as glob
 
-class fileManager():
+
+class FileManager():
     """Helping with creating or deleting files as necessary throughout the simulation"""
 
     @staticmethod

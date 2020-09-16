@@ -52,11 +52,11 @@ class DMC_Sim:
                  output_folder="exSimResults",
                  weighting='discrete',
                  num_walkers=10000,
-                 num_timesteps=10000,
+                 num_timesteps=20000,
                  equil_steps=2000,
                  chkpt_every=1000,
                  wfn_every=1000,
-                 desc_steps=50,
+                 desc_steps=100,
                  atoms=[],
                  dimensions=3,
                  delta_t=5,
@@ -90,7 +90,7 @@ class DMC_Sim:
         Initialization of all the arrays and internal simulation parameters.
         """
         # Initialize the rest of the (private) variables needed for the simulation
-        # Arrays used to mark important events througout the simulation
+        # Arrays used to mark important events throughout the simulation
         self._prop_steps = np.arange(self.cur_timestep, self.num_timesteps)
         self._branch_step = np.arange(self.cur_timestep, self.num_timesteps + self.branch_every, self.branch_every)
         self._chkpt_step = np.arange(self.equil_steps, self.num_timesteps + self.chkpt_every, self.chkpt_every)
@@ -131,7 +131,7 @@ class DMC_Sim:
         self._alpha = 1.0 / (2.0 * self.delta_t)
 
         # Where to save the data
-        fileManager.create_filesystem(self.output_folder)
+        FileManager.create_filesystem(self.output_folder)
 
         # Weighting technique
         if self.weighting == 'continuous':
@@ -256,7 +256,7 @@ class DMC_Sim:
 
             # If we are at a checkpoint
             if prop_step in self._chkpt_step:
-                SimArchivist.chkpt(self, prop_step)
+                SimArchivist._chkpt(self, prop_step)
 
             # If we are at a spot to begin descendant weighting
             if prop_step in self.__wfn_save_step:
@@ -270,9 +270,9 @@ class DMC_Sim:
                 DW = False
                 dwts = self.calc_desc_weights(dwts)
                 vref_cm = Constants.convert(self._vref_vs_tau, 'wavenumbers', to_AU=False)
-                SimArchivist.save_h5(
+                SimArchivist._save_h5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step - self.desc_steps}ts.hdf5",
-                    keyz=['coords', 'desc_weights', 'desc_time', 'atoms', 'vref_vs_tau'],
+                    keyz=['coords', 'desc_weights', 'desc_time', 'atomic_nums', 'vref_vs_tau'],
                     valz=[parent, dwts, self.desc_steps, self._atm_nums, vref_cm])
 
             # Birth/Death
@@ -292,9 +292,10 @@ class DMC_Sim:
         _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
         print('Approximate ZPE', np.average(_vrefCM[len(_vrefCM) // 4:]))
         ts = np.arange(len(_vrefCM))
-        SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
-                             keyz=['vref_vs_tau', 'pop_vs_tau'],
-                             valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau))])
+        SimArchivist._save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
+                              keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums'],
+                              valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau)),
+                                    self._atm_nums])
 
     def __deepcopy__(self, memodict={}):
         """
@@ -314,13 +315,11 @@ def DMC_Restart(potential,
                 time_step,
                 chkpt_folder="exSimulation_results/",
                 sim_name='DMC_Sim'):
-    dmc_sim = SimArchivist.reload_sim(chkpt_folder,
-                                      sim_name,
-                                      time_step)
+    dmc_sim = SimArchivist._reload_sim(chkpt_folder, sim_name, time_step)
     dmc_sim.cur_timestep = time_step
     dmc_sim.potential = potential
     dmc_sim._initialize()
-    fileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
+    FileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
     return dmc_sim
 
 

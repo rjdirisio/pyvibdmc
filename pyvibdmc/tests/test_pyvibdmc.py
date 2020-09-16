@@ -10,22 +10,22 @@ from ..simulation_utilities import *
 import pytest
 import sys
 import os
+
 sim_ex_dir = "exSimResults"
 
 
 def test_pyvibdmc_imported():
-    print(os.getcwd(),'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     """Sample test, will always pass so long as import statement worked"""
     assert "pyvibdmc" in sys.modules
 
+
 def test_runDMC():
-    print(os.getcwd(),'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     import shutil
     if os.path.isdir(sim_ex_dir):
         shutil.rmtree(sim_ex_dir)
 
-    #initialize potential
-    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/') # only necesary for testing
+    # initialize potential
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
     # purposes
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'HODMC'
@@ -48,10 +48,11 @@ def test_runDMC():
                              delta_t=5,
                              potential=HOpot,
                              masses=None,
-                             start_structures=np.zeros((1,1,1))
+                             start_structures=np.zeros((1, 1, 1))
                              )
     myDMC.run()
     assert True
+
 
 def test_restartDMC():
     potDir = os.path.join(os.path.dirname(__file__),

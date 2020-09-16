@@ -23,7 +23,6 @@ class SimInfo:
         self._wfn_names = f"{pth}/wfns/{sim_name}wfn_"
 
     def _load_sim_H5(self):
-        poo = os.getcwd()
         with h5py.File(self.fname, 'r') as f:
             self.vref_vs_tau = f['vref_vs_tau'][:]
             self.pop_vs_tau = f['pop_vs_tau'][:]
@@ -42,15 +41,14 @@ class SimInfo:
             dw = f['desc_weights'][:]
         return cds, dw
 
-    def combineWfns(self, time_step_list):
+    def get_wfns(self, time_step_list):
         """
-        Given a list of .hdf5 files, combine the ensemble from each wave function + their desc weights to generate
-        a larger, more accurate representation of the wave function. Returns coordinates in angstroms.
-
-        :param flList: A list of .hdf5 file strings to load in
-        :type flList: list
+        Extract the wave function (walker set) and descendant weights given a time step number or numbers
+        :param time_step_list: a list of ints that correspond to the time steps you want the wfn from given the simulation you are working with
+        :type time_step_list: int or list
         :return:
         """
+        time_step_list = [time_step_list] if isinstance(time_step_list, int) else time_step_list
         fl_list = [f'{self._wfn_names}{x}ts.hdf5' for x in time_step_list]
         tot_cds = []
         tot_dw = []
