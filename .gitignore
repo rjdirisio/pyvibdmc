@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -113,6 +111,7 @@ ENV/
 /exSimResults/
 #Pycharm
 /pyvibdmc/.idea/
+*/.idea/
 
 #Pictures
 *.png
