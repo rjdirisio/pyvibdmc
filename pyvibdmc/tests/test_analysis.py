@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import pyvibdmc
 import matplotlib.pyplot as plt
 from ..analysis import *
@@ -163,6 +161,3 @@ def test_adv_plt_2dhistogram():
                        xlabel="ROH 1 (Angstroms)",
                        ylabel="ROH 2 (Angstroms)",
                        save_name=f"{savefigpth}2d_histogram.png")
-
-
->>>>>>> analysis

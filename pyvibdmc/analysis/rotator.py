@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import numpy as np
 import numpy.linalg as la
 from .analyze_wfn import AnalyzeWfn
@@ -104,4 +102,3 @@ class MolRotator:
         tanPhi = np.arctan2(Yzdot, Xzdot)
         tanChi = np.arctan2(yZdot, xZdot)
         return Theta, tanPhi, tanChi
->>>>>>> analysis

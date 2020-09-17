@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 Getting Started
 ===============
 
@@ -64,5 +62,3 @@ This example will go over how to run the sample water monomer Fortran Potential:
                      )
     myDMC.run()
 
-
->>>>>>> analysis

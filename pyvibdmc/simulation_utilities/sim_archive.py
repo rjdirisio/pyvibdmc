@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import h5py
 import pickle
 import copy
@@ -38,4 +36,3 @@ class SimArchivist:
         with open(f"{chkpt_folder}/chkpts/{sim_name}_{time_step}.pickle", "rb") as handle:
             dmcObj = pickle.load(handle)
         return dmcObj
->>>>>>> analysis

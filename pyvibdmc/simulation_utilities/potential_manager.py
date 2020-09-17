@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import multiprocessing as mp
 import os
 import sys
@@ -69,4 +67,3 @@ class Potential:
             v = self._pot(cds)
         os.chdir(self._curdir)
         return v
->>>>>>> analysis

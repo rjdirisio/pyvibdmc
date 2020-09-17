@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 """
 Unit and regression test for the pyvibdmc package.
 
@@ -72,23 +70,3 @@ def test_restartDMC():
                                  time_step=1000)
     myDMC.run()
     assert True
-
-# def test_restartDMC_updateParams():
-#     potDir = os.path.join(os.path.dirname(__file__),
-#                             '../sample_potentials/PythonPots/')
-#     pyFile = 'harmonicOscillator1D.py'
-#     potFunc = 'HODMC'
-#     HOpot = Potential(potential_function=potFunc,
-#                       python_file=pyFile,
-#                       potential_directory=potDir,
-#                       pool=0)
-#     myDMC = pyvibdmc.DMC_Restart(potential=HOpot.getpot,
-#                                  chkpt_folder=sim_ex_dir,
-#                                  sim_name='DMC_disc_test',
-#                                  time_step=1000)
-#     myDMC.num_timesteps=6000
-#     myDMC.initialize()
-#
-#     myDMC.run()
-#     assert True
->>>>>>> analysis

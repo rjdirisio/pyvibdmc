@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import os
 import glob as glob
 
@@ -34,4 +32,3 @@ class FileManager():
             os.makedirs(output_folder)
             os.makedirs(output_folder + '/chkpts')
             os.makedirs(output_folder + '/wfns')
->>>>>>> analysis

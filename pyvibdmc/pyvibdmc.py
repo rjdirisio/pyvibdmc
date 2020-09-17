@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 """
 This is the main file, which runs the DMC code itself.  To see the basic algorithm in
 action, go to self.propagate()
@@ -328,4 +326,3 @@ def DMC_Restart(potential,
 if __name__ == "__main__":
     # Do something if this file is invoked on its own
     print('hi')
->>>>>>> analysis

@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import numpy as np
 
 
@@ -69,4 +67,3 @@ class xyz_npy:
                 fl.write(f"{atm_strings[atmN]} {atm[0]:.14f} {atm[1]:.14f} {atm[2]:.14f}\n")
             fl.write("\n")
         fl.close()
->>>>>>> analysis
