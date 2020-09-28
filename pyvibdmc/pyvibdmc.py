@@ -115,7 +115,6 @@ class DMC_Sim:
         else:
             self.deb_train_save_step = []
         self._log_steps = np.arange(self.cur_timestep, self.num_timesteps, self.log_every)
-        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}.log", overwrite=True)
         # Arrays that carry data throughout the simulation
         self._who_from = None  # desc_wt_timeendant weighting doesn't happen right away, no need to init
         self._walker_pots = None  # will get returned from potential function
@@ -154,6 +153,7 @@ class DMC_Sim:
 
         # Where to save the data
         FileManager.create_filesystem(self.output_folder)
+        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}.log", overwrite=True)
 
         # Weighting technique
         if self.weighting == 'continuous':

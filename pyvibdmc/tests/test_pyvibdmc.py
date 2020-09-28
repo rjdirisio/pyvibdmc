@@ -34,8 +34,8 @@ def test_runDMC():
                          potential_directory=potDir,
                          pool=2)
 
-    myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_Sim",
-                             output_folder="harm_osc_test",
+    myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_test",
+                             output_folder=sim_ex_dir,
                              weighting='discrete',
                              num_walkers=5000,
                              num_timesteps=1000,
@@ -65,7 +65,7 @@ def test_restartDMC():
 
     myDMC = pyvibdmc.DMC_Restart(potential=HOpot.getpot,
                                  chkpt_folder=sim_ex_dir,
-                                 sim_name='DMC_disc_test',
+                                 sim_name='harm_osc_test',
                                  time_step=1000)
     myDMC.run()
     assert True
