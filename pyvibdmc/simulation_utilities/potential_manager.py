@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import os
 import sys
+import time
 
 import numpy as np
 
@@ -52,12 +53,17 @@ class Potential:
 
         os.chdir(self._curdir)
 
-    def getpot(self, cds):
+    def getpot(self, cds, timeit=False):
         """
         Uses the potential function we got to call potential
         :param cds: A stack of geometries (nxmx3, n=num_geoms;m=num_atoms;3=x,y,z) whose energies we need
         :type cds: np.ndarray
+        :param timeit: The logger telling the potential manager whether or not to time the potential call
+        :type timeit: bool
+
         """
+        if timeit:
+            start = time.time()
         os.chdir(self.pot_dir)
         if self._potPool is not None:
             cds = np.array_split(cds, self.pool)
@@ -66,4 +72,8 @@ class Potential:
         else:
             v = self._pot(cds)
         os.chdir(self._curdir)
-        return v
+        if timeit:
+            elapsed = time.time()-start
+            return v, elapsed
+        else:
+            return v

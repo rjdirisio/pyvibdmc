@@ -29,27 +29,26 @@ def test_runDMC():
     # purposes
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'HODMC'
-    HOpot = Potential(potential_function=potFunc,
-                      python_file=pyFile,
-                      potential_directory=potDir,
-                      pool=2)
+    harm_pot = Potential(potential_function=potFunc,
+                         python_file=pyFile,
+                         potential_directory=potDir,
+                         pool=2)
 
-    myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_disc_test",
-                             output_folder=sim_ex_dir,
+    myDMC = pyvibdmc.DMC_Sim(sim_name="DMC_Sim",
+                             output_folder="harm_osc_test",
                              weighting='discrete',
-                             num_walkers=1000,
-                             num_timesteps=5000,
-                             equil_steps=1000,
-                             chkpt_every=1000,
+                             num_walkers=5000,
+                             num_timesteps=1000,
+                             equil_steps=200,
+                             chkpt_every=100,
                              wfn_every=100,
-                             desc_steps=50,
-                             atoms=['H'],
-                             dimensions=1,
+                             desc_wt_time_steps=100,
+                             atoms=["H"],
                              delta_t=5,
-                             potential=HOpot,
-                             masses=None,
-                             start_structures=np.zeros((1, 1, 1))
-                             )
+                             potential=harm_pot,
+                             log_every=50,
+                             start_structures=np.zeros((1, 1, 1)),
+                             cur_timestep=0)
     myDMC.run()
     assert True
 
