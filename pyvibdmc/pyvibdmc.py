@@ -208,11 +208,16 @@ class DMC_Sim:
                                                      self._who_from[birth_mask]))
                 exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1 + ct)
                 ct += 1
-                return num_births, num_deaths
+            return num_births, num_deaths
         else:
             self._cont_wts = self._cont_wts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
             kill_mark = np.where(self._cont_wts < self._thresh)[0]
+
+            # logging info
             num_branched = len(kill_mark)
+            max_weght = np.amax(self._cont_wts)
+            min_weght = np.amin(self._cont_wts)
+
             for walker in kill_mark:
                 maxWalker = np.argmax(self._cont_wts)
                 self._walker_coords[walker] = np.copy(self._walker_coords[maxWalker])
@@ -221,7 +226,7 @@ class DMC_Sim:
                     self._who_from[walker] = self._who_from[maxWalker]
                 self._cont_wts[maxWalker] /= 2.0
                 self._cont_wts[walker] = np.copy(self._cont_wts[maxWalker])
-                return num_branched
+            return num_branched, max_weght, min_weght
 
     def moveRandomly(self):
         """
@@ -327,7 +332,10 @@ class DMC_Sim:
             # 2. Calculate the Potential Energy
             if prop_step in self._log_steps:
                 self._walker_pots, pot_time = self.potential(self._walker_coords, timeit=True)
-                self._logger.write_pot_time(prop_step, pot_time)
+                maxpot = np.amax(self._walker_pots)
+                minpot = np.amin(self._walker_pots)
+                avgpot = np.average(self._walker_pots)
+                self._logger.write_pot_time(prop_step, pot_time, maxpot, minpot, avgpot)
             else:
                 self._walker_pots = self.potential(self._walker_coords)
 
