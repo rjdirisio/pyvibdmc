@@ -42,7 +42,7 @@ def test_runDMC():
                              equil_steps=200,
                              chkpt_every=100,
                              wfn_every=100,
-                             desc_wt_time_steps=100,
+                             desc_wt_steps=100,
                              atoms=["H"],
                              delta_t=5,
                              potential=harm_pot,
@@ -63,7 +63,7 @@ def test_restartDMC():
                       potential_directory=potDir,
                       pool=2)
 
-    myDMC = pyvibdmc.DMC_Restart(potential=HOpot.getpot,
+    myDMC = pyvibdmc.DMC_Restart(potential=HOpot,
                                  chkpt_folder=sim_ex_dir,
                                  sim_name='harm_osc_test',
                                  time_step=500)

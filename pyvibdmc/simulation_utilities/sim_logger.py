@@ -34,18 +34,18 @@ class SimLogger:
         avgpot = Constants.convert(avgpot, 'wavenumbers', to_AU=False)
         self.fl.write(f"Potential call time at time step {cur_time_step}:\n")
         self.fl.write(f"\t{pot_time} seconds\n")
-        self.fl.write(f"Average energy of ensemble: {avgpot} wavenumbers (without vref correction)\n")
-        self.fl.write(f"Highest energy walker: {maxpot} wavenumbers\n")
-        self.fl.write(f"Lowest energy walker: {minpot} wavenumbers\n")
+        self.fl.write(f"\tAverage energy of ensemble: {avgpot} wavenumbers (without vref correction)\n")
+        self.fl.write(f"\tHighest energy walker: {maxpot} wavenumbers\n")
+        self.fl.write(f"\tLowest energy walker: {minpot} wavenumbers\n")
 
     def write_branching(self, cur_time_step, weighting, birthdeath_branch):
         if weighting == 'discrete':
             self.fl.write(f"Birth/Death at time step {cur_time_step}:\n")
-            self.fl.write(f"Walker Births: {birthdeath_branch[0]}\n")
-            self.fl.write(f"Walker Deaths: {birthdeath_branch[1]}\n")
+            self.fl.write(f"\tWalker Births: {birthdeath_branch[0]}\n")
+            self.fl.write(f"\tWalker Deaths: {birthdeath_branch[1]}\n")
 
         elif weighting == 'continuous':
             self.fl.write(f"Branching at time step {cur_time_step}:\n")
-            self.fl.write(f"Walkers Branched: {birthdeath_branch[0]}:\n")
-            self.fl.write(f"Max Wt before Branched: {birthdeath_branch[1]}:\n")
-            self.fl.write(f"Min Wt before Branched: {birthdeath_branch[2]}:\n")
+            self.fl.write(f"\tWalkers Branched: {birthdeath_branch[0]}:\n")
+            self.fl.write(f"\tMax Wt before Branched: {birthdeath_branch[1]}:\n")
+            self.fl.write(f"\tMin Wt before Branched: {birthdeath_branch[2]}:\n")

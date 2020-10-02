@@ -9,9 +9,10 @@ import sys
 test_sim = SimInfo('pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
 savefigpth = 'pyvibdmc/tests/'
 
+
 # Test writing and reading xyz coords from file
 def test_write_xyz_file():
-    cds, dws = test_sim.get_wfns([700, 800, 900])  # get last three wave functions from a simulation
+    cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
     atm_str_list = ["H", "H", "O"]
     xyz_npy.writeXYZ(cds,
                      fname=f'{savefigpth}water_cds.xyz',
@@ -21,6 +22,7 @@ def test_write_xyz_file():
     cds_back = xyz_npy.extractXYZ(f'{savefigpth}water_cds.xyz',
                                   num_atoms=len(atm_str_list))
     assert np.allclose(cds, cds_back)
+
 
 # Basic SimInfoStuff
 def test_sim_data_zpe():
@@ -39,7 +41,7 @@ def test_zpe_std():
 
 
 def test_sim_combine_wfns():
-    combined_wfns, dws = test_sim.get_wfns([700, 800, 900])  # the time steps you want to include
+    combined_wfns, dws = test_sim.get_wfns([2500, 3500])  # the time steps you want to include
 
 
 # Internal Analyzer Test
@@ -66,7 +68,7 @@ def test_ana_wfn_blens():
 # Plotting and analyzing tests
 def test_plt_atm_atm_dists():
     import itertools as itt
-    cds, dws = test_sim.get_wfns([700, 800, 900])  # get last three wave functions from a simulation
+    cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
     analyzer = AnalyzeWfn(cds)  # initialize analyzer object
 
     num_atoms = cds.shape[1]
@@ -90,8 +92,7 @@ def test_plt_vref():
 
 
 def test_plt_water_angle():
-    cds, dws = test_sim.get_wfns([700, 800, 900])  # get last three wave functions from a simulation
-    # cds, dws = test_sim.get_wfns(700)  # or just one wfn!s
+    cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
 
     analyzer = AnalyzeWfn(cds)  # initialize analyzer object
     hoh_angle = analyzer.bond_angle(atm1=0,
@@ -131,6 +132,7 @@ def test_adv_plt_many_vrefs():
     fig.savefig(f"{savefigpth}ManyVrefs.png", dpi=300, bbox_inches='tight')
     plt.close()
 
+
 def test_adv_plt_2dhistogram():
     # Advanced: Combine wave functions from across 5 simulations
     tot_cds = []
@@ -138,12 +140,13 @@ def test_adv_plt_2dhistogram():
     for sim_num in range(5):
         temp_sim = SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
-        cds, dw = temp_sim.get_wfns([600, 700, 800, 900])
+        cds, dw = temp_sim.get_wfns([2500, 3500])
         tot_cds.append(cds)
         tot_dw.append(dw)
     tot_cds = np.concatenate(tot_cds, axis=0)
     tot_dw = np.concatenate(tot_dw)
 
+    # Advanced: 2D Histogram
     analyzer = AnalyzeWfn(tot_cds)  # initialize analyzer object
     bond_len_OH1 = analyzer.bond_length(0, 2)
     bond_len_OH2 = analyzer.bond_length(1, 2)

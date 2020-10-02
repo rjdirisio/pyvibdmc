@@ -28,8 +28,8 @@ class DMC_Sim:
     :type equil_steps: int
     :param chkpt_every: How many time steps in between checkpoints (only checkpoints once we reached equil_steps.
     :type chkpt_every: int
-    :param desc_wt_time_steps: Number of time steps monitoring the wave function's desc_wt_timeendants.
-    :type desc_wt_time_steps: int
+    :param desc_wt_steps: Number of time steps monitoring the wave function's desc_wt_timeendants.
+    :type desc_wt_steps: int
     :param atoms: List of atoms for the simulation
     :type atoms: list
     :param delta_t: The length of the time step; how many atomic units of time are you going in one time step.
@@ -48,8 +48,8 @@ class DMC_Sim:
     :type cur_timestep: int
     :param DEBUG_alpha: The number that will be used instead of 1/(2*delta_t) for alpha.
     :type DEBUG_alpha: float
-    :param DEBUG_save_desc_wt_time_tracker: If true, will save the array that keeps track of births/deaths during desc_wt_time weighting. Will save as a binary .npy file (see numpy documentation)
-    :type DEBUG_save_desc_wt_time_tracker: bool
+    :param DEBUG_save_desc_wt_tracker: If true, will save the array that keeps track of births/deaths during desc_wt_time weighting. Will save as a binary .npy file (see numpy documentation)
+    :type DEBUG_save_desc_wt_tracker: bool
     :param DEBUG_save_training_every: If true, will collect coordinates and energies every n time steps
     :type DEBUG_save_training_every: int
     """
@@ -63,7 +63,7 @@ class DMC_Sim:
                  equil_steps=2000,
                  chkpt_every=1000,
                  wfn_every=1000,
-                 desc_wt_time_steps=100,
+                 desc_wt_steps=100,
                  atoms=[],
                  delta_t=5,
                  potential=None,
@@ -73,7 +73,7 @@ class DMC_Sim:
                  log_every=100,
                  cur_timestep=0,
                  DEBUG_alpha=None,
-                 DEBUG_save_desc_wt_time_tracker=None,
+                 DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None
                  ):
         self.atoms = atoms
@@ -83,7 +83,7 @@ class DMC_Sim:
         self.num_timesteps = num_timesteps
         self.potential = potential.getpot
         self.weighting = weighting.lower()
-        self.desc_wt_time_steps = desc_wt_time_steps
+        self.desc_wt_time_steps = desc_wt_steps
         self.branch_every = branch_every
         self.delta_t = delta_t
         self.start_structures = start_structures
@@ -94,7 +94,7 @@ class DMC_Sim:
         self.log_every = log_every
         self.cur_timestep = cur_timestep
         self._deb_training_every = DEBUG_save_training_every
-        self._deb_desc_wt_time_tracker = DEBUG_save_desc_wt_time_tracker
+        self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
         self._initialize()
 
@@ -249,7 +249,7 @@ class DMC_Sim:
             correction = (np.sum(self._cont_wts - np.ones(self.num_walkers))) / self.num_walkers
         self._vref = Vbar - (self._alpha * correction)
 
-    def calc_desc_wt_time_weights(self, desc_wts):
+    def calc_desc_wts(self, desc_wts):
         """
         At the end of desc_wt_timeendent weighting, count up which walkers came from other walkers (desc_wt_timeendants)
 
@@ -315,13 +315,13 @@ class DMC_Sim:
             if prop_step in self._desc_wt_save_step:
                 self._logger.write_desc_wt(prop_step)
                 desc_wt = False
-                desc_wts = self.calc_desc_wt_time_weights(desc_wts)
+                desc_wts = self.calc_desc_wts(desc_wts)
                 vref_cm = Constants.convert(self._vref_vs_tau, 'wavenumbers', to_AU=False)
                 SimArchivist.save_h5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step - self.desc_wt_time_steps}ts.hdf5",
-                    keyz=['coords', 'desc_wt_time_weights', 'desc_wt_time_time', 'atomic_nums', 'vref_vs_tau'],
+                    keyz=['coords', 'desc_wts', 'desc_wt_steps', 'atomic_nums', 'vref_vs_tau'],
                     valz=[parent, desc_wts, self.desc_wt_time_steps, self._atm_nums, vref_cm])
-                if self._deb_desc_wt_time_tracker:
+                if self._deb_desc_wt_tracker:
                     np.save(
                         f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step - self.desc_wt_time_steps}ts",
                         self._who_from)
@@ -366,6 +366,7 @@ class DMC_Sim:
                              keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums'],
                              valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau)),
                                    self._atm_nums])
+        self._logger.finish_sim()
 
     def __deepcopy__(self, memodict={}):
         """
@@ -387,7 +388,7 @@ def DMC_Restart(potential,
                 sim_name='DMC_Sim'):
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name, time_step)
     dmc_sim.cur_timestep = time_step
-    dmc_sim.potential = potential
+    dmc_sim.potential = potential.getpot
     dmc_sim._initialize()
     FileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
     return dmc_sim

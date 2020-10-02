@@ -10,8 +10,8 @@ class SimInfo:
     :type str
     """
 
-    def __init__(self, h5Name):
-        self.fname = h5Name
+    def __init__(self, h5_name):
+        self.fname = h5_name
         self._initialize()
         self._load_sim_H5()
 
@@ -38,7 +38,7 @@ class SimInfo:
         with h5py.File(wfn_fl, 'r') as f:
             cds = f['coords'][:]
             cds = Constants.convert(cds, 'angstroms', to_AU=False)
-            dw = f['desc_weights'][:]
+            dw = f['desc_wts'][:]
         return cds, dw
 
     def get_wfns(self, time_step_list):
