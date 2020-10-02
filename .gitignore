@@ -112,7 +112,3 @@ ENV/
 /pyvibdmc/.idea/
 */.idea/
 
-#Pictures
-*.png
-*.jpg
->>>>>>> analysis
