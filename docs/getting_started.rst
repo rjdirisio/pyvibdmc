@@ -6,14 +6,13 @@ This package is still under development, so clone at your own risk!
 
 Theory of Diffusion Monte Carlo (DMC)
 -------------------------------------------------------
-If you are not someone with experience with Diffusion Monte Carlo, I suggest reading the
+If you do not have experience with Diffusion Monte Carlo, I suggest reading the
 `McCoy group's tutorial on and explanation of DMC <https://mccoygroup.github.io/References/References/Monte%20Carlo%20Methods/DMC.html>`_.
-
 
 This reference also has links to academic publications that detail the method further.
 
 Installation
-------------
+--------------
 To install PyVibDMC, first clone it. Then, ``cd`` into to the project directory.
 
 To do a developmental install:
@@ -28,18 +27,22 @@ Dependencies (All pre-installed with Anaconda3)
 
 Usage
 --------
-Once installed, Then, one can ``import pyvibdmc`` from any directory.
-This example will go over how to run 5 DMC simulations on a water monomer using the Fortran Potential Energy Surface built by Partridge and Schwenke (comes with PyVibDMC)::
+Once installed, one can ``import pyvibdmc`` from any directory. It is reccomended that you always run jobs outside
+the ``PyVibDMC`` directory.
+
+Before running the simulation yourself, please read about how `PyVibDMC handles external potential energy surfaces <https://pyvibdmc.readthedocs.io/en/latest/potentials.html>`_
+
+Here is an example script that runs 5 DMC simulations on a water monomer using the Fortran Potential Energy Surface built by Partridge and Schwenke::
 
     import numpy as np
     import pyvibdmc as dmc
     from pyvibdmc import potential_manager as pm
 
-    pot_dir = 'path/to/Partridge_H2O/'
+    pot_dir = 'path/to/Partridge_H2O/' #it is reccomended to take this directory out of pyvibdmc and place it elsewhere.
     py_file = 'callPartridgePot.py'
     pot_func = 'potential'
 
-    #Equilibrium of water in *atomic units*, then blown up by 1.01 to not start at the bottom of the potential.
+    #Equilibrium geometry of water in *atomic units*, then blown up by 1.01 to not start at the bottom of the potential.
     water_coord = np.array([[1.81005599,  0.        ,  0.        ],
                            [-0.45344658,  1.75233806,  0.        ],
                            [ 0.        ,  0.        ,  0.        ]]) * 1.01

@@ -34,9 +34,10 @@ using the prepackaged simulation data that comes with ``PyVibDMC``.  For the sam
 all 5 simulations.
 
 **Analysis Note: PyVibDMC takes in coordinates and potential energy values in atomic units.  However, it returns geometries in Angstroms!**
-**Coding Note: We recommend that you specify simulation output to go outside the PyVibDMC package.**
 
-This is purely for demonstration purposes.
+**General Note: We recommend that you specify simulation output to go outside the PyVibDMC package.**
+
+This data is purely for demonstration purposes.
 
 Analyzing the zero-point energy for a DMC simulation
 -------------------------------------------------------
@@ -179,7 +180,7 @@ do that::
                        xlabel=rf"Bond Length $\rm{{R_{{{combo[0]}{combo[1]}}}}}$ (Angstroms)",
                        save_name=f'BondLength_R{combo[0]}{combo[1]}.png')
 
-Which leads to three plots that look like this:
+Which leads to three plots, one of which looks like this:
 
 .. figure:: figures/BondLength_R12.png
    :scale: 50 %
@@ -187,5 +188,5 @@ Which leads to three plots that look like this:
    The 1D DMC Projection of the probability amplitude onto one of the three atom-atom distances in water. This one is an OH distance.
 
 To see more examples of DMC wave function analysis, including more advanced ones, please check out the
-`tests/test_analysis.py <https://github.com/rjdirisio/PyVibDMC/blob/master/PyVibDMC/tests/tutorial_analysis.py>`_ file in
+`tests/test_analysis.py <https://github.com/rjdirisio/PyVibDMC/blob/master/PyVibDMC/tests/test_analysis.py>`_ file in
 the ``PyVibDMC`` repository on Github.

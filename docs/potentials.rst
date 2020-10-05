@@ -13,6 +13,24 @@ PyVibDMC Requires the potential energy surface to be callable from Python.
 
 Please follow the next steps for calling a PES from Python written in Fortran or C/C++.
 
+Multiproccesing Pool: Parallelizing Potential Calls
+-------------------------------------------------------
+The ``Potential`` manager has an option to parallelize the potential call across CPU cores.  This will almost always
+yield a very large speed-up, and is highly reccomended. ``PyVibDMC`` uses
+Python's `Multiprocessing <https://docs.python.org/3.7/library/multiprocessing.html#module-multiprocessing>`_ module to
+do this. The only argument you need to use in order to take advantage of this is the ``pool`` parameter::
+
+    water_pot = pm.Potential(potential_function=pot_func,
+                          python_file=py_file,
+                          potential_directory=pot_dir,
+                          pool=2)
+
+The ``pool`` parameter specifies the number of Python processes one would spawn at the beginning of
+the DMC simulation. Each Python process takes up 1 core. If you are working on a 16-core computer,
+perhaps use 10-12 cores for maximum performance if you are only running one calculation at once.
+The number of walkers does NOT need to be divisible by the number of cores/processes.
+If this is run on a laptop with 4 cores, only using 2 cores is reccomended.
+
 Fortran Potentials: F2PY
 -------------------------------------------------------
 `F2PY <https://numpy.org/doc/stable/f2py/>`_ is an easy-to-use interface generator
@@ -121,5 +139,5 @@ Then, we may use this function in the ``Potential`` object::
    Potential(potential_function='call_exec',
               python_file='pot_call_exec.py',
               potential_directory=pot_dir,
-              pool=4)
+              pool=1) #cannot parallelize executables easily, unless reading/writing to mutliple files
 

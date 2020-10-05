@@ -19,6 +19,8 @@ This package requires the following (all included with anaconda3):
 
 - Matplotlib
 
+- h5py
+
 - A potential energy surface (PES) for a system of interest, which can be called using a Python function 
 (See [Documentation](https://pyvibdmc.readthedocs.io/en/latest/potentials.html)).
 
