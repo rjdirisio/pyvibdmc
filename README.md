@@ -24,6 +24,10 @@ This package requires the following (all included with anaconda3):
 - A potential energy surface (PES) for a system of interest, which can be called using a Python function 
 (See [Documentation](https://pyvibdmc.readthedocs.io/en/latest/potentials.html)).
 
+- Possibly a compiler required for the potential energy surface (the tutorial potential uses gfortran)
+
+- Tutorial: make (on Linux systems, this is usually installed via the 'build-essential' or 'Development Tools' packages )
+
 Features should be developed on branches. To create and switch to a branch, use the command
 
 `git checkout -b new_branch_name`

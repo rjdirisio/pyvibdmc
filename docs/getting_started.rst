@@ -13,9 +13,11 @@ This reference also has links to academic publications that detail the method fu
 
 Installation
 --------------
-To install PyVibDMC, first clone it. Then, ``cd`` into to the project directory.
+This package is currently in development.
 
-To do a developmental install:
+To do a development install of PyVibDMC, first clone it. Then, ``cd`` into to the project directory.
+
+Then:
 
 ``pip install -e .``
 
@@ -24,21 +26,29 @@ Dependencies (All pre-installed with Anaconda3)
 - numpy
 - matplotlib
 - h5py
+- possibly a compiler required for the potential energy surface (the tutorial potential uses gfortran)
+- Tutorial: make (on Linux systems, this is usually installed via the 'build-essential' or 'Development Tools' packages )
 
-Usage
---------
+Tutorial
+------------------------
 Once installed, one can ``import pyvibdmc`` from any directory. It is reccomended that you always run jobs outside
 the ``PyVibDMC`` directory.
 
-Before running the simulation yourself, please read about how `PyVibDMC handles external potential energy surfaces <https://pyvibdmc.readthedocs.io/en/latest/potentials.html>`_
+Before running the simulation yourself,
+please read about how `PyVibDMC handles external potential energy surfaces <https://pyvibdmc.readthedocs.io/en/latest/potentials.html>`_
 
-Here is an example script that runs 5 DMC simulations on a water monomer using the Fortran Potential Energy Surface built by Partridge and Schwenke::
+This example script runs 5 DMC simulations on a water monomer (H2O)
+using the Fortran Potential Energy Surface built by Partridge and Schwenke.  This potential energy surface is located
+in the PyVibDMC package, at ``pyvibdmc/pyvibdmc/sample_potentials/FortPots/PartridgeH2O``. Please ``cp`` this directory
+to outside of the package.  To expose the Fortran subroutine to Python, please ``cd`` into the directory you copied, and
+run ``make``. This will build a ``.so`` file that is called in ``callPartridgePot.py``. Once you have run ``make``, you
+may now run the following script.::
 
     import numpy as np
     import pyvibdmc as dmc
     from pyvibdmc import potential_manager as pm
 
-    pot_dir = 'path/to/Partridge_H2O/' #it is reccomended to take this directory out of pyvibdmc and place it elsewhere.
+    pot_dir = 'path/to/Partridge_H2O/' #this directory is the one you copied that is outside of pyvibdmc.
     py_file = 'callPartridgePot.py'
     pot_func = 'potential'
 

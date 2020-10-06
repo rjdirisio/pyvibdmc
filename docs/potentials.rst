@@ -11,7 +11,8 @@ PyVibDMC Requires the potential energy surface to be callable from Python.
 
 - ``PyVibDMC`` expects the function to return a 1D NumPy array of potential values in Hartree.
 
-Please follow the next steps for calling a PES from Python written in Fortran or C/C++.
+Please follow the next steps for calling a PES from Python written in Fortran or C/C++ after a brief note about
+parallelization.
 
 Multiproccesing Pool: Parallelizing Potential Calls
 -------------------------------------------------------
@@ -26,8 +27,8 @@ do this. The only argument you need to use in order to take advantage of this is
                           pool=2)
 
 The ``pool`` parameter specifies the number of Python processes one would spawn at the beginning of
-the DMC simulation. Each Python process takes up 1 core. If you are working on a 16-core computer,
-perhaps use 10-12 cores for maximum performance if you are only running one calculation at once.
+the DMC simulation. Each Python process takes up 1 core. If you are working with a 16-core CPU,
+perhaps use 10 to 12 cores for maximum performance if you are only running one calculation at once.
 The number of walkers does NOT need to be divisible by the number of cores/processes.
 If this is run on a laptop with 4 cores, only using 2 cores is reccomended.
 
