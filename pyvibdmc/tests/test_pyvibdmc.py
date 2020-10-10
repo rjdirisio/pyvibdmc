@@ -32,7 +32,7 @@ def test_runDMC():
     harm_pot = Potential(potential_function=potFunc,
                          python_file=pyFile,
                          potential_directory=potDir,
-                         pool=2)
+                         num_cores=2)
 
     myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_test",
                              output_folder=sim_ex_dir,
@@ -61,7 +61,7 @@ def test_restartDMC():
     HOpot = Potential(potential_function=potFunc,
                       python_file=pyFile,
                       potential_directory=potDir,
-                      pool=2)
+                      num_cores=2)
 
     myDMC = pyvibdmc.DMC_Restart(potential=HOpot,
                                  chkpt_folder=sim_ex_dir,

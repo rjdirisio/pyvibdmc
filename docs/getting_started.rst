@@ -61,8 +61,8 @@ may now run the following script.::
     water_pot = pm.Potential(potential_function=pot_func,
                           python_file=py_file,
                           potential_directory=pot_dir,
-                          pool=2)
-    #optional pool parameter for multiprocessing, should not exceed the number of cores
+                          num_cores=2)
+    #optional num_cores parameter for multiprocessing, should not exceed the number of cores on the CPU
     #your machine has. Can use multiprocessing.cpu_count()
     for sim_num in range(5):
         myDMC = dmc.DMC_Sim(sim_name=f"tutorial_water_{sim_num}",
@@ -99,7 +99,7 @@ If the simulation dies due to external factors, you may restart a particular DMC
     water_pot = pm.Potential(potential_function=pot_func,
                           python_file=py_file,
                           potential_directory=pot_dir,
-                          pool=2)
+                          num_cores=2)
 
     #restart function that reinializes the myDMC object
     myDMC = dmc.DMC_Restart(potential=water_pot,

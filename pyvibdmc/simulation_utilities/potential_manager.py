@@ -14,7 +14,7 @@ class Potential:
     :type potential_function: str
     :param potential_dir: The *absolute path* to the directory that contains the .so file and .py file. If it"s a python function, then just the absolute path to your .py file.
     :type: str
-    :param pool: Will create a pool of <pool> processes using Python"s multiprocessing module. This should never be larger than the number of processors on the machine this code is run.
+    :param num_cores: Will create a pool of <num_cores> processes using Python"s multiprocessing module. This should never be larger than the number of processors on the machine this code is run.
     :type: int
     """
 
@@ -22,19 +22,18 @@ class Potential:
                  potential_function,
                  potential_directory,
                  python_file,
-                 pool=0
+                 num_cores=1
                  ):
-
         self.pot_func = potential_function
         self.pyFile = python_file
         self.pot_dir = potential_directory
-        self.pool = pool
-        self._init_pot()
+        self.num_cores = num_cores
+        self._potPool = None
+        self.init_pool()
 
     def _init_pot(self):
         """
-        Given the directory, this will cd over to the potential directory and (optionally) start a pool there, which
-        can call the python function that calls the potential.
+        Sets _pot
         """
         import importlib
         # Go to potential directory that houses python function and assign a self._pot variable to it
@@ -44,14 +43,16 @@ class Potential:
         module = self.pyFile.split(".")[0]
         x = importlib.import_module(module)
         self._pot = getattr(x, self.pot_func)
-
-        if self.pool > 1:
-            # initialize pool
-            self._potPool = mp.Pool(self.pool)
-        else:
-            self._potPool = None
-
         os.chdir(self._curdir)
+
+    def pool_initalizer(self):
+        self._init_pot()
+
+    def init_pool(self):
+        if self.num_cores > 1:
+            self._potPool = mp.Pool(self.num_cores, initializer=self._init_pot())
+        else:
+            self._init_pot()
 
     def getpot(self, cds, timeit=False):
         """
@@ -60,18 +61,15 @@ class Potential:
         :type cds: np.ndarray
         :param timeit: The logger telling the potential manager whether or not to time the potential call
         :type timeit: bool
-
         """
         if timeit:
             start = time.time()
-        os.chdir(self.pot_dir)
         if self._potPool is not None:
-            cds = np.array_split(cds, self.pool)
+            cds = np.array_split(cds, self.num_cores)
             res = self._potPool.map(self._pot, cds)
-            v = np.concatenate((res))
+            v = np.concatenate(res)
         else:
             v = self._pot(cds)
-        os.chdir(self._curdir)
         if timeit:
             elapsed = time.time()-start
             return v, elapsed

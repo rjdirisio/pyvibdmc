@@ -19,14 +19,14 @@ Multiproccesing Pool: Parallelizing Potential Calls
 The ``Potential`` manager has an option to parallelize the potential call across CPU cores.  This will almost always
 yield a very large speed-up, and is highly reccomended. ``PyVibDMC`` uses
 Python's `Multiprocessing <https://docs.python.org/3.7/library/multiprocessing.html#module-multiprocessing>`_ module to
-do this. The only argument you need to use in order to take advantage of this is the ``pool`` parameter::
+do this. The only argument you need to use in order to take advantage of this is the ``num_cores`` parameter::
 
     water_pot = pm.Potential(potential_function=pot_func,
                           python_file=py_file,
                           potential_directory=pot_dir,
-                          pool=2)
+                          num_cores=2)
 
-The ``pool`` parameter specifies the number of Python processes one would spawn at the beginning of
+The ``num_cores`` parameter specifies the number of Python processes one would spawn at the beginning of
 the DMC simulation. Each Python process takes up 1 core. If you are working with a 16-core CPU,
 perhaps use 10 to 12 cores for maximum performance if you are only running one calculation at once.
 The number of walkers does NOT need to be divisible by the number of cores/processes.
@@ -75,7 +75,7 @@ Now, after we made sure this ran to completion, we can call this potential as do
    Potential(potential_function='potential',
               python_file='fort_water_pot.py',
               potential_directory=pot_dir,
-              pool=4)
+              num_cores=4)
 
 C/C++ Potentials: ctypes
 -------------------------------------------------------
@@ -118,7 +118,7 @@ Nonetheless, you may then use this Python function in the ``Potential`` object b
    Potential(potential_function='call_a_cpot',
               python_file='call_cpot.py',
               potential_directory=pot_dir,
-              pool=4)
+              num_cores=4)
 
 Alternative Approach (Not recommended): executables and subprocess calls
 -------------------------------------------------------------------------------
@@ -140,5 +140,5 @@ Then, we may use this function in the ``Potential`` object::
    Potential(potential_function='call_exec',
               python_file='pot_call_exec.py',
               potential_directory=pot_dir,
-              pool=1) #cannot parallelize executables easily, unless reading/writing to mutliple files
+              num_cores=1) #cannot parallelize executables easily, unless reading/writing to mutliple files
 
