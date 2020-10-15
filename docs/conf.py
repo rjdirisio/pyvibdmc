@@ -15,10 +15,10 @@
 # Incase the project was not installed
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 
 import pyvibdmc
-
 
 # -- Project information -----------------------------------------------------
 
@@ -31,7 +31,6 @@ author = 'Ryan DiRisio'
 version = ''
 # The full version, including alpha/beta/rc tags
 release = ''
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -50,11 +49,18 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.extlinks',
 ]
+
 autoapi_dirs = ['../pyvibdmc']
 autoapi_ignore = ["*/sample_potentials/*",
                   "*/tests/*",
-                  "*/*version*",
-                  "*/*git_revision*"]
+                  "*_version.py"]
+autoapi_options = ['members',
+                   'undoc-members',
+                   # 'private-members',
+                   # 'special-members',
+                   'show-inheritance',
+                   'show-module-summary',
+                   'imported-members']
 # autosummary_generate = True
 napoleon_google_docstring = False
 napoleon_use_param = False
@@ -84,7 +90,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'default'
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -92,12 +97,10 @@ pygments_style = 'default'
 #
 html_theme = 'sphinx_rtd_theme'
 
-
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pyvibdmcdoc'
-
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -127,7 +130,6 @@ latex_documents = [
      'pyvibdmc', 'manual'),
 ]
 
-
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
@@ -136,7 +138,6 @@ man_pages = [
     (master_doc, 'pyvibdmc', 'PyVibDMC Documentation',
      [author], 1)
 ]
-
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -148,6 +149,5 @@ texinfo_documents = [
      author, 'pyvibdmc', 'A general purpose diffusion monte carlo code for studying vibrational problems',
      'Miscellaneous'),
 ]
-
 
 # -- Extension configuration -------------------------------------------------

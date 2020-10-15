@@ -75,3 +75,8 @@ class Potential:
             return v, elapsed
         else:
             return v
+
+    def mp_close(self):
+        if self._potPool is not None:
+            self._potPool.close()
+            self._potPool.join()

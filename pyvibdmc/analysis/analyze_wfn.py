@@ -14,14 +14,14 @@ class AnalyzeWfn:
             self.xx = np.expand_dims(self.xx, axis=0)
 
     @staticmethod
-    def dotPdt(v1, v2):
+    def dot_pdt(v1, v2):
         """Takes two stacks of vectors and dots the pairs of vectors together"""
         new_v1 = np.expand_dims(v1, axis=1)
         new_v2 = np.expand_dims(v2, axis=2)
         return np.matmul(new_v1, new_v2).squeeze()
 
     @staticmethod
-    def expVal(operator, dw):
+    def exp_val(operator, dw):
         """
         Calculation of an expectation value using Monte Carlo Integration
 
@@ -62,7 +62,7 @@ class AnalyzeWfn:
         vec1 = self.xx[:, atm1] - self.xx[:, atm_vert]
         vec2 = self.xx[:, atm3] - self.xx[:, atm_vert]
         # cos(x) = left.right/(|left|*|right|)
-        dotV = np.arccos(self.dotPdt(vec1, vec2) /
+        dotV = np.arccos(self.dot_pdt(vec1, vec2) /
                          (la.norm(vec1, axis=1) * la.norm(vec2, axis=1)))
         return dotV
 
@@ -93,11 +93,9 @@ class AnalyzeWfn:
         crossterm1 = np.cross(np.cross(vec1, vec2, axis=1),
                               np.cross(vec2, vec3, axis=1), axis=1)
 
-        term1 = self.dotPdt(crossterm1,
-                            (vec2 / la.norm(vec2, axis=1)[:, np.newaxis]))
+        term1 = self.dot_pdt(crossterm1, (vec2 / la.norm(vec2, axis=1)[:, np.newaxis]))
 
-        term2 = self.dotPdt(np.cross(vec1, vec2, axis=1),
-                            np.cross(vec2, vec3, axis=1))
+        term2 = self.dot_pdt(np.cross(vec1, vec2, axis=1), np.cross(vec2, vec3, axis=1))
 
         dh = np.arctan2(term1, term2)
         return dh

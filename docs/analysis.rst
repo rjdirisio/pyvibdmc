@@ -14,28 +14,30 @@ simulations run on a water monomer. The potential energy surface for these calcu
 ``PyVibDMC``: the Partridge/Schwenke potential. The resultant files from a single DMC simulation are:
 
 - A ``{sim_name}_sim_info.hdf5`` file, which houses arrays that have the value of Vref at each time step, as well as the population\
-  (for discrete weighting DMC) or continuous weights (for continuous weighting) at each time step. This file also includes a list of\
-  integers that correspond to the atomic numbers of the molecular system used in the simulation, so for a water monomer this will be\
-  [1,1,8] for [H,H,O].
+   (for discrete weighting DMC) or continuous weights (for continuous weighting) at each time step. This file also includes a list of\
+   integers that correspond to the atomic numbers of the molecular system used in the simulation, so for a water monomer this will be\
+   [1,1,8] for [H,H,O].
 
-- A ``{sim_name}.log`` file, which details certain information about the simulation. The verbosity of this log file is
-  controlled by the ``log_every`` parameter.
+- A ``{sim_name}_log.txt`` file, which details certain information about the simulation. The verbosity of this log file is
+   controlled by the ``log_every`` parameter.
 
 - Many ``wfns/{sim_name}_wfn_{current_time_step}ts.hdf5`` files, which collect a snapshot of the ensemble (the wave function)\
-  at the user specified time steps (from ``wfn_every``), and also its corresponding descendant weights.  Typically, these wave functions and\
-  descendant weights are combined into one, larger wave function to improve on statistical uncertainty in the wave function.
+   at the user specified time steps (from ``wfn_every``), and also its corresponding descendant weights.  Typically, these wave functions and\
+   descendant weights are combined into one, larger wave function to improve on statistical uncertainty in the wave function.
 
 - Many ``chkpts/{sim_name}_{current_time_step}.pickle`` files, which is the simulation checkpointing itself every x\
-  time steps specified by the user in ``chkpt_every``.
+   time steps specified by the user in ``chkpt_every``.
 
 All of these files will output in the user-specified ``output_folder``. For the purposes of this overview, we will be
 using the prepackaged simulation data that comes with ``PyVibDMC``.  For the sample data, each ``sim_name`` is
 ``tutorial_water_{i}``, where ``i`` is an integer between 0 and 4, and the ``output_folder`` is ``sample_sim_data`` for
 all 5 simulations.
 
-**Analysis Note: PyVibDMC takes in coordinates and potential energy values in atomic units.  However, it returns geometries in Angstroms!**
+**Note: PyVibDMC takes in coordinates and potential energy values in atomic units.  However, it returns geometries  for analysis in Angstroms!**
 
-**General Note: We recommend that you specify simulation output to go outside the PyVibDMC package.**
+**Note: We recommend that you specify simulation output to go outside the PyVibDMC package.**
+
+**Note: If you are an advanced user, you may parse the hdf5 files yourself using h5py.**
 
 This data is purely for demonstration purposes.
 
@@ -53,7 +55,7 @@ Plotting Vref::
 	                    save_name=f'test_vref.png')
 
 .. figure:: figures/test_vref.png
-   :scale: 50 %
+   :scale: 25 %
 
    A plot of Vref for tutorial_water_0 as the simulation progresses.  We will average over a certain portion of this to calculate the ZPE.
 
@@ -100,14 +102,14 @@ steps, and this will all repeat until ``num_timesteps`` is reached.
 In the simulation data, a wave function was collected every 1000 time steps, but not until the 500th time step. This
 repeated until 10000 time steps are over.
 
-Here is how to combine the various snapshots (2500 to 9500), and their descendant weights, into size NxMx3 and N arrays,
+Here is how to combine the various snapshots (2500 to 9500), and their descendant weights, into size (N,M,3) and N arrays,
 respectively, taken from a single DMC simulation::
 
    import numpy as np
    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
-   # combined_wfns, dws = tutorial_sim.get_wfns([2500,3500,4500,5500,6500,7500,8500,9500]) # perfectly valid, but tiresome
+   # cds, dws = tutorial_sim.get_wfns([2500,3500,4500,5500,6500,7500,8500,9500]) # perfectly valid, but tiresome
    increment = 1000
-   combined_wfns, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment)) # for those familiar with numpy
+   cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment)) # for those familiar with numpy
 
 Projecting the Probability Density onto a desirable coordinate
 -----------------------------------------------------------------
@@ -145,7 +147,7 @@ Here is the code that will perform that projection, as well as plot it::
 Here is the resultant plot of the HOH bend in water:
 
 .. figure:: figures/HOH_angle.png
-   :scale: 50 %
+   :scale: 25 %
 
    The 1D DMC Projection of the probability amplitude onto the HOH bend in water.
 
@@ -165,7 +167,7 @@ do that::
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
     analyzer = AnalyzeWfn(cds)  # initialize analyzer object
 
-    num_atoms = cds.shape[1] #remember, nxmx3 array, so this is m
+    num_atoms = cds.shape[1] #remember, (n,m,3) array, so this is m
     combos = itt.combinations(range(num_atoms), 2) #get all numbered pairs of atoms
     ranges = [(1.0,2.2), (0.5,1.5), (0.5,1.5)] #HH dist, OH dist 1, OH dist 2
     for combo_num, combo in enumerate(combos):  # for each pair of atom-atom distances, calculate the bond length for each walker
@@ -183,9 +185,30 @@ do that::
 Which leads to three plots, one of which looks like this:
 
 .. figure:: figures/BondLength_R12.png
-   :scale: 50 %
+   :scale: 25 %
 
    The 1D DMC Projection of the probability amplitude onto one of the three atom-atom distances in water. This one is an OH distance.
+
+Calculating Expectation Values of Multiplicative Operators over the Ground State
+------------------------------------------------------------------------------------
+One can easily calculate expectation values of multiplicative operators (displacement, potential energy, etc.) using
+the descendant weights in Monte Carlo Integration.  For a more detailed explanation of this,
+please see `this paper by Suhm and Watts <https://doi.org/10.1016/0370-1573(91)90136-A>`_.
+The calculation of, say, the expectation value of the displacement of one OH stretch in water would be done as follows::
+
+    from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
+    import numpy as np
+
+    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    increment = 1000
+    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    savefigpth = '' # save in current directory
+
+    analyzer = AnalyzeWfn(cds)  # initialize wavefunction analyzer object
+    bl_oh = analyzer.bond_length(atm1=0,
+                                 atm2=2)  # [H H O]
+    exp_val_OH = analyzer.exp_val(operator=bl_oh, dw=dws)
+    print(f"The expectation value of the OH stretch in water is {exp_val_OH} Angstroms")
 
 To see more examples of DMC wave function analysis, including more advanced ones, please check out the
 `tests/test_analysis.py <https://github.com/rjdirisio/PyVibDMC/blob/master/PyVibDMC/tests/test_analysis.py>`_ file in

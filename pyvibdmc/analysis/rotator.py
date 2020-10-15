@@ -79,11 +79,11 @@ class MolRotator:
     def genEulers(x, y, z, X, Y, Z):
         """Takes in cartesian vectors and gives you the 3 euler angles that bring xyz to XYZ based on a 'ZYZ'
             rotation"""
-        zdot = AnalyzeWfn.dotPdt(z, Z) / (la.norm(z, axis=1) * la.norm(Z, axis=1))
-        Yzdot = AnalyzeWfn.dotPdt(Y, z) / (la.norm(Y, axis=1) * la.norm(z, axis=1))
-        Xzdot = AnalyzeWfn.dotPdt(X, z) / (la.norm(X, axis=1) * la.norm(z, axis=1))
-        yZdot = AnalyzeWfn.dotPdt(y, Z) / (la.norm(y, axis=1) * la.norm(Z, axis=1))
-        xZdot = AnalyzeWfn.dotPdt(x, Z) / (la.norm(x, axis=1) * la.norm(Z, axis=1))
+        zdot = AnalyzeWfn.dot_pdt(z, Z) / (la.norm(z, axis=1) * la.norm(Z, axis=1))
+        Yzdot = AnalyzeWfn.dot_pdt(Y, z) / (la.norm(Y, axis=1) * la.norm(z, axis=1))
+        Xzdot = AnalyzeWfn.dot_pdt(X, z) / (la.norm(X, axis=1) * la.norm(z, axis=1))
+        yZdot = AnalyzeWfn.dot_pdt(y, Z) / (la.norm(y, axis=1) * la.norm(Z, axis=1))
+        xZdot = AnalyzeWfn.dot_pdt(x, Z) / (la.norm(x, axis=1) * la.norm(Z, axis=1))
         Theta = np.arccos(zdot)
         tanPhi = np.arctan2(Yzdot, Xzdot)
         tanChi = np.arctan2(yZdot, -xZdot)  # negative baked in

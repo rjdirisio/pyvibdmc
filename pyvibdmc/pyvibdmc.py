@@ -125,8 +125,8 @@ class DMC_Sim:
         if self.start_structures is None:
             raise Exception("Please supply a starting structure for your chemical system.")
         elif len(self.start_structures.shape) != 3:
-            raise Exception("Start structure must have format (nxmxd), where n = 1 or num_walkers, m = num atoms, "
-                            "d = dims")
+            raise Exception("Start structure must have format (n,m,d), where n = 1 or num_walkers, m = num atoms, "
+                            "d = dimensions (usually 3)")
         elif self.start_structures.shape[0] == 1:
             self._walker_coords = np.repeat(self.start_structures,
                                             self.num_walkers, axis=0)
@@ -153,7 +153,7 @@ class DMC_Sim:
 
         # Where to save the data
         FileManager.create_filesystem(self.output_folder)
-        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}.log", overwrite=True)
+        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt", overwrite=True)
 
         # Weighting technique
         if self.weighting == 'continuous':
@@ -301,7 +301,7 @@ class DMC_Sim:
                 self._logger.write_chkpt(prop_step)
                 self._logger = None
                 SimArchivist.chkpt(self, prop_step)
-                self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}.log")
+                self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
 
             # If we are at a spot to begin desc_wt_timeendant weighting
             if prop_step in self._wfn_save_step:
@@ -358,8 +358,10 @@ class DMC_Sim:
 
     def run(self):
         """This function calls propagate and saves simulation results"""
+        print("Starting Simulation...")
         self.propagate()
         _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+        print("Simulation Complete")
         print('Approximate ZPE', np.average(_vrefCM[len(_vrefCM) // 4:]))
         ts = np.arange(len(_vrefCM))
         SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
