@@ -13,20 +13,20 @@ In the ``PyVibDMC`` package, one will find sample data for the purpose of this e
 simulations run on a water monomer. The potential energy surface for these calculations is prepackaged with
 ``PyVibDMC``: the Partridge/Schwenke potential. The resultant files from a single DMC simulation are:
 
-- A ``{sim_name}_sim_info.hdf5`` file, which houses arrays that have the value of Vref at each time step, as well as the population\
-   (for discrete weighting DMC) or continuous weights (for continuous weighting) at each time step. This file also includes a list of\
-   integers that correspond to the atomic numbers of the molecular system used in the simulation, so for a water monomer this will be\
-   [1,1,8] for [H,H,O].
+- A ``{sim_name}_sim_info.hdf5`` file, which houses arrays that have the value of Vref at each time step, as well as the population \
+  (for discrete weighting DMC) or continuous weights (for continuous weighting) at each time step. This file also includes a list of \
+  integers that correspond to the atomic numbers of the molecular system used in the simulation, so for a water monomer this will be \
+  [1,1,8] for [H,H,O].
 
-- A ``{sim_name}_log.txt`` file, which details certain information about the simulation. The verbosity of this log file is
-   controlled by the ``log_every`` parameter.
+- A ``{sim_name}_log.txt`` file, which details certain information about the simulation. The verbosity of this log file is \
+  controlled by the ``log_every`` parameter.
 
-- Many ``wfns/{sim_name}_wfn_{current_time_step}ts.hdf5`` files, which collect a snapshot of the ensemble (the wave function)\
-   at the user specified time steps (from ``wfn_every``), and also its corresponding descendant weights.  Typically, these wave functions and\
-   descendant weights are combined into one, larger wave function to improve on statistical uncertainty in the wave function.
+- Many ``wfns/{sim_name}_wfn_{current_time_step}ts.hdf5`` files, which collect a snapshot of the ensemble (the wave function) \
+  at the user specified time steps (from ``wfn_every``), and also its corresponding descendant weights.  Typically, these wave functions and \
+  descendant weights are combined into one, larger wave function to improve on statistical uncertainty in the wave function.
 
-- Many ``chkpts/{sim_name}_{current_time_step}.pickle`` files, which is the simulation checkpointing itself every x\
-   time steps specified by the user in ``chkpt_every``.
+- Many ``chkpts/{sim_name}_{current_time_step}.pickle`` files, which is the simulation checkpointing itself every x \
+  time steps specified by the user in ``chkpt_every``.
 
 All of these files will output in the user-specified ``output_folder``. For the purposes of this overview, we will be
 using the prepackaged simulation data that comes with ``PyVibDMC``.  For the sample data, each ``sim_name`` is
@@ -56,6 +56,7 @@ Plotting Vref::
 
 .. figure:: figures/test_vref.png
    :scale: 25 %
+   :align: center
 
    A plot of Vref for tutorial_water_0 as the simulation progresses.  We will average over a certain portion of this to calculate the ZPE.
 
@@ -148,6 +149,7 @@ Here is the resultant plot of the HOH bend in water:
 
 .. figure:: figures/HOH_angle.png
    :scale: 25 %
+   :align: center
 
    The 1D DMC Projection of the probability amplitude onto the HOH bend in water.
 
@@ -186,6 +188,7 @@ Which leads to three plots, one of which looks like this:
 
 .. figure:: figures/BondLength_R12.png
    :scale: 25 %
+   :align: center
 
    The 1D DMC Projection of the probability amplitude onto one of the three atom-atom distances in water. This one is an OH distance.
 
