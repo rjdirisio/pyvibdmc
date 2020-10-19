@@ -9,7 +9,7 @@ dependencies:
   - numpy
   - h5py
   - matplotlib
-  - sphinx-autoapi
+#  - sphinx-autoapi
 
     # Testing
   - pytest
