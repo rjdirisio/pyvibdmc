@@ -1,960 +1,973 @@
+Simulation tutorial_water_1 starting at step 0
+Num Walkers: 8000
+Num Time Steps: 10000
+Weighting Type: discrete
+Branch every discrete time step(s)
+Delta Tau: 5 a.u.
+Start structure Array Shape: (1, 3, 3)
+Masses of each atom: [ 1837.15267275  1837.15267275 29156.94616616]
+Equilibration steps before collecting wave functions: 500
+Checkpoint every 500 time steps
+Collect wave functions every 1000 time steps after equilibration
+
 Time step 0
 Potential call time at time step 0:
-	0.02485942840576172 seconds
-	Average energy of ensemble: 393.34668874375717 wavenumbers (without vref correction)
-	Highest energy walker: 3492.2524497503655 wavenumbers
-	Lowest energy walker: -0.20740108774422572 wavenumbers
+	0.009631156921386719 seconds
+	Average energy of ensemble: 395.00411467426164 wavenumbers (without vref correction)
+	Highest energy walker: 3596.5360559573646 wavenumbers
+	Lowest energy walker: 0.29050720260076723 wavenumbers
 Birth/Death at time step 0:
-	Walker Births: 23
-	Walker Deaths: 25
+	Walker Births: 29
+	Walker Deaths: 23
 Time step 100
 Potential call time at time step 100:
-	0.014389276504516602 seconds
-	Average energy of ensemble: 4871.6125612969345 wavenumbers (without vref correction)
-	Highest energy walker: 49877.450672680796 wavenumbers
-	Lowest energy walker: 6.199983065030157 wavenumbers
+	0.009321212768554688 seconds
+	Average energy of ensemble: 4812.571817414415 wavenumbers (without vref correction)
+	Highest energy walker: 50286.43677467285 wavenumbers
+	Lowest energy walker: 9.618019981943505 wavenumbers
 Birth/Death at time step 100:
-	Walker Births: 261
-	Walker Deaths: 274
+	Walker Births: 235
+	Walker Deaths: 248
 Time step 200
 Potential call time at time step 200:
-	0.01575326919555664 seconds
-	Average energy of ensemble: 4916.203059900798 wavenumbers (without vref correction)
-	Highest energy walker: 42098.40225098882 wavenumbers
-	Lowest energy walker: 5.778108208844161 wavenumbers
+	0.016627788543701172 seconds
+	Average energy of ensemble: 4739.914381592242 wavenumbers (without vref correction)
+	Highest energy walker: 55472.20504797898 wavenumbers
+	Lowest energy walker: 0.7217748289792415 wavenumbers
 Birth/Death at time step 200:
-	Walker Births: 280
-	Walker Deaths: 253
+	Walker Births: 244
+	Walker Deaths: 249
 Time step 300
 Potential call time at time step 300:
-	0.01432347297668457 seconds
-	Average energy of ensemble: 4749.874938787733 wavenumbers (without vref correction)
-	Highest energy walker: 45434.05326432242 wavenumbers
-	Lowest energy walker: 4.441092458559681 wavenumbers
+	0.008875846862792969 seconds
+	Average energy of ensemble: 4922.656989080591 wavenumbers (without vref correction)
+	Highest energy walker: 46503.76344993303 wavenumbers
+	Lowest energy walker: 14.105256829132765 wavenumbers
 Birth/Death at time step 300:
-	Walker Births: 237
-	Walker Deaths: 250
+	Walker Births: 226
+	Walker Deaths: 292
 Time step 400
 Potential call time at time step 400:
-	0.016150951385498047 seconds
-	Average energy of ensemble: 4815.671221249071 wavenumbers (without vref correction)
-	Highest energy walker: 46958.78470826702 wavenumbers
-	Lowest energy walker: 3.681882045748988 wavenumbers
+	0.009530782699584961 seconds
+	Average energy of ensemble: 4791.373126049058 wavenumbers (without vref correction)
+	Highest energy walker: 48070.59485447905 wavenumbers
+	Lowest energy walker: 9.528338303049242 wavenumbers
 Birth/Death at time step 400:
-	Walker Births: 257
-	Walker Deaths: 267
+	Walker Births: 262
+	Walker Deaths: 256
 Time step 500
 Checkpointing, time step 500
 Starting descendant weighting, time step 500
 Will save wave function from time step 500
 Potential call time at time step 500:
-	0.02353668212890625 seconds
-	Average energy of ensemble: 4929.162114258335 wavenumbers (without vref correction)
-	Highest energy walker: 44956.64429649491 wavenumbers
-	Lowest energy walker: 6.620068709093708 wavenumbers
+	0.025321006774902344 seconds
+	Average energy of ensemble: 4849.1282634196305 wavenumbers (without vref correction)
+	Highest energy walker: 55583.152400216706 wavenumbers
+	Lowest energy walker: 11.449169746483156 wavenumbers
 Birth/Death at time step 500:
-	Walker Births: 237
-	Walker Deaths: 258
+	Walker Births: 246
+	Walker Deaths: 266
 Time step 600
 Finished descendant weighting, time step 600
 Saving Wave function with descendant weights, time step 600
 Potential call time at time step 600:
-	0.014300346374511719 seconds
-	Average energy of ensemble: 4862.601797151454 wavenumbers (without vref correction)
-	Highest energy walker: 45810.69944283775 wavenumbers
-	Lowest energy walker: 7.2373902945635775 wavenumbers
+	0.02183389663696289 seconds
+	Average energy of ensemble: 4866.389220967177 wavenumbers (without vref correction)
+	Highest energy walker: 58677.751368457146 wavenumbers
+	Lowest energy walker: 17.048575359613384 wavenumbers
 Birth/Death at time step 600:
-	Walker Births: 270
+	Walker Births: 279
 	Walker Deaths: 249
 Time step 700
 Potential call time at time step 700:
-	0.015456914901733398 seconds
-	Average energy of ensemble: 4829.843822180005 wavenumbers (without vref correction)
-	Highest energy walker: 46489.34398513363 wavenumbers
-	Lowest energy walker: 14.410539287815135 wavenumbers
+	0.012064456939697266 seconds
+	Average energy of ensemble: 4768.515071854251 wavenumbers (without vref correction)
+	Highest energy walker: 55018.858494080494 wavenumbers
+	Lowest energy walker: 4.675917823719906 wavenumbers
 Birth/Death at time step 700:
-	Walker Births: 247
-	Walker Deaths: 288
+	Walker Births: 233
+	Walker Deaths: 231
 Time step 800
 Potential call time at time step 800:
-	0.01511693000793457 seconds
-	Average energy of ensemble: 4841.357656331943 wavenumbers (without vref correction)
-	Highest energy walker: 41789.564205585244 wavenumbers
-	Lowest energy walker: 6.006935666836375 wavenumbers
+	0.010175228118896484 seconds
+	Average energy of ensemble: 4795.24532912084 wavenumbers (without vref correction)
+	Highest energy walker: 44907.64587539771 wavenumbers
+	Lowest energy walker: 17.670888021029462 wavenumbers
 Birth/Death at time step 800:
-	Walker Births: 258
-	Walker Deaths: 254
+	Walker Births: 263
+	Walker Deaths: 241
 Time step 900
 Potential call time at time step 900:
-	0.01349496841430664 seconds
-	Average energy of ensemble: 4774.337083645165 wavenumbers (without vref correction)
-	Highest energy walker: 49529.08626908483 wavenumbers
-	Lowest energy walker: 13.996063396496014 wavenumbers
+	0.012262582778930664 seconds
+	Average energy of ensemble: 4862.378246015847 wavenumbers (without vref correction)
+	Highest energy walker: 60401.390143658966 wavenumbers
+	Lowest energy walker: 1.206133862211234 wavenumbers
 Birth/Death at time step 900:
-	Walker Births: 246
-	Walker Deaths: 226
+	Walker Births: 251
+	Walker Deaths: 279
 Time step 1000
 Checkpointing, time step 1000
 Potential call time at time step 1000:
-	0.03403043746948242 seconds
-	Average energy of ensemble: 4791.5833012264175 wavenumbers (without vref correction)
-	Highest energy walker: 64901.162456398546 wavenumbers
-	Lowest energy walker: 12.526838747934862 wavenumbers
+	0.03275489807128906 seconds
+	Average energy of ensemble: 4889.406409086386 wavenumbers (without vref correction)
+	Highest energy walker: 44297.62011401376 wavenumbers
+	Lowest energy walker: 11.297804136614635 wavenumbers
 Birth/Death at time step 1000:
-	Walker Births: 265
-	Walker Deaths: 261
+	Walker Births: 273
+	Walker Deaths: 254
 Time step 1100
 Potential call time at time step 1100:
-	0.020686626434326172 seconds
-	Average energy of ensemble: 4900.622263354501 wavenumbers (without vref correction)
-	Highest energy walker: 64889.80854625032 wavenumbers
-	Lowest energy walker: 19.750598043124363 wavenumbers
+	0.01664280891418457 seconds
+	Average energy of ensemble: 4780.872940560042 wavenumbers (without vref correction)
+	Highest energy walker: 43364.0346158368 wavenumbers
+	Lowest energy walker: 19.530821974814767 wavenumbers
 Birth/Death at time step 1100:
-	Walker Births: 249
-	Walker Deaths: 271
+	Walker Births: 301
+	Walker Deaths: 248
 Time step 1200
 Potential call time at time step 1200:
-	0.02390599250793457 seconds
-	Average energy of ensemble: 4795.639577099216 wavenumbers (without vref correction)
-	Highest energy walker: 43179.869929584005 wavenumbers
-	Lowest energy walker: 6.014107009653785 wavenumbers
+	0.009321928024291992 seconds
+	Average energy of ensemble: 4880.444666427888 wavenumbers (without vref correction)
+	Highest energy walker: 61778.186783267796 wavenumbers
+	Lowest energy walker: 3.351471099848014 wavenumbers
 Birth/Death at time step 1200:
-	Walker Births: 245
-	Walker Deaths: 260
+	Walker Births: 257
+	Walker Deaths: 259
 Time step 1300
 Potential call time at time step 1300:
-	0.022582530975341797 seconds
-	Average energy of ensemble: 4792.186995560866 wavenumbers (without vref correction)
-	Highest energy walker: 54949.33030560684 wavenumbers
-	Lowest energy walker: 10.46486302845187 wavenumbers
+	0.01395559310913086 seconds
+	Average energy of ensemble: 4762.0757687840405 wavenumbers (without vref correction)
+	Highest energy walker: 66295.40955897195 wavenumbers
+	Lowest energy walker: 9.977454143712793 wavenumbers
 Birth/Death at time step 1300:
-	Walker Births: 282
-	Walker Deaths: 260
+	Walker Births: 239
+	Walker Deaths: 266
 Time step 1400
 Potential call time at time step 1400:
-	0.013317346572875977 seconds
-	Average energy of ensemble: 4767.190578821501 wavenumbers (without vref correction)
-	Highest energy walker: 47476.75531939369 wavenumbers
-	Lowest energy walker: 7.050293189753766 wavenumbers
+	0.009213924407958984 seconds
+	Average energy of ensemble: 4782.426905305112 wavenumbers (without vref correction)
+	Highest energy walker: 40205.81436400753 wavenumbers
+	Lowest energy walker: 12.770430250546086 wavenumbers
 Birth/Death at time step 1400:
-	Walker Births: 271
-	Walker Deaths: 249
+	Walker Births: 261
+	Walker Deaths: 267
 Time step 1500
 Checkpointing, time step 1500
 Starting descendant weighting, time step 1500
 Will save wave function from time step 1500
 Potential call time at time step 1500:
-	0.029416799545288086 seconds
-	Average energy of ensemble: 4781.960542915613 wavenumbers (without vref correction)
-	Highest energy walker: 50462.38792529056 wavenumbers
-	Lowest energy walker: 3.533704639070893 wavenumbers
+	0.017787694931030273 seconds
+	Average energy of ensemble: 4719.823123842057 wavenumbers (without vref correction)
+	Highest energy walker: 42505.89472560579 wavenumbers
+	Lowest energy walker: 10.802267224996719 wavenumbers
 Birth/Death at time step 1500:
-	Walker Births: 281
-	Walker Deaths: 286
+	Walker Births: 256
+	Walker Deaths: 259
 Time step 1600
 Finished descendant weighting, time step 1600
 Saving Wave function with descendant weights, time step 1600
 Potential call time at time step 1600:
-	0.01524209976196289 seconds
-	Average energy of ensemble: 4883.462639801685 wavenumbers (without vref correction)
-	Highest energy walker: 63004.54614734082 wavenumbers
-	Lowest energy walker: 1.3066397415311268 wavenumbers
+	0.019778966903686523 seconds
+	Average energy of ensemble: 4773.897784411609 wavenumbers (without vref correction)
+	Highest energy walker: 65717.89518904887 wavenumbers
+	Lowest energy walker: 1.360562875251032 wavenumbers
 Birth/Death at time step 1600:
-	Walker Births: 234
-	Walker Deaths: 292
+	Walker Births: 242
+	Walker Deaths: 254
 Time step 1700
 Potential call time at time step 1700:
-	0.014281511306762695 seconds
-	Average energy of ensemble: 4901.617283728097 wavenumbers (without vref correction)
-	Highest energy walker: 66706.60743024686 wavenumbers
-	Lowest energy walker: 11.21148221130003 wavenumbers
+	0.009264469146728516 seconds
+	Average energy of ensemble: 4777.942132609141 wavenumbers (without vref correction)
+	Highest energy walker: 50503.89248502736 wavenumbers
+	Lowest energy walker: 8.715012510444847 wavenumbers
 Birth/Death at time step 1700:
-	Walker Births: 264
-	Walker Deaths: 250
+	Walker Births: 278
+	Walker Deaths: 245
 Time step 1800
 Potential call time at time step 1800:
-	0.015659809112548828 seconds
-	Average energy of ensemble: 4786.90474822269 wavenumbers (without vref correction)
-	Highest energy walker: 48814.31152311353 wavenumbers
-	Lowest energy walker: 5.311054759613007 wavenumbers
+	0.013269186019897461 seconds
+	Average energy of ensemble: 4896.3201734992845 wavenumbers (without vref correction)
+	Highest energy walker: 47914.87690685416 wavenumbers
+	Lowest energy walker: 3.506745479896966 wavenumbers
 Birth/Death at time step 1800:
-	Walker Births: 274
-	Walker Deaths: 254
+	Walker Births: 264
+	Walker Deaths: 268
 Time step 1900
 Potential call time at time step 1900:
-	0.01395559310913086 seconds
-	Average energy of ensemble: 4834.012885436679 wavenumbers (without vref correction)
-	Highest energy walker: 48044.15813750972 wavenumbers
-	Lowest energy walker: 6.319336852152994 wavenumbers
+	0.00957345962524414 seconds
+	Average energy of ensemble: 4669.136298148862 wavenumbers (without vref correction)
+	Highest energy walker: 62613.23907193442 wavenumbers
+	Lowest energy walker: 9.170051914858288 wavenumbers
 Birth/Death at time step 1900:
-	Walker Births: 272
+	Walker Births: 261
 	Walker Deaths: 240
 Time step 2000
 Checkpointing, time step 2000
 Potential call time at time step 2000:
-	0.02431178092956543 seconds
-	Average energy of ensemble: 4811.902141989719 wavenumbers (without vref correction)
-	Highest energy walker: 44987.97117406397 wavenumbers
-	Lowest energy walker: 11.726654554588555 wavenumbers
+	0.016343355178833008 seconds
+	Average energy of ensemble: 4762.549023482995 wavenumbers (without vref correction)
+	Highest energy walker: 55689.80448186546 wavenumbers
+	Lowest energy walker: 9.072772972668135 wavenumbers
 Birth/Death at time step 2000:
-	Walker Births: 247
-	Walker Deaths: 274
+	Walker Births: 241
+	Walker Deaths: 262
 Time step 2100
 Potential call time at time step 2100:
-	0.021359682083129883 seconds
-	Average energy of ensemble: 4766.835037337207 wavenumbers (without vref correction)
-	Highest energy walker: 65283.57166501696 wavenumbers
-	Lowest energy walker: 10.888978069420734 wavenumbers
+	0.009145259857177734 seconds
+	Average energy of ensemble: 4805.763043223362 wavenumbers (without vref correction)
+	Highest energy walker: 66395.854748891 wavenumbers
+	Lowest energy walker: 2.601245076472127 wavenumbers
 Birth/Death at time step 2100:
-	Walker Births: 273
-	Walker Deaths: 244
+	Walker Births: 260
+	Walker Deaths: 255
 Time step 2200
 Potential call time at time step 2200:
-	0.02239084243774414 seconds
-	Average energy of ensemble: 4757.17283051634 wavenumbers (without vref correction)
-	Highest energy walker: 66696.3855272383 wavenumbers
-	Lowest energy walker: 6.992230954820486 wavenumbers
+	0.01570749282836914 seconds
+	Average energy of ensemble: 4697.646546183105 wavenumbers (without vref correction)
+	Highest energy walker: 57383.52309168531 wavenumbers
+	Lowest energy walker: 1.4145339762582962 wavenumbers
 Birth/Death at time step 2200:
-	Walker Births: 259
-	Walker Deaths: 246
+	Walker Births: 241
+	Walker Deaths: 244
 Time step 2300
 Potential call time at time step 2300:
-	0.02345585823059082 seconds
-	Average energy of ensemble: 4890.171682573627 wavenumbers (without vref correction)
-	Highest energy walker: 56690.53722825164 wavenumbers
-	Lowest energy walker: 10.753329484009488 wavenumbers
+	0.009286880493164062 seconds
+	Average energy of ensemble: 4746.7125462544955 wavenumbers (without vref correction)
+	Highest energy walker: 55962.56927390322 wavenumbers
+	Lowest energy walker: 0.8867117982531741 wavenumbers
 Birth/Death at time step 2300:
 	Walker Births: 252
-	Walker Deaths: 269
+	Walker Deaths: 280
 Time step 2400
 Potential call time at time step 2400:
-	0.020756244659423828 seconds
-	Average energy of ensemble: 4799.252680157268 wavenumbers (without vref correction)
-	Highest energy walker: 42508.879671833965 wavenumbers
-	Lowest energy walker: 10.39571124667325 wavenumbers
+	0.02387714385986328 seconds
+	Average energy of ensemble: 4744.786301415479 wavenumbers (without vref correction)
+	Highest energy walker: 69477.46802278908 wavenumbers
+	Lowest energy walker: 8.321499242017588 wavenumbers
 Birth/Death at time step 2400:
-	Walker Births: 252
-	Walker Deaths: 257
+	Walker Births: 273
+	Walker Deaths: 234
 Time step 2500
 Checkpointing, time step 2500
 Starting descendant weighting, time step 2500
 Will save wave function from time step 2500
 Potential call time at time step 2500:
-	0.03238081932067871 seconds
-	Average energy of ensemble: 4798.514407003983 wavenumbers (without vref correction)
-	Highest energy walker: 57186.11601448161 wavenumbers
-	Lowest energy walker: 3.3936392672821327 wavenumbers
+	0.034075260162353516 seconds
+	Average energy of ensemble: 4856.07274753931 wavenumbers (without vref correction)
+	Highest energy walker: 44283.031002460644 wavenumbers
+	Lowest energy walker: 0.6326696425820975 wavenumbers
 Birth/Death at time step 2500:
-	Walker Births: 238
-	Walker Deaths: 237
+	Walker Births: 269
+	Walker Deaths: 283
 Time step 2600
 Finished descendant weighting, time step 2600
 Saving Wave function with descendant weights, time step 2600
 Potential call time at time step 2600:
-	0.015297651290893555 seconds
-	Average energy of ensemble: 4887.996770589048 wavenumbers (without vref correction)
-	Highest energy walker: 53202.08850449715 wavenumbers
-	Lowest energy walker: 15.403794522018522 wavenumbers
+	0.01513361930847168 seconds
+	Average energy of ensemble: 4972.556123640148 wavenumbers (without vref correction)
+	Highest energy walker: 52836.747640746384 wavenumbers
+	Lowest energy walker: 3.920488257507863 wavenumbers
 Birth/Death at time step 2600:
-	Walker Births: 284
-	Walker Deaths: 250
+	Walker Births: 241
+	Walker Deaths: 251
 Time step 2700
 Potential call time at time step 2700:
-	0.013392448425292969 seconds
-	Average energy of ensemble: 4826.714355907282 wavenumbers (without vref correction)
-	Highest energy walker: 47826.28736941635 wavenumbers
-	Lowest energy walker: 2.5015831128066397 wavenumbers
+	0.010098934173583984 seconds
+	Average energy of ensemble: 4841.471315736378 wavenumbers (without vref correction)
+	Highest energy walker: 45056.534548682605 wavenumbers
+	Lowest energy walker: 4.804839119133232 wavenumbers
 Birth/Death at time step 2700:
-	Walker Births: 267
-	Walker Deaths: 242
+	Walker Births: 244
+	Walker Deaths: 256
 Time step 2800
 Potential call time at time step 2800:
-	0.01750946044921875 seconds
-	Average energy of ensemble: 4817.163391929329 wavenumbers (without vref correction)
-	Highest energy walker: 51244.57515821697 wavenumbers
-	Lowest energy walker: 16.392960727193774 wavenumbers
+	0.010615348815917969 seconds
+	Average energy of ensemble: 4885.888420389766 wavenumbers (without vref correction)
+	Highest energy walker: 53099.07452937996 wavenumbers
+	Lowest energy walker: 13.296717350527262 wavenumbers
 Birth/Death at time step 2800:
-	Walker Births: 271
-	Walker Deaths: 232
+	Walker Births: 257
+	Walker Deaths: 246
 Time step 2900
 Potential call time at time step 2900:
-	0.01833176612854004 seconds
-	Average energy of ensemble: 4798.714996699013 wavenumbers (without vref correction)
-	Highest energy walker: 49986.17305168618 wavenumbers
-	Lowest energy walker: 10.126432720903757 wavenumbers
+	0.016375064849853516 seconds
+	Average energy of ensemble: 4834.1508346727815 wavenumbers (without vref correction)
+	Highest energy walker: 50478.892450416395 wavenumbers
+	Lowest energy walker: 15.24213436066741 wavenumbers
 Birth/Death at time step 2900:
-	Walker Births: 272
-	Walker Deaths: 219
+	Walker Births: 253
+	Walker Deaths: 247
 Time step 3000
 Checkpointing, time step 3000
 Potential call time at time step 3000:
-	0.03501439094543457 seconds
-	Average energy of ensemble: 4772.840052096317 wavenumbers (without vref correction)
-	Highest energy walker: 51934.66694568839 wavenumbers
-	Lowest energy walker: 7.260319777264232 wavenumbers
+	0.017614126205444336 seconds
+	Average energy of ensemble: 4685.046418842328 wavenumbers (without vref correction)
+	Highest energy walker: 45127.0633871238 wavenumbers
+	Lowest energy walker: 14.497270273835882 wavenumbers
 Birth/Death at time step 3000:
-	Walker Births: 228
-	Walker Deaths: 269
+	Walker Births: 234
+	Walker Deaths: 246
 Time step 3100
 Potential call time at time step 3100:
-	0.015246152877807617 seconds
-	Average energy of ensemble: 4707.3815689808425 wavenumbers (without vref correction)
-	Highest energy walker: 75516.4850273128 wavenumbers
-	Lowest energy walker: 7.064632600359563 wavenumbers
+	0.009695768356323242 seconds
+	Average energy of ensemble: 4905.950566002508 wavenumbers (without vref correction)
+	Highest energy walker: 60888.33378221361 wavenumbers
+	Lowest energy walker: 18.765620113020397 wavenumbers
 Birth/Death at time step 3100:
-	Walker Births: 248
-	Walker Deaths: 258
+	Walker Births: 269
+	Walker Deaths: 254
 Time step 3200
 Potential call time at time step 3200:
-	0.01912093162536621 seconds
-	Average energy of ensemble: 4761.510748738557 wavenumbers (without vref correction)
-	Highest energy walker: 84723.95442487531 wavenumbers
-	Lowest energy walker: 13.053448943985714 wavenumbers
+	0.010174989700317383 seconds
+	Average energy of ensemble: 4798.301247219386 wavenumbers (without vref correction)
+	Highest energy walker: 66586.60801498727 wavenumbers
+	Lowest energy walker: 2.0105653825155136 wavenumbers
 Birth/Death at time step 3200:
-	Walker Births: 248
-	Walker Deaths: 270
+	Walker Births: 251
+	Walker Deaths: 288
 Time step 3300
 Potential call time at time step 3300:
-	0.015598773956298828 seconds
-	Average energy of ensemble: 4754.39766411091 wavenumbers (without vref correction)
-	Highest energy walker: 38286.94178254655 wavenumbers
-	Lowest energy walker: 6.455936983494256 wavenumbers
+	0.009698152542114258 seconds
+	Average energy of ensemble: 4790.3715318049035 wavenumbers (without vref correction)
+	Highest energy walker: 51785.348767278025 wavenumbers
+	Lowest energy walker: 4.787810744555672 wavenumbers
 Birth/Death at time step 3300:
-	Walker Births: 272
-	Walker Deaths: 252
+	Walker Births: 251
+	Walker Deaths: 267
 Time step 3400
 Potential call time at time step 3400:
-	0.014024734497070312 seconds
-	Average energy of ensemble: 4719.437090100757 wavenumbers (without vref correction)
-	Highest energy walker: 50931.75219404366 wavenumbers
-	Lowest energy walker: 1.3236882397778595 wavenumbers
+	0.00957632064819336 seconds
+	Average energy of ensemble: 4841.261812164696 wavenumbers (without vref correction)
+	Highest energy walker: 51020.18398617647 wavenumbers
+	Lowest energy walker: 19.02137988136693 wavenumbers
 Birth/Death at time step 3400:
-	Walker Births: 243
-	Walker Deaths: 278
+	Walker Births: 254
+	Walker Deaths: 276
 Time step 3500
 Checkpointing, time step 3500
 Starting descendant weighting, time step 3500
 Will save wave function from time step 3500
 Potential call time at time step 3500:
-	0.03680992126464844 seconds
-	Average energy of ensemble: 4850.075568191855 wavenumbers (without vref correction)
-	Highest energy walker: 51293.72842602278 wavenumbers
-	Lowest energy walker: 9.348597756457323 wavenumbers
+	0.01968693733215332 seconds
+	Average energy of ensemble: 4873.125203470067 wavenumbers (without vref correction)
+	Highest energy walker: 85344.49753845762 wavenumbers
+	Lowest energy walker: 18.729404647834226 wavenumbers
 Birth/Death at time step 3500:
-	Walker Births: 260
-	Walker Deaths: 257
+	Walker Births: 266
+	Walker Deaths: 274
 Time step 3600
 Finished descendant weighting, time step 3600
 Saving Wave function with descendant weights, time step 3600
 Potential call time at time step 3600:
-	0.03305482864379883 seconds
-	Average energy of ensemble: 4841.518545857705 wavenumbers (without vref correction)
-	Highest energy walker: 41223.14238111599 wavenumbers
-	Lowest energy walker: 0.6831978769128693 wavenumbers
+	0.021683692932128906 seconds
+	Average energy of ensemble: 4798.467512203112 wavenumbers (without vref correction)
+	Highest energy walker: 61788.1285620624 wavenumbers
+	Lowest energy walker: 1.622427396734739 wavenumbers
 Birth/Death at time step 3600:
-	Walker Births: 255
-	Walker Deaths: 255
+	Walker Births: 256
+	Walker Deaths: 268
 Time step 3700
 Potential call time at time step 3700:
-	0.018404245376586914 seconds
-	Average energy of ensemble: 4894.405045563891 wavenumbers (without vref correction)
-	Highest energy walker: 57197.444656712396 wavenumbers
-	Lowest energy walker: 13.17434871162853 wavenumbers
+	0.009715795516967773 seconds
+	Average energy of ensemble: 4777.620760645624 wavenumbers (without vref correction)
+	Highest energy walker: 48369.6335839066 wavenumbers
+	Lowest energy walker: 2.8612664191099912 wavenumbers
 Birth/Death at time step 3700:
-	Walker Births: 250
-	Walker Deaths: 250
+	Walker Births: 267
+	Walker Deaths: 264
 Time step 3800
 Potential call time at time step 3800:
-	0.016261577606201172 seconds
-	Average energy of ensemble: 4813.604457220213 wavenumbers (without vref correction)
-	Highest energy walker: 49151.927782664105 wavenumbers
-	Lowest energy walker: 4.163320355109052 wavenumbers
+	0.00926661491394043 seconds
+	Average energy of ensemble: 4852.903639536494 wavenumbers (without vref correction)
+	Highest energy walker: 73477.60203364937 wavenumbers
+	Lowest energy walker: 4.495735468689499 wavenumbers
 Birth/Death at time step 3800:
-	Walker Births: 225
-	Walker Deaths: 271
+	Walker Births: 276
+	Walker Deaths: 250
 Time step 3900
 Potential call time at time step 3900:
-	0.01794147491455078 seconds
-	Average energy of ensemble: 4857.390531276021 wavenumbers (without vref correction)
-	Highest energy walker: 52809.77608341583 wavenumbers
-	Lowest energy walker: 7.209607560130024 wavenumbers
+	0.009058475494384766 seconds
+	Average energy of ensemble: 4754.752662089974 wavenumbers (without vref correction)
+	Highest energy walker: 45393.295938467345 wavenumbers
+	Lowest energy walker: 6.987080299129776 wavenumbers
 Birth/Death at time step 3900:
-	Walker Births: 279
-	Walker Deaths: 273
+	Walker Births: 274
+	Walker Deaths: 241
 Time step 4000
 Checkpointing, time step 4000
 Potential call time at time step 4000:
-	0.030823469161987305 seconds
-	Average energy of ensemble: 4829.20215941996 wavenumbers (without vref correction)
-	Highest energy walker: 51601.05888020956 wavenumbers
-	Lowest energy walker: 10.677961291016443 wavenumbers
+	0.024544239044189453 seconds
+	Average energy of ensemble: 4848.532358560227 wavenumbers (without vref correction)
+	Highest energy walker: 42298.638600427796 wavenumbers
+	Lowest energy walker: 0.0931616817663128 wavenumbers
 Birth/Death at time step 4000:
-	Walker Births: 271
-	Walker Deaths: 267
+	Walker Births: 235
+	Walker Deaths: 262
 Time step 4100
 Potential call time at time step 4100:
-	0.014122247695922852 seconds
-	Average energy of ensemble: 4873.497870817541 wavenumbers (without vref correction)
-	Highest energy walker: 50180.257778515515 wavenumbers
-	Lowest energy walker: 9.165862179729789 wavenumbers
+	0.011445760726928711 seconds
+	Average energy of ensemble: 4761.6151271621775 wavenumbers (without vref correction)
+	Highest energy walker: 63728.128535430376 wavenumbers
+	Lowest energy walker: 2.098237970856701 wavenumbers
 Birth/Death at time step 4100:
-	Walker Births: 229
-	Walker Deaths: 263
+	Walker Births: 282
+	Walker Deaths: 264
 Time step 4200
 Potential call time at time step 4200:
-	0.01677417755126953 seconds
-	Average energy of ensemble: 4875.805870850131 wavenumbers (without vref correction)
-	Highest energy walker: 57268.6977637474 wavenumbers
-	Lowest energy walker: 5.655525242093936 wavenumbers
+	0.014945745468139648 seconds
+	Average energy of ensemble: 4719.123418228098 wavenumbers (without vref correction)
+	Highest energy walker: 51230.94456694626 wavenumbers
+	Lowest energy walker: 11.605788391801564 wavenumbers
 Birth/Death at time step 4200:
-	Walker Births: 275
-	Walker Deaths: 273
+	Walker Births: 258
+	Walker Deaths: 252
 Time step 4300
 Potential call time at time step 4300:
-	0.01878213882446289 seconds
-	Average energy of ensemble: 4743.042034939581 wavenumbers (without vref correction)
-	Highest energy walker: 65011.2641653601 wavenumbers
-	Lowest energy walker: 2.075032957043775 wavenumbers
+	0.011633634567260742 seconds
+	Average energy of ensemble: 4777.626531727668 wavenumbers (without vref correction)
+	Highest energy walker: 73920.58553333506 wavenumbers
+	Lowest energy walker: 4.745654245956332 wavenumbers
 Birth/Death at time step 4300:
-	Walker Births: 275
-	Walker Deaths: 264
+	Walker Births: 284
+	Walker Deaths: 262
 Time step 4400
 Potential call time at time step 4400:
-	0.014777183532714844 seconds
-	Average energy of ensemble: 4851.0342453949315 wavenumbers (without vref correction)
-	Highest energy walker: 58225.99997091512 wavenumbers
-	Lowest energy walker: 3.093323130199613 wavenumbers
+	0.009749174118041992 seconds
+	Average energy of ensemble: 4818.178137136269 wavenumbers (without vref correction)
+	Highest energy walker: 68942.55622609187 wavenumbers
+	Lowest energy walker: 10.659073668836854 wavenumbers
 Birth/Death at time step 4400:
-	Walker Births: 289
-	Walker Deaths: 232
+	Walker Births: 231
+	Walker Deaths: 244
 Time step 4500
 Checkpointing, time step 4500
 Starting descendant weighting, time step 4500
 Will save wave function from time step 4500
 Potential call time at time step 4500:
-	0.04373526573181152 seconds
-	Average energy of ensemble: 4797.642607273024 wavenumbers (without vref correction)
-	Highest energy walker: 60316.45514527871 wavenumbers
-	Lowest energy walker: 1.6427561056365316 wavenumbers
+	0.018682241439819336 seconds
+	Average energy of ensemble: 4838.021887373341 wavenumbers (without vref correction)
+	Highest energy walker: 37853.128604011865 wavenumbers
+	Lowest energy walker: 0.7731079093704285 wavenumbers
 Birth/Death at time step 4500:
-	Walker Births: 248
-	Walker Deaths: 287
+	Walker Births: 256
+	Walker Deaths: 265
 Time step 4600
 Finished descendant weighting, time step 4600
 Saving Wave function with descendant weights, time step 4600
 Potential call time at time step 4600:
-	0.02057957649230957 seconds
-	Average energy of ensemble: 4841.160335217117 wavenumbers (without vref correction)
-	Highest energy walker: 43139.10309046887 wavenumbers
-	Lowest energy walker: 7.502310788792665 wavenumbers
+	0.01746225357055664 seconds
+	Average energy of ensemble: 4947.0330980015015 wavenumbers (without vref correction)
+	Highest energy walker: 54978.58794661627 wavenumbers
+	Lowest energy walker: 6.941988901598153 wavenumbers
 Birth/Death at time step 4600:
-	Walker Births: 258
-	Walker Deaths: 254
+	Walker Births: 265
+	Walker Deaths: 293
 Time step 4700
 Potential call time at time step 4700:
-	0.015164613723754883 seconds
-	Average energy of ensemble: 4806.594683313057 wavenumbers (without vref correction)
-	Highest energy walker: 56925.3114535749 wavenumbers
-	Lowest energy walker: 18.771865214160076 wavenumbers
+	0.009139060974121094 seconds
+	Average energy of ensemble: 4896.404798248603 wavenumbers (without vref correction)
+	Highest energy walker: 57771.19318932585 wavenumbers
+	Lowest energy walker: 9.292743714476773 wavenumbers
 Birth/Death at time step 4700:
-	Walker Births: 259
-	Walker Deaths: 237
+	Walker Births: 248
+	Walker Deaths: 287
 Time step 4800
 Potential call time at time step 4800:
-	0.014286279678344727 seconds
-	Average energy of ensemble: 4744.941092913268 wavenumbers (without vref correction)
-	Highest energy walker: 56995.43433956762 wavenumbers
-	Lowest energy walker: 6.034918188241895 wavenumbers
+	0.009653806686401367 seconds
+	Average energy of ensemble: 4764.441770300756 wavenumbers (without vref correction)
+	Highest energy walker: 58741.9724267287 wavenumbers
+	Lowest energy walker: 19.72162497654858 wavenumbers
 Birth/Death at time step 4800:
-	Walker Births: 254
-	Walker Deaths: 259
+	Walker Births: 252
+	Walker Deaths: 260
 Time step 4900
 Potential call time at time step 4900:
-	0.014515161514282227 seconds
-	Average energy of ensemble: 4757.4624286858925 wavenumbers (without vref correction)
-	Highest energy walker: 49179.21896871704 wavenumbers
-	Lowest energy walker: 8.381864281133254 wavenumbers
+	0.009477853775024414 seconds
+	Average energy of ensemble: 4804.361673182502 wavenumbers (without vref correction)
+	Highest energy walker: 35952.3494714196 wavenumbers
+	Lowest energy walker: 11.323458018713765 wavenumbers
 Birth/Death at time step 4900:
-	Walker Births: 271
-	Walker Deaths: 255
+	Walker Births: 262
+	Walker Deaths: 248
 Time step 5000
 Checkpointing, time step 5000
 Potential call time at time step 5000:
-	0.042696475982666016 seconds
-	Average energy of ensemble: 4803.613100308771 wavenumbers (without vref correction)
-	Highest energy walker: 43318.2168002823 wavenumbers
-	Lowest energy walker: 17.92289874984779 wavenumbers
+	0.03886246681213379 seconds
+	Average energy of ensemble: 4791.582102243627 wavenumbers (without vref correction)
+	Highest energy walker: 49483.44554381251 wavenumbers
+	Lowest energy walker: 7.975333867338122 wavenumbers
 Birth/Death at time step 5000:
-	Walker Births: 251
-	Walker Deaths: 244
+	Walker Births: 261
+	Walker Deaths: 270
 Time step 5100
 Potential call time at time step 5100:
-	0.016543149948120117 seconds
-	Average energy of ensemble: 4795.984766157729 wavenumbers (without vref correction)
-	Highest energy walker: 68209.7348630713 wavenumbers
-	Lowest energy walker: 0.4177617380271449 wavenumbers
+	0.009192943572998047 seconds
+	Average energy of ensemble: 4790.794324218225 wavenumbers (without vref correction)
+	Highest energy walker: 57515.38813427924 wavenumbers
+	Lowest energy walker: 5.453039619311908 wavenumbers
 Birth/Death at time step 5100:
-	Walker Births: 223
-	Walker Deaths: 272
+	Walker Births: 272
+	Walker Deaths: 253
 Time step 5200
 Potential call time at time step 5200:
-	0.014203310012817383 seconds
-	Average energy of ensemble: 4798.387490854607 wavenumbers (without vref correction)
-	Highest energy walker: 43627.399570129455 wavenumbers
-	Lowest energy walker: 12.735147208862907 wavenumbers
+	0.009412765502929688 seconds
+	Average energy of ensemble: 4815.347611206767 wavenumbers (without vref correction)
+	Highest energy walker: 49865.62372345677 wavenumbers
+	Lowest energy walker: 3.444894511786381 wavenumbers
 Birth/Death at time step 5200:
-	Walker Births: 238
-	Walker Deaths: 258
+	Walker Births: 300
+	Walker Deaths: 227
 Time step 5300
 Potential call time at time step 5300:
-	0.013648509979248047 seconds
-	Average energy of ensemble: 4780.538311529873 wavenumbers (without vref correction)
-	Highest energy walker: 61241.73442726343 wavenumbers
-	Lowest energy walker: 9.337757168995722 wavenumbers
+	0.029022216796875 seconds
+	Average energy of ensemble: 4842.600861595389 wavenumbers (without vref correction)
+	Highest energy walker: 61545.18665879399 wavenumbers
+	Lowest energy walker: 11.935025212637429 wavenumbers
 Birth/Death at time step 5300:
-	Walker Births: 287
-	Walker Deaths: 274
+	Walker Births: 253
+	Walker Deaths: 238
 Time step 5400
 Potential call time at time step 5400:
-	0.016569852828979492 seconds
-	Average energy of ensemble: 4877.238970226892 wavenumbers (without vref correction)
-	Highest energy walker: 54618.381629321804 wavenumbers
-	Lowest energy walker: 14.201194392674525 wavenumbers
+	0.009868621826171875 seconds
+	Average energy of ensemble: 4869.90741690036 wavenumbers (without vref correction)
+	Highest energy walker: 52119.41704272149 wavenumbers
+	Lowest energy walker: 13.069629504314834 wavenumbers
 Birth/Death at time step 5400:
-	Walker Births: 281
-	Walker Deaths: 282
+	Walker Births: 234
+	Walker Deaths: 257
 Time step 5500
 Checkpointing, time step 5500
 Starting descendant weighting, time step 5500
 Will save wave function from time step 5500
 Potential call time at time step 5500:
-	0.038661956787109375 seconds
-	Average energy of ensemble: 4820.19128837782 wavenumbers (without vref correction)
-	Highest energy walker: 49936.65191594554 wavenumbers
-	Lowest energy walker: 6.614949187169041 wavenumbers
+	0.01988363265991211 seconds
+	Average energy of ensemble: 4852.57562626567 wavenumbers (without vref correction)
+	Highest energy walker: 65208.85499385182 wavenumbers
+	Lowest energy walker: 8.722581157649625 wavenumbers
 Birth/Death at time step 5500:
-	Walker Births: 246
-	Walker Deaths: 271
+	Walker Births: 256
+	Walker Deaths: 266
 Time step 5600
 Finished descendant weighting, time step 5600
 Saving Wave function with descendant weights, time step 5600
 Potential call time at time step 5600:
-	0.028709888458251953 seconds
-	Average energy of ensemble: 4768.495810042284 wavenumbers (without vref correction)
-	Highest energy walker: 44379.45288722734 wavenumbers
-	Lowest energy walker: 4.672473008494415 wavenumbers
+	0.008872747421264648 seconds
+	Average energy of ensemble: 4953.478543317688 wavenumbers (without vref correction)
+	Highest energy walker: 51377.22012170193 wavenumbers
+	Lowest energy walker: 9.39475403833206 wavenumbers
 Birth/Death at time step 5600:
-	Walker Births: 257
-	Walker Deaths: 261
+	Walker Births: 279
+	Walker Deaths: 282
 Time step 5700
 Potential call time at time step 5700:
-	0.013367652893066406 seconds
-	Average energy of ensemble: 4795.78206667355 wavenumbers (without vref correction)
-	Highest energy walker: 39007.46158941442 wavenumbers
-	Lowest energy walker: 4.579883112443387 wavenumbers
+	0.009456634521484375 seconds
+	Average energy of ensemble: 4813.330496787917 wavenumbers (without vref correction)
+	Highest energy walker: 42846.872978653104 wavenumbers
+	Lowest energy walker: 7.639675347988096 wavenumbers
 Birth/Death at time step 5700:
-	Walker Births: 261
-	Walker Deaths: 272
+	Walker Births: 263
+	Walker Deaths: 223
 Time step 5800
 Potential call time at time step 5800:
-	0.0139007568359375 seconds
-	Average energy of ensemble: 4801.980082009539 wavenumbers (without vref correction)
-	Highest energy walker: 56430.03410999381 wavenumbers
-	Lowest energy walker: 21.485213247030437 wavenumbers
+	0.009317159652709961 seconds
+	Average energy of ensemble: 4819.676309838322 wavenumbers (without vref correction)
+	Highest energy walker: 67633.81670361478 wavenumbers
+	Lowest energy walker: 15.101024253731097 wavenumbers
 Birth/Death at time step 5800:
-	Walker Births: 226
-	Walker Deaths: 259
+	Walker Births: 259
+	Walker Deaths: 265
 Time step 5900
 Potential call time at time step 5900:
-	0.013641119003295898 seconds
-	Average energy of ensemble: 4854.7484845979425 wavenumbers (without vref correction)
-	Highest energy walker: 48749.60868556283 wavenumbers
-	Lowest energy walker: 8.797389607553336 wavenumbers
+	0.009468317031860352 seconds
+	Average energy of ensemble: 4836.727640821349 wavenumbers (without vref correction)
+	Highest energy walker: 51989.89849093719 wavenumbers
+	Lowest energy walker: -0.18176169975184953 wavenumbers
 Birth/Death at time step 5900:
-	Walker Births: 228
-	Walker Deaths: 250
+	Walker Births: 252
+	Walker Deaths: 258
 Time step 6000
 Checkpointing, time step 6000
 Potential call time at time step 6000:
-	0.031080245971679688 seconds
-	Average energy of ensemble: 4805.2663558173335 wavenumbers (without vref correction)
-	Highest energy walker: 57825.95410662455 wavenumbers
-	Lowest energy walker: 2.6850523314088877 wavenumbers
+	0.015088558197021484 seconds
+	Average energy of ensemble: 4881.062674746577 wavenumbers (without vref correction)
+	Highest energy walker: 55117.1527748738 wavenumbers
+	Lowest energy walker: 7.616709221459044 wavenumbers
 Birth/Death at time step 6000:
-	Walker Births: 271
-	Walker Deaths: 278
+	Walker Births: 294
+	Walker Deaths: 252
 Time step 6100
 Potential call time at time step 6100:
-	0.016814708709716797 seconds
-	Average energy of ensemble: 4825.0227539775 wavenumbers (without vref correction)
-	Highest energy walker: 55699.58385484025 wavenumbers
-	Lowest energy walker: 17.071389844002276 wavenumbers
+	0.010680437088012695 seconds
+	Average energy of ensemble: 4695.756848532405 wavenumbers (without vref correction)
+	Highest energy walker: 41154.21647021044 wavenumbers
+	Lowest energy walker: 1.8501672427876426 wavenumbers
 Birth/Death at time step 6100:
-	Walker Births: 253
-	Walker Deaths: 253
+	Walker Births: 258
+	Walker Deaths: 250
 Time step 6200
 Potential call time at time step 6200:
-	0.01394033432006836 seconds
-	Average energy of ensemble: 4771.228622665439 wavenumbers (without vref correction)
-	Highest energy walker: 36894.35582979133 wavenumbers
-	Lowest energy walker: 3.3342358942034753 wavenumbers
+	0.011328935623168945 seconds
+	Average energy of ensemble: 4899.393527381196 wavenumbers (without vref correction)
+	Highest energy walker: 61285.36013906866 wavenumbers
+	Lowest energy walker: 8.018635632118269 wavenumbers
 Birth/Death at time step 6200:
-	Walker Births: 253
-	Walker Deaths: 248
+	Walker Births: 267
+	Walker Deaths: 269
 Time step 6300
 Potential call time at time step 6300:
-	0.024322509765625 seconds
-	Average energy of ensemble: 4770.39578533581 wavenumbers (without vref correction)
-	Highest energy walker: 53400.09504807257 wavenumbers
-	Lowest energy walker: 9.462948756875136 wavenumbers
+	0.01034402847290039 seconds
+	Average energy of ensemble: 4818.481611335029 wavenumbers (without vref correction)
+	Highest energy walker: 62561.79891050894 wavenumbers
+	Lowest energy walker: 5.909368081182091 wavenumbers
 Birth/Death at time step 6300:
-	Walker Births: 261
-	Walker Deaths: 252
+	Walker Births: 275
+	Walker Deaths: 285
 Time step 6400
 Potential call time at time step 6400:
-	0.013134956359863281 seconds
-	Average energy of ensemble: 4850.385254626603 wavenumbers (without vref correction)
-	Highest energy walker: 75310.13966620553 wavenumbers
-	Lowest energy walker: 7.485153240804768 wavenumbers
+	0.009447336196899414 seconds
+	Average energy of ensemble: 4741.93392342088 wavenumbers (without vref correction)
+	Highest energy walker: 58887.696181725834 wavenumbers
+	Lowest energy walker: 4.9839805204309195 wavenumbers
 Birth/Death at time step 6400:
-	Walker Births: 286
-	Walker Deaths: 247
+	Walker Births: 245
+	Walker Deaths: 238
 Time step 6500
 Checkpointing, time step 6500
 Starting descendant weighting, time step 6500
 Will save wave function from time step 6500
 Potential call time at time step 6500:
-	0.024880170822143555 seconds
-	Average energy of ensemble: 4827.346189569232 wavenumbers (without vref correction)
-	Highest energy walker: 57178.10348212542 wavenumbers
-	Lowest energy walker: 12.981596596546746 wavenumbers
+	0.026834964752197266 seconds
+	Average energy of ensemble: 4781.859066136269 wavenumbers (without vref correction)
+	Highest energy walker: 49013.09029521402 wavenumbers
+	Lowest energy walker: 5.684470658950408 wavenumbers
 Birth/Death at time step 6500:
-	Walker Births: 264
-	Walker Deaths: 248
+	Walker Births: 261
+	Walker Deaths: 237
 Time step 6600
 Finished descendant weighting, time step 6600
 Saving Wave function with descendant weights, time step 6600
 Potential call time at time step 6600:
-	0.020241498947143555 seconds
-	Average energy of ensemble: 4724.91441686688 wavenumbers (without vref correction)
-	Highest energy walker: 48321.3692101296 wavenumbers
-	Lowest energy walker: 14.011026506072795 wavenumbers
+	0.009476184844970703 seconds
+	Average energy of ensemble: 4782.960574772274 wavenumbers (without vref correction)
+	Highest energy walker: 66581.95012507321 wavenumbers
+	Lowest energy walker: 7.7464320782065395 wavenumbers
 Birth/Death at time step 6600:
-	Walker Births: 275
-	Walker Deaths: 273
+	Walker Births: 230
+	Walker Deaths: 247
 Time step 6700
 Potential call time at time step 6700:
-	0.017211198806762695 seconds
-	Average energy of ensemble: 4761.458316635881 wavenumbers (without vref correction)
-	Highest energy walker: 68705.88273139046 wavenumbers
-	Lowest energy walker: 1.0919777983290593 wavenumbers
+	0.015037298202514648 seconds
+	Average energy of ensemble: 4835.597366567824 wavenumbers (without vref correction)
+	Highest energy walker: 75409.39863213176 wavenumbers
+	Lowest energy walker: 6.930896500598303 wavenumbers
 Birth/Death at time step 6700:
-	Walker Births: 251
-	Walker Deaths: 268
+	Walker Births: 269
+	Walker Deaths: 292
 Time step 6800
 Potential call time at time step 6800:
-	0.015542745590209961 seconds
-	Average energy of ensemble: 4895.3415761678325 wavenumbers (without vref correction)
-	Highest energy walker: 57407.80942760372 wavenumbers
-	Lowest energy walker: 0.16944166522043866 wavenumbers
+	0.011697769165039062 seconds
+	Average energy of ensemble: 4845.327027071702 wavenumbers (without vref correction)
+	Highest energy walker: 44599.322221006165 wavenumbers
+	Lowest energy walker: 14.853528943702814 wavenumbers
 Birth/Death at time step 6800:
-	Walker Births: 233
-	Walker Deaths: 268
+	Walker Births: 256
+	Walker Deaths: 256
 Time step 6900
 Potential call time at time step 6900:
-	0.024185895919799805 seconds
-	Average energy of ensemble: 4717.383559640638 wavenumbers (without vref correction)
-	Highest energy walker: 51782.22080818239 wavenumbers
-	Lowest energy walker: 4.9139485693711675 wavenumbers
+	0.010567426681518555 seconds
+	Average energy of ensemble: 4825.522213374516 wavenumbers (without vref correction)
+	Highest energy walker: 50095.243965631635 wavenumbers
+	Lowest energy walker: 8.49805305762679 wavenumbers
 Birth/Death at time step 6900:
-	Walker Births: 277
-	Walker Deaths: 265
+	Walker Births: 260
+	Walker Deaths: 270
 Time step 7000
 Checkpointing, time step 7000
 Potential call time at time step 7000:
-	0.02535223960876465 seconds
-	Average energy of ensemble: 4840.672672687287 wavenumbers (without vref correction)
-	Highest energy walker: 70303.41574343121 wavenumbers
-	Lowest energy walker: 8.831671167848919 wavenumbers
+	0.01712775230407715 seconds
+	Average energy of ensemble: 4911.606986695874 wavenumbers (without vref correction)
+	Highest energy walker: 75294.62239616994 wavenumbers
+	Lowest energy walker: 2.146331257399266 wavenumbers
 Birth/Death at time step 7000:
-	Walker Births: 275
-	Walker Deaths: 253
+	Walker Births: 246
+	Walker Deaths: 237
 Time step 7100
 Potential call time at time step 7100:
-	0.015299081802368164 seconds
-	Average energy of ensemble: 4864.77702823089 wavenumbers (without vref correction)
-	Highest energy walker: 53493.41339017474 wavenumbers
-	Lowest energy walker: 23.942761449938878 wavenumbers
+	0.009251594543457031 seconds
+	Average energy of ensemble: 4856.716500812655 wavenumbers (without vref correction)
+	Highest energy walker: 56499.06041859384 wavenumbers
+	Lowest energy walker: 5.0776592022056635 wavenumbers
 Birth/Death at time step 7100:
-	Walker Births: 276
-	Walker Deaths: 255
+	Walker Births: 242
+	Walker Deaths: 253
 Time step 7200
 Potential call time at time step 7200:
-	0.01450800895690918 seconds
-	Average energy of ensemble: 4833.112543323595 wavenumbers (without vref correction)
-	Highest energy walker: 46246.532900785314 wavenumbers
-	Lowest energy walker: 2.6781477190533165 wavenumbers
+	0.009411811828613281 seconds
+	Average energy of ensemble: 4845.050307691724 wavenumbers (without vref correction)
+	Highest energy walker: 54272.374423965564 wavenumbers
+	Lowest energy walker: 5.17978509040221 wavenumbers
 Birth/Death at time step 7200:
-	Walker Births: 269
-	Walker Deaths: 278
+	Walker Births: 256
+	Walker Deaths: 246
 Time step 7300
 Potential call time at time step 7300:
-	0.015323400497436523 seconds
-	Average energy of ensemble: 4818.597297597129 wavenumbers (without vref correction)
-	Highest energy walker: 48354.91568795481 wavenumbers
-	Lowest energy walker: 1.5215588595098717 wavenumbers
+	0.01082611083984375 seconds
+	Average energy of ensemble: 4817.627855010843 wavenumbers (without vref correction)
+	Highest energy walker: 38615.52647892585 wavenumbers
+	Lowest energy walker: 22.95013508673926 wavenumbers
 Birth/Death at time step 7300:
-	Walker Births: 260
+	Walker Births: 251
 	Walker Deaths: 248
 Time step 7400
 Potential call time at time step 7400:
-	0.013273954391479492 seconds
-	Average energy of ensemble: 4843.029837062517 wavenumbers (without vref correction)
-	Highest energy walker: 43065.71667995325 wavenumbers
-	Lowest energy walker: 14.065266004780101 wavenumbers
+	0.025286436080932617 seconds
+	Average energy of ensemble: 4849.739064329627 wavenumbers (without vref correction)
+	Highest energy walker: 58295.09045079906 wavenumbers
+	Lowest energy walker: 25.759022494925187 wavenumbers
 Birth/Death at time step 7400:
-	Walker Births: 285
-	Walker Deaths: 258
+	Walker Births: 261
+	Walker Deaths: 262
 Time step 7500
 Checkpointing, time step 7500
 Starting descendant weighting, time step 7500
 Will save wave function from time step 7500
 Potential call time at time step 7500:
-	0.022849559783935547 seconds
-	Average energy of ensemble: 4849.737365939002 wavenumbers (without vref correction)
-	Highest energy walker: 45247.96558918891 wavenumbers
-	Lowest energy walker: 0.375777710884977 wavenumbers
+	0.017553329467773438 seconds
+	Average energy of ensemble: 4800.860830092703 wavenumbers (without vref correction)
+	Highest energy walker: 59113.58346238476 wavenumbers
+	Lowest energy walker: 12.351977097494167 wavenumbers
 Birth/Death at time step 7500:
-	Walker Births: 218
-	Walker Deaths: 263
+	Walker Births: 266
+	Walker Deaths: 228
 Time step 7600
 Finished descendant weighting, time step 7600
 Saving Wave function with descendant weights, time step 7600
 Potential call time at time step 7600:
-	0.0178682804107666 seconds
-	Average energy of ensemble: 4812.902426176386 wavenumbers (without vref correction)
-	Highest energy walker: 39333.37012133132 wavenumbers
-	Lowest energy walker: 8.344110514866625 wavenumbers
+	0.023071765899658203 seconds
+	Average energy of ensemble: 4776.192339133932 wavenumbers (without vref correction)
+	Highest energy walker: 47244.23347574661 wavenumbers
+	Lowest energy walker: 9.644978670056954 wavenumbers
 Birth/Death at time step 7600:
-	Walker Births: 271
-	Walker Deaths: 250
+	Walker Births: 253
+	Walker Deaths: 263
 Time step 7700
 Potential call time at time step 7700:
-	0.01861739158630371 seconds
-	Average energy of ensemble: 4857.830653615248 wavenumbers (without vref correction)
-	Highest energy walker: 49861.96678784987 wavenumbers
-	Lowest energy walker: 4.362171854066278 wavenumbers
+	0.011373519897460938 seconds
+	Average energy of ensemble: 4843.195983536623 wavenumbers (without vref correction)
+	Highest energy walker: 65789.10978578526 wavenumbers
+	Lowest energy walker: 7.891910944835324 wavenumbers
 Birth/Death at time step 7700:
-	Walker Births: 251
-	Walker Deaths: 255
+	Walker Births: 241
+	Walker Deaths: 262
 Time step 7800
 Potential call time at time step 7800:
-	0.016092300415039062 seconds
-	Average energy of ensemble: 4861.489406394188 wavenumbers (without vref correction)
-	Highest energy walker: 46040.90527653471 wavenumbers
-	Lowest energy walker: 11.898478859617011 wavenumbers
+	0.00923609733581543 seconds
+	Average energy of ensemble: 4730.288760124758 wavenumbers (without vref correction)
+	Highest energy walker: 55158.63448988911 wavenumbers
+	Lowest energy walker: 9.079875182994977 wavenumbers
 Birth/Death at time step 7800:
-	Walker Births: 280
-	Walker Deaths: 247
+	Walker Births: 242
+	Walker Deaths: 264
 Time step 7900
 Potential call time at time step 7900:
-	0.015266895294189453 seconds
-	Average energy of ensemble: 4842.895821600026 wavenumbers (without vref correction)
-	Highest energy walker: 61864.50200239335 wavenumbers
-	Lowest energy walker: 2.6361500348712674 wavenumbers
+	0.015386104583740234 seconds
+	Average energy of ensemble: 4779.825167723329 wavenumbers (without vref correction)
+	Highest energy walker: 60353.35751718564 wavenumbers
+	Lowest energy walker: 1.3556656803802047 wavenumbers
 Birth/Death at time step 7900:
-	Walker Births: 224
-	Walker Deaths: 244
+	Walker Births: 290
+	Walker Deaths: 254
 Time step 8000
 Checkpointing, time step 8000
 Potential call time at time step 8000:
-	0.025054931640625 seconds
-	Average energy of ensemble: 4760.132500495623 wavenumbers (without vref correction)
-	Highest energy walker: 51394.41670315052 wavenumbers
-	Lowest energy walker: 38.14428283825993 wavenumbers
+	0.01582050323486328 seconds
+	Average energy of ensemble: 4811.9376372717725 wavenumbers (without vref correction)
+	Highest energy walker: 69972.39732839876 wavenumbers
+	Lowest energy walker: 4.147301752322936 wavenumbers
 Birth/Death at time step 8000:
-	Walker Births: 230
-	Walker Deaths: 270
+	Walker Births: 240
+	Walker Deaths: 276
 Time step 8100
 Potential call time at time step 8100:
-	0.01602792739868164 seconds
-	Average energy of ensemble: 4805.859668656616 wavenumbers (without vref correction)
-	Highest energy walker: 48510.02054179977 wavenumbers
-	Lowest energy walker: 10.486521643465508 wavenumbers
+	0.010078191757202148 seconds
+	Average energy of ensemble: 4860.074258615052 wavenumbers (without vref correction)
+	Highest energy walker: 54534.238136552885 wavenumbers
+	Lowest energy walker: 21.882379425140897 wavenumbers
 Birth/Death at time step 8100:
-	Walker Births: 262
-	Walker Deaths: 260
+	Walker Births: 248
+	Walker Deaths: 261
 Time step 8200
 Potential call time at time step 8200:
-	0.013972043991088867 seconds
-	Average energy of ensemble: 4843.336037942699 wavenumbers (without vref correction)
-	Highest energy walker: 49068.105999307925 wavenumbers
-	Lowest energy walker: 3.9341694665457068 wavenumbers
+	0.009468555450439453 seconds
+	Average energy of ensemble: 4859.263324032823 wavenumbers (without vref correction)
+	Highest energy walker: 46650.19734594702 wavenumbers
+	Lowest energy walker: 1.8217557013823424 wavenumbers
 Birth/Death at time step 8200:
-	Walker Births: 301
-	Walker Deaths: 230
+	Walker Births: 258
+	Walker Deaths: 255
 Time step 8300
 Potential call time at time step 8300:
-	0.014302492141723633 seconds
-	Average energy of ensemble: 4915.962877204752 wavenumbers (without vref correction)
-	Highest energy walker: 54822.56731399563 wavenumbers
-	Lowest energy walker: 3.5836518678187264 wavenumbers
+	0.00908803939819336 seconds
+	Average energy of ensemble: 4775.246417717865 wavenumbers (without vref correction)
+	Highest energy walker: 56372.056169103314 wavenumbers
+	Lowest energy walker: 20.867188838500063 wavenumbers
 Birth/Death at time step 8300:
-	Walker Births: 272
-	Walker Deaths: 258
+	Walker Births: 259
+	Walker Deaths: 276
 Time step 8400
 Potential call time at time step 8400:
-	0.013308525085449219 seconds
-	Average energy of ensemble: 4897.643769476841 wavenumbers (without vref correction)
-	Highest energy walker: 49212.12811993877 wavenumbers
-	Lowest energy walker: 2.4450488935894827 wavenumbers
+	0.009670495986938477 seconds
+	Average energy of ensemble: 4843.723649882425 wavenumbers (without vref correction)
+	Highest energy walker: 42465.2097728535 wavenumbers
+	Lowest energy walker: 14.694433842858004 wavenumbers
 Birth/Death at time step 8400:
-	Walker Births: 267
-	Walker Deaths: 249
+	Walker Births: 287
+	Walker Deaths: 266
 Time step 8500
 Checkpointing, time step 8500
 Starting descendant weighting, time step 8500
 Will save wave function from time step 8500
 Potential call time at time step 8500:
-	0.020188570022583008 seconds
-	Average energy of ensemble: 4855.324813864594 wavenumbers (without vref correction)
-	Highest energy walker: 57161.30065840845 wavenumbers
-	Lowest energy walker: 4.196283309929068 wavenumbers
+	0.017746686935424805 seconds
+	Average energy of ensemble: 4845.729101275995 wavenumbers (without vref correction)
+	Highest energy walker: 82467.74956445368 wavenumbers
+	Lowest energy walker: 1.1527287200824479 wavenumbers
 Birth/Death at time step 8500:
-	Walker Births: 264
-	Walker Deaths: 278
+	Walker Births: 295
+	Walker Deaths: 250
 Time step 8600
 Finished descendant weighting, time step 8600
 Saving Wave function with descendant weights, time step 8600
 Potential call time at time step 8600:
-	0.02497243881225586 seconds
-	Average energy of ensemble: 4895.107902164874 wavenumbers (without vref correction)
-	Highest energy walker: 47389.747762323 wavenumbers
-	Lowest energy walker: 3.3663202144084066 wavenumbers
+	0.009495258331298828 seconds
+	Average energy of ensemble: 4781.732716380915 wavenumbers (without vref correction)
+	Highest energy walker: 38569.47807915864 wavenumbers
+	Lowest energy walker: 4.5590166765212 wavenumbers
 Birth/Death at time step 8600:
-	Walker Births: 279
-	Walker Deaths: 263
+	Walker Births: 265
+	Walker Deaths: 265
 Time step 8700
 Potential call time at time step 8700:
-	0.014468193054199219 seconds
-	Average energy of ensemble: 4894.5633047993915 wavenumbers (without vref correction)
-	Highest energy walker: 69566.50556864376 wavenumbers
-	Lowest energy walker: 10.770549267652202 wavenumbers
+	0.009159564971923828 seconds
+	Average energy of ensemble: 4775.337212316714 wavenumbers (without vref correction)
+	Highest energy walker: 45930.7155207972 wavenumbers
+	Lowest energy walker: 8.884951967355612 wavenumbers
 Birth/Death at time step 8700:
-	Walker Births: 287
-	Walker Deaths: 263
+	Walker Births: 282
+	Walker Deaths: 282
 Time step 8800
 Potential call time at time step 8800:
-	0.023712158203125 seconds
-	Average energy of ensemble: 4891.14439842664 wavenumbers (without vref correction)
-	Highest energy walker: 54559.457782045516 wavenumbers
-	Lowest energy walker: 6.980700470343453 wavenumbers
+	0.012390375137329102 seconds
+	Average energy of ensemble: 4749.477937260379 wavenumbers (without vref correction)
+	Highest energy walker: 41932.444738217884 wavenumbers
+	Lowest energy walker: 2.2307707181768928 wavenumbers
 Birth/Death at time step 8800:
-	Walker Births: 241
-	Walker Deaths: 281
+	Walker Births: 264
+	Walker Deaths: 254
 Time step 8900
 Potential call time at time step 8900:
-	0.014124155044555664 seconds
-	Average energy of ensemble: 4744.196541842962 wavenumbers (without vref correction)
-	Highest energy walker: 54691.929192605334 wavenumbers
-	Lowest energy walker: 8.994743547504921 wavenumbers
+	0.009340047836303711 seconds
+	Average energy of ensemble: 4828.6196916008375 wavenumbers (without vref correction)
+	Highest energy walker: 35844.41464630827 wavenumbers
+	Lowest energy walker: 5.565797999772044 wavenumbers
 Birth/Death at time step 8900:
-	Walker Births: 241
-	Walker Deaths: 272
+	Walker Births: 219
+	Walker Deaths: 246
 Time step 9000
 Checkpointing, time step 9000
 Potential call time at time step 9000:
-	0.026509761810302734 seconds
-	Average energy of ensemble: 4753.722588728087 wavenumbers (without vref correction)
-	Highest energy walker: 56319.14588180028 wavenumbers
-	Lowest energy walker: 2.687152561673316 wavenumbers
+	0.020578861236572266 seconds
+	Average energy of ensemble: 4896.893034054218 wavenumbers (without vref correction)
+	Highest energy walker: 48315.92645355546 wavenumbers
+	Lowest energy walker: 6.185176007923036 wavenumbers
 Birth/Death at time step 9000:
 	Walker Births: 257
-	Walker Deaths: 263
+	Walker Deaths: 261
 Time step 9100
 Potential call time at time step 9100:
-	0.01799631118774414 seconds
-	Average energy of ensemble: 4832.761602303643 wavenumbers (without vref correction)
-	Highest energy walker: 78348.98461525865 wavenumbers
-	Lowest energy walker: 10.135253650664387 wavenumbers
+	0.010360002517700195 seconds
+	Average energy of ensemble: 4898.413363760993 wavenumbers (without vref correction)
+	Highest energy walker: 63942.83910071495 wavenumbers
+	Lowest energy walker: 2.5099879443885835 wavenumbers
 Birth/Death at time step 9100:
-	Walker Births: 249
+	Walker Births: 266
 	Walker Deaths: 275
 Time step 9200
 Potential call time at time step 9200:
-	0.020277023315429688 seconds
-	Average energy of ensemble: 4825.458898621573 wavenumbers (without vref correction)
-	Highest energy walker: 51805.494464011594 wavenumbers
-	Lowest energy walker: -0.015890702914092752 wavenumbers
+	0.015893936157226562 seconds
+	Average energy of ensemble: 4875.3553021352645 wavenumbers (without vref correction)
+	Highest energy walker: 59615.85465944736 wavenumbers
+	Lowest energy walker: 12.599339736375311 wavenumbers
 Birth/Death at time step 9200:
-	Walker Births: 260
-	Walker Deaths: 267
+	Walker Births: 283
+	Walker Deaths: 255
 Time step 9300
 Potential call time at time step 9300:
-	0.013369560241699219 seconds
-	Average energy of ensemble: 4845.201885241232 wavenumbers (without vref correction)
-	Highest energy walker: 62762.518855250106 wavenumbers
-	Lowest energy walker: 10.019321973870676 wavenumbers
+	0.010096549987792969 seconds
+	Average energy of ensemble: 4865.339456924266 wavenumbers (without vref correction)
+	Highest energy walker: 59160.790860494395 wavenumbers
+	Lowest energy walker: 11.289126717297236 wavenumbers
 Birth/Death at time step 9300:
-	Walker Births: 279
-	Walker Deaths: 229
+	Walker Births: 241
+	Walker Deaths: 268
 Time step 9400
 Potential call time at time step 9400:
-	0.013686418533325195 seconds
-	Average energy of ensemble: 4795.654246030758 wavenumbers (without vref correction)
-	Highest energy walker: 49070.15585797757 wavenumbers
-	Lowest energy walker: 11.646164298953444 wavenumbers
+	0.010272026062011719 seconds
+	Average energy of ensemble: 4870.209190673228 wavenumbers (without vref correction)
+	Highest energy walker: 60890.21334529396 wavenumbers
+	Lowest energy walker: 3.6374044022923435 wavenumbers
 Birth/Death at time step 9400:
-	Walker Births: 245
-	Walker Deaths: 273
+	Walker Births: 284
+	Walker Deaths: 278
 Time step 9500
 Checkpointing, time step 9500
 Starting descendant weighting, time step 9500
 Will save wave function from time step 9500
 Potential call time at time step 9500:
-	0.028712034225463867 seconds
-	Average energy of ensemble: 4821.033906213842 wavenumbers (without vref correction)
-	Highest energy walker: 62577.934870031044 wavenumbers
-	Lowest energy walker: 6.39653331653459 wavenumbers
+	0.02666020393371582 seconds
+	Average energy of ensemble: 4795.105021568016 wavenumbers (without vref correction)
+	Highest energy walker: 42511.46662729889 wavenumbers
+	Lowest energy walker: 5.995746569678369 wavenumbers
 Birth/Death at time step 9500:
-	Walker Births: 256
-	Walker Deaths: 254
+	Walker Births: 246
+	Walker Deaths: 230
 Time step 9600
 Finished descendant weighting, time step 9600
 Saving Wave function with descendant weights, time step 9600
 Potential call time at time step 9600:
-	0.030751466751098633 seconds
-	Average energy of ensemble: 4764.013439930975 wavenumbers (without vref correction)
-	Highest energy walker: 50047.36142058908 wavenumbers
-	Lowest energy walker: 4.409385867198938 wavenumbers
+	0.03129768371582031 seconds
+	Average energy of ensemble: 4795.490942828651 wavenumbers (without vref correction)
+	Highest energy walker: 49313.011146576944 wavenumbers
+	Lowest energy walker: 10.268014928392295 wavenumbers
 Birth/Death at time step 9600:
-	Walker Births: 252
-	Walker Deaths: 265
+	Walker Births: 236
+	Walker Deaths: 263
 Time step 9700
 Potential call time at time step 9700:
-	0.013819694519042969 seconds
-	Average energy of ensemble: 4831.757865669567 wavenumbers (without vref correction)
-	Highest energy walker: 68114.56229943219 wavenumbers
-	Lowest energy walker: 8.400183376456397 wavenumbers
+	0.011110544204711914 seconds
+	Average energy of ensemble: 4758.221530511183 wavenumbers (without vref correction)
+	Highest energy walker: 44286.72132751591 wavenumbers
+	Lowest energy walker: 2.6877579247312706 wavenumbers
 Birth/Death at time step 9700:
-	Walker Births: 253
-	Walker Deaths: 288
+	Walker Births: 287
+	Walker Deaths: 245
 Time step 9800
 Potential call time at time step 9800:
-	0.013726234436035156 seconds
-	Average energy of ensemble: 4847.848959575443 wavenumbers (without vref correction)
-	Highest energy walker: 60968.50302665745 wavenumbers
-	Lowest energy walker: 2.7757549759774336 wavenumbers
+	0.013669729232788086 seconds
+	Average energy of ensemble: 4906.279987498175 wavenumbers (without vref correction)
+	Highest energy walker: 45586.403508096715 wavenumbers
+	Lowest energy walker: 18.26685207579751 wavenumbers
 Birth/Death at time step 9800:
-	Walker Births: 213
-	Walker Deaths: 270
+	Walker Births: 255
+	Walker Deaths: 259
 Time step 9900
 Potential call time at time step 9900:
-	0.01372671127319336 seconds
-	Average energy of ensemble: 4818.084062110297 wavenumbers (without vref correction)
-	Highest energy walker: 61661.81815169588 wavenumbers
-	Lowest energy walker: 7.121739094538681 wavenumbers
+	0.012726783752441406 seconds
+	Average energy of ensemble: 4845.097576264484 wavenumbers (without vref correction)
+	Highest energy walker: 62385.51558673114 wavenumbers
+	Lowest energy walker: 5.834206190159624 wavenumbers
 Birth/Death at time step 9900:
-	Walker Births: 261
-	Walker Deaths: 254
+	Walker Births: 220
+	Walker Deaths: 277
 Simulation has finished.
+

@@ -14,14 +14,17 @@ savefigpth = 'pyvibdmc/tests/'
 def test_write_xyz_file():
     cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
     atm_str_list = ["H", "H", "O"]
-    xyz_npy.writeXYZ(cds,
-                     fname=f'{savefigpth}water_cds.xyz',
-                     atm_strings=atm_str_list,
-                     cmt='from dmc simulation')
-
-    cds_back = xyz_npy.extractXYZ(f'{savefigpth}water_cds.xyz',
-                                  num_atoms=len(atm_str_list))
+    xyz_npy.write_xyz(coords=cds, fname=f'{savefigpth}water_cds.xyz', atm_strings=atm_str_list,
+                      cmt='from dmc simulation')
+    cds_back = xyz_npy.extract_xyz(f'{savefigpth}water_cds.xyz', num_atoms=len(atm_str_list))
     assert np.allclose(cds, cds_back)
+
+
+def test_get_all_siminfo():
+    vref_vs_tau = test_sim.get_vref()
+    pop_vs_tau = test_sim.get_pop()
+    atom_nums = test_sim.get_atomic_nums()
+    atom_masses = test_sim.get_atom_masses()
 
 
 # Basic SimInfoStuff

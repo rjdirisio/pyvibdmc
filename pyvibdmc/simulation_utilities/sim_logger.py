@@ -11,7 +11,7 @@ class SimLogger:
             self.fl = open(fname, 'a')
 
     def finish_sim(self):
-        self.fl.write("Simulation has finished.\n")
+        self.fl.write("Simulation has finished.\n\n")
         self.fl.close()
 
     def write_ts(self, cur_time_step):
@@ -49,3 +49,30 @@ class SimLogger:
             self.fl.write(f"\tWalkers Branched: {birthdeath_branch[0]}:\n")
             self.fl.write(f"\tMax Wt before Branched: {birthdeath_branch[1]}:\n")
             self.fl.write(f"\tMin Wt before Branched: {birthdeath_branch[2]}:\n")
+
+    def write_beginning(self,attribs):
+        """
+        'weighting', 'discrete'),
+         ('desc_wt_time_steps', 100),
+         ('branch_every', 1),
+         ('delta_t', 5),
+         ('start_structures', array([[[0.]]]))
+          ('masses', array([1837.15267275]))
+           ('equil_steps', 200),
+           ('chkpt_every', 100),
+           ('wfn_every', 100),
+           ('log_every', 50),
+           ('cur_timestep', 0)
+        """
+        self.fl.write(f"Simulation {attribs['sim_name']} starting at step {attribs['cur_timestep']}\n")
+        self.fl.write(f"Num Walkers: {attribs['num_walkers']}\n")
+        self.fl.write(f"Num Time Steps: {attribs['num_timesteps']}\n")
+        self.fl.write(f"Weighting Type: {attribs['weighting']}\n")
+        self.fl.write(f"Branch every {attribs['weighting']} time step(s)\n")
+        self.fl.write(f"Delta Tau: {attribs['delta_t']} a.u.\n")
+        self.fl.write(f"Start structure Array Shape: {attribs['start_structures'].shape}\n")
+        self.fl.write(f"Masses of each atom: {attribs['masses']}\n")
+        self.fl.write(f"Equilibration steps before collecting wave functions: {attribs['equil_steps']}\n")
+        self.fl.write(f"Checkpoint every {attribs['chkpt_every']} time steps\n")
+        self.fl.write(f"Collect wave functions every {attribs['wfn_every']} time steps after equilibration\n")
+        self.fl.write("\n")

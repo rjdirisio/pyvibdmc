@@ -5,7 +5,7 @@ class xyz_npy:
     """Handler of xyz <-> npy conversion, like a personal version of openBabel."""
 
     @staticmethod
-    def extractXYZ(file_name, num_atoms):
+    def extract_xyz(file_name, num_atoms):
         """
         Extracts the coordinates from an xyz file and returns it as an np array of dimension nxmx3,
         where n = number of geometries, m = number of atoms, and 3 = cartesian coordinates
@@ -40,27 +40,27 @@ class xyz_npy:
 
 
     @staticmethod
-    def writeXYZ(xx, fname, atm_strings, cmt=None):
+    def write_xyz(coords, fname, atm_strings, cmt=None):
         """
         Writes a numpy array of x,y,z coordinates to a .xyz file
 
         :param fname: name of xyz file
-        :param xx: numpy array, either mx3 or nxmx3, where n = number of geometries and m = number of atoms
+        :param coords: numpy array, either mx3 or nxmx3, where n = number of geometries and m = number of atoms
         :param atm_strings: list of strings that correspond to the atom type e.g. ["H","H","O"]
         :return: np.ndarray
         """
-        if len(xx.shape) == 2:
-            array = np.expand_dims(xx, axis=0)
+        if len(coords.shape) == 2:
+            array = np.expand_dims(coords, axis=0)
         if cmt is None:
-            cmt = np.repeat("", len(xx))
+            cmt = np.repeat("", len(coords))
         else:
             if not isinstance(cmt, list):
-                cmt = np.repeat(cmt, len(xx))
-            elif len(cmt) != len(xx):
+                cmt = np.repeat(cmt, len(coords))
+            elif len(cmt) != len(coords):
                 raise ValueError
         fl = open(fname, 'w')
-        nAtoms = np.shape(xx)[1]
-        for mNum, molecule in enumerate(xx):
+        nAtoms = np.shape(coords)[1]
+        for mNum, molecule in enumerate(coords):
             fl.write(f"{nAtoms}\n")
             fl.write(f"{cmt[mNum]}\n")
             for atmN, atm in enumerate(molecule):

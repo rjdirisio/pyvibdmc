@@ -63,9 +63,6 @@ def test_restartDMC():
                       potential_directory=potDir,
                       num_cores=2)
 
-    myDMC = pyvibdmc.DMC_Restart(potential=HOpot,
-                                 chkpt_folder=sim_ex_dir,
-                                 sim_name='harm_osc_test',
-                                 time_step=500)
+    myDMC = pyvibdmc.dmc_restart(potential=HOpot, time_step=500, chkpt_folder=sim_ex_dir, sim_name='harm_osc_test')
     myDMC.run()
     assert True

@@ -214,5 +214,5 @@ The calculation of, say, the expectation value of the displacement of one OH str
     print(f"The expectation value of the OH stretch in water is {exp_val_OH} Angstroms")
 
 To see more examples of DMC wave function analysis, including more advanced ones, please check out the
-`tests/test_analysis.py <https://github.com/rjdirisio/PyVibDMC/blob/master/PyVibDMC/tests/test_analysis.py>`_ file in
+`tests/test_analysis.py <https://github.com/rjdirisio/pyvibdmc/blob/master/pyvibdmc/tests/test_analysis.py>`_ file in
 the ``PyVibDMC`` repository on Github.

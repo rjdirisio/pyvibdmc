@@ -112,7 +112,7 @@ If the simulation dies due to external factors, you may restart a particular DMC
                           num_cores=2)
 
     #restart function that reinializes the myDMC object
-    myDMC = dmc.DMC_Restart(potential=water_pot,
+    myDMC = dmc.dmc_restart(potential=water_pot,
                                  chkpt_folder="tutorial_dmc",
                                  sim_name='tutorial_water_{3}', #the fourth simulation died  (0,1,2,*3*,4)
                                  time_step=2500) #made it to step 2600, so we have a checkpoint at 2500

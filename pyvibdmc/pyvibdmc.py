@@ -2,8 +2,6 @@
 This is the main file, which runs the DMC code itself.  To see the basic algorithm in
 action, go to self.propagate()
 """
-import time
-
 import numpy as np
 
 from .simulation_utilities import *
@@ -153,7 +151,11 @@ class DMC_Sim:
 
         # Where to save the data
         FileManager.create_filesystem(self.output_folder)
-        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt", overwrite=True)
+        if self.cur_timestep == 0:
+            rest = True
+        else:
+            rest = False
+        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt", overwrite=rest)
 
         # Weighting technique
         if self.weighting == 'continuous':
@@ -219,16 +221,16 @@ class DMC_Sim:
             min_weght = np.amin(self._cont_wts)
 
             for walker in kill_mark:
-                maxWalker = np.argmax(self._cont_wts)
-                self._walker_coords[walker] = np.copy(self._walker_coords[maxWalker])
-                self._walker_pots[walker] = np.copy(self._walker_pots[maxWalker])
+                max_walker = np.argmax(self._cont_wts)
+                self._walker_coords[walker] = np.copy(self._walker_coords[max_walker])
+                self._walker_pots[walker] = np.copy(self._walker_pots[max_walker])
                 if desc_wt_time:
-                    self._who_from[walker] = self._who_from[maxWalker]
-                self._cont_wts[maxWalker] /= 2.0
-                self._cont_wts[walker] = np.copy(self._cont_wts[maxWalker])
+                    self._who_from[walker] = self._who_from[max_walker]
+                self._cont_wts[max_walker] /= 2.0
+                self._cont_wts[walker] = np.copy(self._cont_wts[max_walker])
             return num_branched, max_weght, min_weght
 
-    def moveRandomly(self):
+    def move_randomly(self):
         """
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
         """
@@ -242,12 +244,12 @@ class DMC_Sim:
         Use the energy of all walkers to calculate self._vref with a correction for the fluctuation in the population or weight. Updates Vref
         """
         if self.weighting == 'discrete':
-            Vbar = np.average(self._walker_pots)
+            v_bar = np.average(self._walker_pots)
             correction = (len(self._walker_pots) - self.num_walkers) / self.num_walkers
         else:
-            Vbar = np.average(self._walker_pots, weights=self._cont_wts)
+            v_bar = np.average(self._walker_pots, weights=self._cont_wts)
             correction = (np.sum(self._cont_wts - np.ones(self.num_walkers))) / self.num_walkers
-        self._vref = Vbar - (self._alpha * correction)
+        self._vref = v_bar - (self._alpha * correction)
 
     def calc_desc_wts(self, desc_wts):
         """
@@ -286,6 +288,10 @@ class DMC_Sim:
         for prop_step in self._prop_steps:
             self.cur_timestep = prop_step
 
+            # Write simulation attributes whether starting or restarting
+            if self.cur_timestep == self._prop_steps[0]:
+                self._logger.write_beginning(self.__dict__)
+
             # Check if prop_step is at a special point in simulation
             if prop_step in self._log_steps:
                 self._logger.write_ts(prop_step)
@@ -316,18 +322,17 @@ class DMC_Sim:
                 self._logger.write_desc_wt(prop_step)
                 desc_wt = False
                 desc_wts = self.calc_desc_wts(desc_wts)
-                vref_cm = Constants.convert(self._vref_vs_tau, 'wavenumbers', to_AU=False)
                 SimArchivist.save_h5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step - self.desc_wt_time_steps}ts.hdf5",
-                    keyz=['coords', 'desc_wts', 'desc_wt_steps', 'atomic_nums', 'vref_vs_tau'],
-                    valz=[parent, desc_wts, self.desc_wt_time_steps, self._atm_nums, vref_cm])
+                    keyz=['coords', 'desc_wts'],
+                    valz=[parent, desc_wts])
                 if self._deb_desc_wt_tracker:
                     np.save(
                         f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step - self.desc_wt_time_steps}ts",
                         self._who_from)
 
             # 1. Move Randomly
-            self.moveRandomly()
+            self.move_randomly()
 
             # 2. Calculate the Potential Energy
             if prop_step in self._log_steps:
@@ -360,14 +365,14 @@ class DMC_Sim:
         """This function calls propagate and saves simulation results"""
         print("Starting Simulation...")
         self.propagate()
-        _vrefCM = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+        _vref_wvn = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
         print("Simulation Complete")
-        print('Approximate ZPE', np.average(_vrefCM[len(_vrefCM) // 4:]))
-        ts = np.arange(len(_vrefCM))
+        print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
+        ts = np.arange(len(_vref_wvn))
         SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
-                             keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums'],
-                             valz=[np.column_stack((ts, _vrefCM)), np.column_stack((ts, self._pop_vs_tau)),
-                                   self._atm_nums])
+                             keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
+                             valz=[np.column_stack((ts, _vref_wvn)), np.column_stack((ts, self._pop_vs_tau)),
+                                   self._atm_nums, self.masses])
         self._logger.finish_sim()
 
     def __deepcopy__(self, memodict={}):
@@ -384,7 +389,7 @@ class DMC_Sim:
         return res
 
 
-def DMC_Restart(potential,
+def dmc_restart(potential,
                 time_step,
                 chkpt_folder="exSimulation_results/",
                 sim_name='DMC_Sim'):
@@ -397,5 +402,4 @@ def DMC_Restart(potential,
 
 
 if __name__ == "__main__":
-    # Do something if this file is invoked on its own
-    print('hi')
+    print('Hi, this is not how to run this code. Refer to documentation.')

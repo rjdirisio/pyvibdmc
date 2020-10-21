@@ -26,11 +26,13 @@ class SimInfo:
         with h5py.File(self.fname, 'r') as f:
             self.vref_vs_tau = f['vref_vs_tau'][:]
             self.pop_vs_tau = f['pop_vs_tau'][:]
+            self.atom_nums = f['atomic_nums'][:]
+            self.atom_masses = f['atomic_masses'][:]
 
     @staticmethod
-    def get_wfn(wfn_fl):
+    def _get_wfn(wfn_fl):
         """
-        Given a. hdf5 file, return wave function and descendant weights associated with that wave function.
+        Given a .hdf5 file, return wave function and descendant weights associated with that wave function.
 
         :param wfn_fl: A resultant .hdf5 file from a PyVibDMC simulation
         :return: Coordinates array in angstroms (nxmx3), descendant weights array (n).
@@ -53,7 +55,7 @@ class SimInfo:
         tot_cds = []
         tot_dw = []
         for fl in fl_list:
-            cds, dw = self.get_wfn(fl)
+            cds, dw = self._get_wfn(fl)
             tot_cds.append(cds)
             tot_dw.append(dw)
         tot_cds = np.concatenate(tot_cds)
@@ -61,10 +63,20 @@ class SimInfo:
         return tot_cds, tot_dw
 
     def get_vref(self):
+        """Returns vref_vs_tau array"""
         return self.vref_vs_tau
 
     def get_pop(self):
+        """Returns population array, either ensemble size or sum of weights"""
         return self.pop_vs_tau
+
+    def get_atomic_nums(self):
+        """Returns list of atoms used in the simulation (by atomic number)"""
+        return self.atom_nums
+
+    def get_atom_masses(self):
+        """Returns masses used in the simulation in atomic units (mass electron)"""
+        return self.atom_masses
 
     def get_zpe(self, onwards=1000):
         """onwards is an int that tells us where to start averaging (python indexing
