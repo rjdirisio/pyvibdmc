@@ -2,6 +2,7 @@ import h5py
 import pickle
 import copy
 
+
 class SimArchivist:
     """A utility class for saving wave functions, checkpoint files, and reloading DMC sims"""
 
@@ -23,7 +24,7 @@ class SimArchivist:
         """
         Given a DMC object and its current time step , this will save it as a .pickle file (excluding the potential!)
         """
-        cheq = copy.deepcopy(dmcObj) #calls __deepcopy__
+        cheq = copy.deepcopy(dmcObj)  # calls __deepcopy__
         with open(f'{dmcObj.output_folder}/chkpts/{dmcObj.sim_name}_{str(prop_step)}.pickle', 'wb') as handle:
             pickle.dump(cheq, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
