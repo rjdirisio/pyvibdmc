@@ -27,8 +27,8 @@ class Plotter:
             vref_vs_tau = [vref_vs_tau]
         for vref in vref_vs_tau:
             plt.plot(vref[:, 0], vref[:, 1], 'k')
-        plt.xlabel("Time step (atomic units)")
-        plt.ylabel(r"Vref ($\mathrm{cm^{-1}}$)")
+        plt.xlabel("Time step")
+        plt.ylabel(r"$\mathrm{E_{ref}}$ ($\mathrm{cm^{-1}}$)")
         plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()
 

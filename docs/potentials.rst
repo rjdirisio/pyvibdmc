@@ -49,32 +49,33 @@ Here is the ``Makefile`` that comes with ``PyVibDMC`` that uses f2py::
 Essentially, we build a Python module in the form of a ``.so`` (shared object/library) file.
 The subroutine ``h2o_pot`` in ``calc_h2o_pot.f`` calls a subroutine in ``h2opes_v2.f``, so it is
 necessary to compile ``h2opes_v2.f`` before generating the extension. It is optional to also compile
-``calc_h2o_pot.f`` before the ``python3`` call.
+``calc_h2o_pot.f`` before the ``f2py`` call.
 
 A file called ``h2o_pot.cpython...so`` will be generated.  This Python module is now importable inside Python.
-This is done in ``callPartridgePot.py``::
+This is done in ``h2o_potential.py``::
 
-   # callPartridgePot.py
-   from h2o_pot import calc_hoh_pot
-   import numpy as np
+   # h2o_potential.py
+    from h2o_pot import calc_hoh_pot
+    import numpy as np
 
-   def potential(cds):
-       v = calc_hoh_pot(cds, len(cds)) #the calc_hoh_pot subroutine needs the number of geoms, len(cds). Note how it wasn't passed in
-       return v
 
-   if __name__ == '__main__':
-       x = np.random.random((100, 3, 3))
-       v = potential(x)
-       print(v)
+    def water_pot(cds):
+        return calc_hoh_pot(cds, len(cds))
 
-This program, if called via ``python callPartridgePot.py``, will import the ``.so`` module called ``h2o_pot``,
+
+    if __name__ == '__main__':
+        x = np.random.random((100, 3, 3))
+        v = water_pot(x)
+        print(v)
+
+This program, if called via ``python h2o_potential.py``, will import the ``.so`` Python module called ``h2o_pot``,
 exposing the subroutine ``calc_hoh_pot``.
 
 Now, after we made sure this ran to completion, we can call this potential as done in the tutorial::
 
-   Potential(potential_function='potential',
-              python_file='fort_water_pot.py',
-              potential_directory=pot_dir,
+    Potential(potential_function='water_pot',
+              python_file='h2o_potential.py',
+              potential_directory='path/to/Partridge_Schwenke_H2O/',
               num_cores=4)
 
 C/C++ Potentials: ctypes
@@ -83,8 +84,8 @@ For C/C++ Potentials, we require a bit more legwork on the Python side. We will 
 `ctypes <https://docs.python.org/3/library/ctypes.html>`_.
 Once you compile a shared object
 ``.so`` file that calls the potential of interest, using the ``ctypes`` module, we can load in that call in Python.
-Say we had a shared library called ``lib_expot.so`` that takes in a pointer to an int, a pointer to the 2D coordinate
-array (num_atomsx3), and a pointer to the 1D potential array.
+Say we had a shared library called ``lib_expot.so`` that takes in a pointer to an int, a pointer to a coordinate
+array of doubles (num_atomsx3 on Python side), and a pointer to the 1D potential array, which in this case is of len(v)=1.
 
 Here is the example of how to load that in and call it::
 
@@ -140,5 +141,5 @@ Then, we may use this function in the ``Potential`` object::
    Potential(potential_function='call_exec',
               python_file='pot_call_exec.py',
               potential_directory=pot_dir,
-              num_cores=1) #cannot parallelize executables easily, unless reading/writing to mutliple files
+              num_cores=1) #cannot parallelize executables easily using multiprocessing. Can read/write to mutliple files...
 

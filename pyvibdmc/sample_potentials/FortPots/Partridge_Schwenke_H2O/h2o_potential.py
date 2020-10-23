@@ -3,12 +3,11 @@ from h2o_pot import calc_hoh_pot
 import numpy as np
 
 
-def potential(cds):
-    v = calc_hoh_pot(cds, len(cds))
-    return v
+def water_pot(cds):
+    return calc_hoh_pot(cds, len(cds))
 
 
 if __name__ == '__main__':
     x = np.random.random((100, 3, 3))
-    v = potential(x)
+    v = water_pot(x)
     print(v)

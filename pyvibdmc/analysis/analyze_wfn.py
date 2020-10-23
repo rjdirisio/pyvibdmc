@@ -101,7 +101,7 @@ class AnalyzeWfn:
         return dh
 
     def get_component(self, atm, xyz):
-        """Get x, y, or z component of a vector that corresponds to a particular atom in the predetermined cooridnate
+        """Get x, y, or z component of a vector that corresponds to a particular atom in some predetermined cooridnate
         system.
 
         :param atm: atom's index in numpy array

@@ -44,6 +44,8 @@ class DMC_Sim:
     :type log_every: int
     :param cur_timestep: The current time step, should be zero unless you are restarting
     :type cur_timestep: int
+    :param cont_wt_thresh: If a weight goes past this bound, branch it.  If only supplied one number, it will use that for the lower bound.
+    :type cont_wt_thresh: list of floats
     :param DEBUG_alpha: The number that will be used instead of 1/(2*delta_t) for alpha.
     :type DEBUG_alpha: float
     :param DEBUG_save_desc_wt_tracker: If true, will save the array that keeps track of births/deaths during desc_wt_time weighting. Will save as a binary .npy file (see numpy documentation)
@@ -70,6 +72,7 @@ class DMC_Sim:
                  branch_every=1,
                  log_every=100,
                  cur_timestep=0,
+                 cont_wt_thresh=None,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None
@@ -91,6 +94,7 @@ class DMC_Sim:
         self.wfn_every = wfn_every
         self.log_every = log_every
         self.cur_timestep = cur_timestep
+        self.cont_wt_thresh = cont_wt_thresh
         self._deb_training_every = DEBUG_save_training_every
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
@@ -138,6 +142,11 @@ class DMC_Sim:
         # Set up masses and sigmas
         if self.masses is None:
             self.masses = np.array([Constants.mass(a) for a in self.atoms])
+        elif isinstance(self.masses, float) or isinstance(self.masses, int):
+            self.masses = np.array([self.masses])
+        elif isinstance(self.masses, list):
+            self.masses = np.array(self.masses)
+
         if len(self.masses) != len(self.atoms):
             raise Exception("Your number of atoms list does not match your number of self.masses you provided.")
         self._atm_nums = get_atomic_num(self.atoms)
@@ -160,7 +169,15 @@ class DMC_Sim:
         # Weighting technique
         if self.weighting == 'continuous':
             self._cont_wts = np.ones(self.num_walkers)
-            self._thresh = 1 / self.num_walkers  # continuous weighting threshold
+            if self.cont_wt_thresh is None:
+                self._thresh_lower = 1 / self.num_walkers  # default continuous weighting threshold
+            elif isinstance(self.cont_wt_thresh, int) or isinstance(self.cont_wt_thresh, float):
+                self._thresh_lower = self.cont_wt_thresh
+            elif isinstance(self.cont_wt_thresh, list) and len(self.cont_wt_thresh) == 2:
+                self._thresh_lower = self.cont_wt_thresh[0]
+                self._thresh_upper = self.cont_wt_thresh[1]
+            else:
+                raise ValueError("Invalid input for continuous weight threshold")
         else:
             self._cont_wts = None
 
@@ -213,7 +230,7 @@ class DMC_Sim:
             return num_births, num_deaths
         else:
             self._cont_wts = self._cont_wts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
-            kill_mark = np.where(self._cont_wts < self._thresh)[0]
+            kill_mark = np.where(self._cont_wts < self._thresh_lower)[0]
 
             # logging info
             num_branched = len(kill_mark)

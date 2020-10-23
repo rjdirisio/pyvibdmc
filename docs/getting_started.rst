@@ -2,7 +2,7 @@ Getting Started
 ===============
 
 This page details how to get started with `PyVibDMC <https://github.com/rjdirisio/pyvibdmc>`_.
-This package is still under development, so clone at your own risk!
+This package is still under development, so install at your own risk!
 
 Theory of Diffusion Monte Carlo (DMC)
 -------------------------------------------------------
@@ -18,17 +18,21 @@ PyVibDMC is tested on and is for Mac and Linux architectures.
 If using Windows, use Windows Subsystem for Linux (WSL), however there are a few known issues with how PyVibDMC
 interacts with WSL. These include:
 
-- (WSL v1) After a complete simulation, if using parallelization, the python process will hang until manually terminated. The way to currently circumvent this is through using ``pm.Potential.mp_close()`` at the end of your run script.
+- (WSL v1) After a complete simulation, if using parallelization, the python process may hang until manually terminated. The way to currently circumvent this is through using ``pm.Potential.mp_close()`` at the end of your run script.
 - (WSL v2) If a Fortran potential reads a data file during its F2PY function call, it will seg fault or be unable to read the data file.
 
 These issues are not present on Mac or Linux.
 
-This package is currently in development. To do a development install of PyVibDMC, first clone it. Then, ``cd`` into to
-the project directory.
+**This package is currently in development.**
 
-You may then install the package using
+To do a development install of PyVibDMC, first clone it. Then, ``cd`` into the
+project directory.
+
+Then, install the package using
 
 ``pip install -e .``
+
+To get the latest version of ``PyVibDMC``, make sure to ``git pull``.
 
 Dependencies (All pre-installed with Anaconda3)
 -------------------------------------------------------
@@ -49,23 +53,18 @@ how `PyVibDMC handles external potential energy surfaces <https://pyvibdmc.readt
 
 This example script runs 5 DMC simulations on a single water molecule (H\ :sub:`2`\ O)
 using the Fortran Potential Energy Surface built by Partridge and Schwenke.  This potential energy surface is located
-in the PyVibDMC package, at ``pyvibdmc/pyvibdmc/sample_potentials/FortPots/PartridgeH2O``. Please ``cp`` this directory
+in the PyVibDMC package, at ``pyvibdmc/pyvibdmc/sample_potentials/FortPots/Partridge_Schwenke_H2O``. Please ``cp`` this directory
 to outside of the package.  To expose the Fortran subroutine to Python, please ``cd`` into the directory you copied, and
-run ``make``. This will build a ``.so`` file that is called in ``callPartridgePot.py``. Once you have run ``make``, you
+run ``make``. This will build a ``.so`` file that is called in ``h2o_potential.py``. Once you have run ``make``, you
 may now run the following script.::
 
     import numpy as np
     import pyvibdmc as dmc
     from pyvibdmc import potential_manager as pm
 
-    pot_dir = 'path/to/Partridge_H2O/' #this directory is the one you copied that is outside of pyvibdmc.
-    py_file = 'callPartridgePot.py'
-    pot_func = 'potential'
-
-    #Equilibrium geometry of water in *atomic units*, then blown up by 1.01 to not start at the bottom of the potential.
-    water_coord = np.array([[1.81005599,  0.        ,  0.        ],
-                           [-0.45344658,  1.75233806,  0.        ],
-                           [ 0.        ,  0.        ,  0.        ]]) * 1.01
+    pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is the one you copied that is outside of pyvibdmc.
+    py_file = 'h2o_potential.py'
+    pot_func = 'water_pot' # def water_pot(cds) in h2o_potential.py
 
     #The Potential object assumes you have already made a .so file and can successfully call it from Python
     water_pot = pm.Potential(potential_function=pot_func,
@@ -74,6 +73,13 @@ may now run the following script.::
                           num_cores=2)
     #optional num_cores parameter for multiprocessing, should not exceed the number of cores on the CPU
     #your machine has. Can use multiprocessing.cpu_count()
+
+    # Starting Structure
+    # Equilibrium geometry of water in *atomic units*, then blown up by 1.01 to not start at the bottom of the potential.
+    water_coord = np.array([[1.81005599,  0.        ,  0.        ],
+                           [-0.45344658,  1.75233806,  0.        ],
+                           [ 0.        ,  0.        ,  0.        ]]) * 1.01
+
     for sim_num in range(5):
         myDMC = dmc.DMC_Sim(sim_name=f"tutorial_water_{sim_num}",
                               output_folder="tutorial_dmc",
@@ -103,9 +109,9 @@ If the simulation dies due to external factors, you may restart a particular DMC
     from pyvibdmc import potential_manager as pm
 
     # need to reinitalize the water_pot
-    pot_dir = 'path/to/Partridge_H2O/'
-    py_file = 'callPartridgePot.py'
-    pot_func = 'potential'
+    pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is the one you copied that is outside of pyvibdmc.
+    py_file = 'h2o_potential.py'
+    pot_func = 'water_pot' # def water_pot(cds) in h2o_potential.py
     water_pot = pm.Potential(potential_function=pot_func,
                           python_file=py_file,
                           potential_directory=pot_dir,
@@ -114,8 +120,8 @@ If the simulation dies due to external factors, you may restart a particular DMC
     #restart function that reinializes the myDMC object
     myDMC = dmc.dmc_restart(potential=water_pot,
                                  chkpt_folder="tutorial_dmc",
-                                 sim_name='tutorial_water_{3}', #the fourth simulation died  (0,1,2,*3*,4)
-                                 time_step=2500) #made it to step 2600, so we have a checkpoint at 2500
+                                 sim_name='tutorial_water_{3}', #if the fourth simulation died  (0,1,2,*3*,4)
+                                 time_step=2500) #made it to step 2600, so we have a checkpoint at 2500 (chkpt_every=500)
     myDMC.run()
 
 
@@ -149,7 +155,7 @@ To run this sample calculation, please use this run script::
     # or
     harm_coord = np.zeros((8000,1,1))
 
-    #The Potential object doesn't need a .so file if you are using a python potential, just the function that calls it.
+    #The Potential object doesn't need a .so file if you are using a python potential
     harm_pot = pm.Potential(potential_function=pot_func,
                                    python_file=py_file,
                                    potential_directory=pot_dir,

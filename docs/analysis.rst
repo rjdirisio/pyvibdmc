@@ -33,11 +33,11 @@ using the prepackaged simulation data that comes with ``PyVibDMC``.  For the sam
 ``tutorial_water_{i}``, where ``i`` is an integer between 0 and 4, and the ``output_folder`` is ``sample_sim_data`` for
 all 5 simulations.
 
-**Note: PyVibDMC takes in coordinates and potential energy values in atomic units.  However, it returns geometries  for analysis in Angstroms!**
+**Note: PyVibDMC takes in coordinates and potential energy values in atomic units.  However, it returns geometries  for analysis in Angstroms, and energies in wavenumbers!**
 
 **Note: We recommend that you specify simulation output to go outside the PyVibDMC package.**
 
-**Note: If you are an advanced user, you may parse the hdf5 files yourself using h5py.**
+**Note: If you are an advanced user, you may parse the hdf5 files yourself using h5py. Please see the Advanced features section.**
 
 This data is purely for demonstration purposes.
 
@@ -117,7 +117,7 @@ Projecting the Probability Density onto a desirable coordinate
 With the wave function and descendant weights, we may then examine at the probability amplitude (:math:`\Psi^{2}`).
 Since the wave function is a multidimensional ensemble of localized functions, however, we must integrate over all
 other degrees of freedom and just examine one (or two)-dimensional projections. Say we wanted to examine what the
-ground state probability amplitude looked like along the HOH bend in a water molecule.
+ground state probability amplitude along the HOH bend in a water molecule.
 
 Here is the code that will perform that projection, as well as plot it::
 

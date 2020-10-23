@@ -9,9 +9,8 @@ Requirements:
 
 - gfortran (if you want to use another Fortran compiler, you will have to modify the Makefile)
 
-This is shipped with `PyVibDMC` as a tutorial. I do not recommend storing your potentials in
-this `potentials` directory.  You can even copy this directory and put it somewhere else,
-like on your desktop.
+This is shipped with `PyVibDMC` as a tutorial. 
+
 In this directory, you will find:
 
 - Fortran source code of the PES: `h2opes_v2.f`
