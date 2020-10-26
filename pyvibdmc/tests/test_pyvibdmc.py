@@ -39,16 +39,49 @@ def test_runDMC():
                              weighting='discrete',
                              num_walkers=5000,
                              num_timesteps=1000,
-                             equil_steps=200,
-                             chkpt_every=100,
-                             wfn_every=100,
-                             desc_wt_steps=100,
+                             equil_steps=100,
+                             chkpt_every=50,
+                             wfn_every=200,
+                             desc_wt_steps=199,
                              atoms=["H"],
                              delta_t=5,
                              potential=harm_pot,
                              log_every=50,
                              start_structures=np.zeros((1, 1, 1)),
                              cur_timestep=0)
+    myDMC.run()
+    assert True
+
+
+def test_runDMC_cont():
+
+    # initialize potential
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
+    # purposes
+    pyFile = 'harmonicOscillator1D.py'
+    potFunc = 'HODMC'
+    harm_pot = Potential(potential_function=potFunc,
+                         python_file=pyFile,
+                         potential_directory=potDir,
+                         num_cores=2)
+
+    myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_cont",
+                             output_folder=sim_ex_dir,
+                             weighting='continuous',
+                             num_walkers=5000,
+                             num_timesteps=1000,
+                             equil_steps=200,
+                             chkpt_every=100,
+                             wfn_every=500,
+                             desc_wt_steps=499,
+                             atoms=["H"],
+                             delta_t=5,
+                             potential=harm_pot,
+                             log_every=50,
+                             start_structures=np.zeros((1, 1, 1)),
+                             cur_timestep=0,
+                             cont_wt_thresh=[0.002, 15]
+                             )
     myDMC.run()
     assert True
 
@@ -63,6 +96,6 @@ def test_restartDMC():
                       potential_directory=potDir,
                       num_cores=2)
 
-    myDMC = pyvibdmc.dmc_restart(potential=HOpot, time_step=500, chkpt_folder=sim_ex_dir, sim_name='harm_osc_test')
+    myDMC = pyvibdmc.dmc_restart(potential=HOpot, time_step=550, chkpt_folder=sim_ex_dir, sim_name='harm_osc_test')
     myDMC.run()
     assert True

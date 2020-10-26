@@ -106,17 +106,17 @@ class DMC_Sim:
         """
         # Initialize the rest of the (private) variables needed for the simulation
         # Arrays used to mark important events throughout the simulation
-        self._prop_steps = np.arange(self.cur_timestep, self.num_timesteps)
-        self._branch_step = np.arange(self.cur_timestep, self.num_timesteps + self.branch_every, self.branch_every)
+        self._prop_steps = np.arange(0, self.num_timesteps)
+        self._branch_step = np.arange(0, self.num_timesteps + self.branch_every, self.branch_every)
         self._chkpt_step = np.arange(self.equil_steps, self.num_timesteps + self.chkpt_every, self.chkpt_every)
         self._wfn_save_step = np.arange(self.equil_steps, self.num_timesteps + self.wfn_every, self.wfn_every)
         self._desc_wt_save_step = self._wfn_save_step + self.desc_wt_time_steps
         if self._deb_training_every is not None:
-            self.deb_train_save_step = np.arange(self.cur_timestep, self.num_timesteps + self._deb_training_every,
+            self.deb_train_save_step = np.arange(0, self.num_timesteps + self._deb_training_every,
                                                  self._deb_training_every)
         else:
             self.deb_train_save_step = []
-        self._log_steps = np.arange(self.cur_timestep, self.num_timesteps, self.log_every)
+        self._log_steps = np.arange(0, self.num_timesteps, self.log_every)
         # Arrays that carry data throughout the simulation
         self._who_from = None  # desc_wt_timeendant weighting doesn't happen right away, no need to init
         self._walker_pots = None  # will get returned from potential function
@@ -168,28 +168,43 @@ class DMC_Sim:
 
         # Weighting technique
         if self.weighting == 'continuous':
+            self._thresh_upper = None
             self._cont_wts = np.ones(self.num_walkers)
             if self.cont_wt_thresh is None:
                 self._thresh_lower = 1 / self.num_walkers  # default continuous weighting threshold
             elif isinstance(self.cont_wt_thresh, int) or isinstance(self.cont_wt_thresh, float):
                 self._thresh_lower = self.cont_wt_thresh
-            elif isinstance(self.cont_wt_thresh, list) and len(self.cont_wt_thresh) == 2:
-                self._thresh_lower = self.cont_wt_thresh[0]
-                self._thresh_upper = self.cont_wt_thresh[1]
+            elif isinstance(self.cont_wt_thresh, list):
+                if len(self.cont_wt_thresh) == 2:
+                    self._thresh_lower = self.cont_wt_thresh[0]
+                    self._thresh_upper = self.cont_wt_thresh[1]
+                elif len(self.cont_wt_thresh) == 1:
+                    self._thresh_lower = self.cont_wt_thresh[0]
             else:
                 raise ValueError("Invalid input for continuous weight threshold")
         else:
             self._cont_wts = None
+        self._desc_wt = False
 
-    def birth_or_death(self, desc_wt_time):
+
+    def _branch(self,walkers_below):
+        """
+        Helper class that actually does the branching
+        """
+        for walker in walkers_below:
+            max_walker = np.argmax(self._cont_wts)
+            self._walker_coords[walker] = np.copy(self._walker_coords[max_walker])
+            self._walker_pots[walker] = np.copy(self._walker_pots[max_walker])
+            if self._desc_wt:
+                self._who_from[walker] = self._who_from[max_walker]
+            self._cont_wts[max_walker] /= 2.0
+            self._cont_wts[walker] = np.copy(self._cont_wts[max_walker])
+
+    def birth_or_death(self):
         """
         Chooses whether or not the walker made a bad enough random walk to be removed from the simulation.
         For discrete weighting, this leads to removal or duplication of the walkers.  For continuous, this leads
         to an update of the weights and a potential branching of a large weight walker to the smallest one
-        :param desc_wt_time: A boolean that checks if desc_wt_timeendent weighting should be occuring right now.
-        :type desc_wt_time: bool
-        :param log_it: A boolean that will log births and deaths.
-        :type log_it: bool
         :return: Updated Continus Weights , the "who from" array for desc_wt_timeendent weighting, walker coords, and pot vals.
          """
         if self.weighting == 'discrete':
@@ -203,17 +218,17 @@ class DMC_Sim:
             self._walker_coords = self._walker_coords[death_mask]
             self._walker_pots = self._walker_pots[death_mask]
             rand_nums = rand_nums[death_mask]
-            if desc_wt_time:
+            if self._desc_wt:
                 self._who_from = self._who_from[death_mask]
 
-            exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1
+            exp_term = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1
             ct = 1
             num_births = 0
-            while np.amax(exTerm) > 0.0:
+            while np.amax(exp_term) > 0.0:
                 if ct != 1:
                     rand_nums = np.random.random(
                         len(self._walker_coords))  # get new random numbers for probability of birth
-                birth_mask = np.logical_and(exTerm > rand_nums,
+                birth_mask = np.logical_and(exp_term > rand_nums,
                                             self._walker_pots < self._vref)
 
                 num_births += np.sum(birth_mask)
@@ -222,29 +237,32 @@ class DMC_Sim:
                                                       self._walker_coords[birth_mask]))
                 self._walker_pots = np.concatenate((self._walker_pots,
                                                     self._walker_pots[birth_mask]))
-                if desc_wt_time:
+                if self._desc_wt:
                     self._who_from = np.concatenate((self._who_from,
                                                      self._who_from[birth_mask]))
-                exTerm = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1 + ct)
+                exp_term = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1 + ct)
                 ct += 1
             return num_births, num_deaths
         else:
-            self._cont_wts = self._cont_wts * np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
+            self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
+
+            # branch if weights are too low
             kill_mark = np.where(self._cont_wts < self._thresh_lower)[0]
+            self._branch(kill_mark)
+
+            # branch more if there are weights that are too high
+            if self._thresh_upper is not None:
+                num_above_thresh = np.sum(self._cont_wts > self._thresh_upper)  # now, see if any weights are still too big
+                kill_mark_upper = np.argpartition(self._cont_wts, num_above_thresh)[:num_above_thresh]  # get the num_above_thresh smallest wts
+                self._branch(kill_mark_upper)
+            else:
+                kill_mark_upper = []
 
             # logging info
-            num_branched = len(kill_mark)
+            num_branched = len(kill_mark) + len(kill_mark_upper)
             max_weght = np.amax(self._cont_wts)
             min_weght = np.amin(self._cont_wts)
 
-            for walker in kill_mark:
-                max_walker = np.argmax(self._cont_wts)
-                self._walker_coords[walker] = np.copy(self._walker_coords[max_walker])
-                self._walker_pots[walker] = np.copy(self._walker_pots[max_walker])
-                if desc_wt_time:
-                    self._who_from[walker] = self._who_from[max_walker]
-                self._cont_wts[max_walker] /= 2.0
-                self._cont_wts[walker] = np.copy(self._cont_wts[max_walker])
             return num_branched, max_weght, min_weght
 
     def move_randomly(self):
@@ -268,7 +286,7 @@ class DMC_Sim:
             correction = (np.sum(self._cont_wts - np.ones(self.num_walkers))) / self.num_walkers
         self._vref = v_bar - (self._alpha * correction)
 
-    def calc_desc_wts(self, desc_wts):
+    def calc_desc_wts(self):
         """
         At the end of desc_wt_timeendent weighting, count up which walkers came from other walkers (desc_wt_timeendants)
 
@@ -276,11 +294,10 @@ class DMC_Sim:
         """
         if self.weighting == 'discrete':
             unique, counts = np.unique(self._who_from, return_counts=True)
-            desc_wts[unique] = counts
+            self._desc_wts[unique] = counts
         else:
             for q in range(len(self._cont_wts)):
-                desc_wts[q] = np.sum(self._cont_wts[self._who_from == q])
-        return desc_wts
+                self._desc_wts[q] = np.sum(self._cont_wts[self._who_from == q])
 
     def update_sim_arrays(self, prop_step):
         """
@@ -301,7 +318,6 @@ class DMC_Sim:
              4. Update Vref
              Additionally, checks when the wavefunction has hit a point where it should save / do desc_wt_timeendent weighting.
          """
-        desc_wt = False
         for prop_step in self._prop_steps:
             self.cur_timestep = prop_step
 
@@ -329,20 +345,20 @@ class DMC_Sim:
             # If we are at a spot to begin desc_wt_timeendant weighting
             if prop_step in self._wfn_save_step:
                 self._logger.write_wfn_save(prop_step)
-                desc_wts = np.zeros(len(self._walker_coords))
-                parent = np.copy(self._walker_coords)
+                self._desc_wts = np.zeros(len(self._walker_coords))
+                self._parent = np.copy(self._walker_coords)
                 self._who_from = np.arange(len(self._walker_coords))
-                desc_wt = True
+                self._desc_wt = True
 
             # If desc_wt_time weighting is over, save the wfn and weights
             if prop_step in self._desc_wt_save_step:
                 self._logger.write_desc_wt(prop_step)
-                desc_wt = False
-                desc_wts = self.calc_desc_wts(desc_wts)
+                self._desc_wt = False
+                self.calc_desc_wts()
                 SimArchivist.save_h5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step - self.desc_wt_time_steps}ts.hdf5",
                     keyz=['coords', 'desc_wts'],
-                    valz=[parent, desc_wts])
+                    valz=[self._parent, self._desc_wts])
                 if self._deb_desc_wt_tracker:
                     np.save(
                         f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step - self.desc_wt_time_steps}ts",
@@ -365,9 +381,9 @@ class DMC_Sim:
             if prop_step == self._prop_steps[0]:
                 self.calc_vref()
 
-            # 3. Birth/Death
+            # 3. Birth/Death, or branching
             if prop_step in self._branch_step:
-                ensemble_changes = self.birth_or_death(desc_wt)
+                ensemble_changes = self.birth_or_death()
                 if prop_step in self._log_steps:
                     self._logger.write_branching(prop_step, self.weighting, ensemble_changes)
             else:
@@ -411,9 +427,9 @@ def dmc_restart(potential,
                 chkpt_folder="exSimulation_results/",
                 sim_name='DMC_Sim'):
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name, time_step)
-    dmc_sim.cur_timestep = time_step
+    dmc_sim._prop_steps = np.arange(dmc_sim.cur_timestep, dmc_sim.num_timesteps)
     dmc_sim.potential = potential.getpot
-    dmc_sim._initialize()
+    dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
     FileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
     return dmc_sim
 
