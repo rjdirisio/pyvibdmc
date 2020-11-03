@@ -7,12 +7,6 @@ PyVibDMC
 
 A general purpose diffusion monte carlo code for studying vibrational problems
 
-This repository is currently under development. To do a development, install, download this repository and then type
-
-`pip install -e .`
-
-in the repository directory.
-
 This package requires the following (all included with anaconda3):
 
 - NumPy
