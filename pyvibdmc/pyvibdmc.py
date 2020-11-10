@@ -70,7 +70,7 @@ class DMC_Sim:
                  masses=None,
                  start_structures=None,
                  branch_every=1,
-                 log_every=100,
+                 log_every=1,
                  cur_timestep=0,
                  cont_wt_thresh=None,
                  DEBUG_alpha=None,
@@ -140,16 +140,29 @@ class DMC_Sim:
             self._walker_coords = self.start_structures
 
         # Set up masses and sigmas
+        if type(self.atoms) is not list:
+            self.atoms = [self.atoms]
+
+        # pull masses from atoms
         if self.masses is None:
-            self.masses = np.array([Constants.mass(a) for a in self.atoms])
+            # reduced mass - 1D problem
+            if '-' in self.atoms[0]:
+                self.masses = np.array([Constants.reduced_mass(self.atoms[0])])
+                self._atm_nums = get_atomic_num(self.atoms[0].split('-'))
+            # regular molecules
+            else:
+                self.masses = np.array([Constants.mass(a) for a in self.atoms])
+                self._atm_nums = get_atomic_num(self.atoms)
+        # custom masses
         elif isinstance(self.masses, float) or isinstance(self.masses, int):
             self.masses = np.array([self.masses])
+            self._atm_nums = [-1]
         elif isinstance(self.masses, list):
             self.masses = np.array(self.masses)
+            self._atm_nums = get_atomic_num(self.atoms)
 
         if len(self.masses) != len(self.atoms):
-            raise Exception("Your number of atoms list does not match your number of self.masses you provided.")
-        self._atm_nums = get_atomic_num(self.atoms)
+            raise Exception("Your number of atoms list does not match your number of masses you provided.")
 
         # Constants for simulation
         self._sigmas = np.sqrt(self.delta_t / self.masses)
@@ -186,8 +199,7 @@ class DMC_Sim:
             self._cont_wts = None
         self._desc_wt = False
 
-
-    def _branch(self,walkers_below):
+    def _branch(self, walkers_below):
         """
         Helper class that actually does the branching
         """
@@ -252,8 +264,10 @@ class DMC_Sim:
 
             # branch more if there are weights that are too high
             if self._thresh_upper is not None:
-                num_above_thresh = np.sum(self._cont_wts > self._thresh_upper)  # now, see if any weights are still too big
-                kill_mark_upper = np.argpartition(self._cont_wts, num_above_thresh)[:num_above_thresh]  # get the num_above_thresh smallest wts
+                num_above_thresh = np.sum(
+                    self._cont_wts > self._thresh_upper)  # now, see if any weights are still too big
+                kill_mark_upper = np.argpartition(self._cont_wts, num_above_thresh)[
+                                  :num_above_thresh]  # get the num_above_thresh smallest wts
                 self._branch(kill_mark_upper)
             else:
                 kill_mark_upper = []

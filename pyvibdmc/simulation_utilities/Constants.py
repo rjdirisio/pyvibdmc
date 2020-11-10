@@ -41,7 +41,6 @@ def get_atomic_num(atms):
     :param atms: A list (or single string) of atomic element symbols
     :return: The atomic numbers of each of the atom strings you provide
     """
-    if type(atms) is not list: atms = [atms]
     atm_strings = list(massDict.keys())
     return [atm_strings.index(n) + 1 for n in atms]
 
@@ -95,3 +94,24 @@ class Constants:
         if to_AU:
             m = cls.convert(m, 'amu')
         return m
+
+    @classmethod
+    def reduced_mass(cls, atoms, to_AU=True):
+        """
+                Given a string like 'O-H' or 'N-N' , output the reduced mass of that diatomic
+                :param atoms: A string that is composed of two atoms
+                :type atom:str
+                :param to_AU: If true, converting from non-a.u. to a.u.  If false, converting to a.u. from non-a.u.
+                :type to_AU:boolean
+                :return: mass in atomic units unless user changes to_AU to False, then AMU
+                """
+        atoms = atoms.split('-')
+        atm1 = atoms[0]
+        atm2 = atoms[1]
+        mass1 = massDict[atm1]
+        mass2 = massDict[atm2]
+        if to_AU:
+            mass1 = cls.convert(mass1, 'amu')
+            mass2 = cls.convert(mass2, 'amu')
+        reduced_mass = mass1 * mass2 / (mass1 + mass2)
+        return reduced_mass

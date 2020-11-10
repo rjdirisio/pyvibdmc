@@ -234,8 +234,8 @@ as if it is a full dimensional system.  Of course, the wave functions then will 
     red_coord = np.zeros((1,1,1))
     red_coord[0,0,0] = Constants.convert(0.9578400,'angstroms',to_AU=True) #we only need one geometry, PyVibDMC will duplicate it for us.
 
-    massP = [Constants.mass('H',to_AU=True),Constants.mass('O',to_AU=True)]
-    mass = massP[0]*massP[1]/(massP[0]+massP[1]) #Reduced mass - OH stretch
+    # reduced mass - automated way
+    mass = Constants.reduced_mass("O-H")
 
     for sim_num in range(5):
         red_DMC = dmc.DMC_Sim(sim_name=f"water1d_dt10_{sim_num}",
@@ -248,7 +248,7 @@ as if it is a full dimensional system.  Of course, the wave functions then will 
                                wfn_every=5000, #collect a wave function every "wfn_every" time steps
                                desc_wt_steps=50, #number of time steps you allow for descendant weighting per wave function
                                atoms=['X'], #It doesn't matter what atom you put here if using custom mass.
-                               delta_t=10, #the size of the time step in atomic units
+                               delta_t=1, #the size of the time step in atomic units
                                potential=ps_oh,
                                start_structures=red_coord,
                                masses=mass #can put in artificial masses, otherwise it auto-pulls values from the atoms string

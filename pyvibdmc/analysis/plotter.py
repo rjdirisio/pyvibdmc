@@ -25,8 +25,11 @@ class Plotter:
         """
         if not isinstance(vref_vs_tau, list):
             vref_vs_tau = [vref_vs_tau]
-        for vref in vref_vs_tau:
-            plt.plot(vref[:, 0], vref[:, 1], 'k')
+        if len(vref_vs_tau) == 1:
+            plt.plot(vref_vs_tau[0][:, 0], vref_vs_tau[0][:, 1], 'k')
+        else:
+            for vref in vref_vs_tau:
+                plt.plot(vref[:, 0], vref[:, 1])
         plt.xlabel("Time step")
         plt.ylabel(r"$\mathrm{E_{ref}}$ ($\mathrm{cm^{-1}}$)")
         plt.savefig(save_name, bbox_inches='tight', dpi=300)
@@ -45,8 +48,11 @@ class Plotter:
         """
         if not isinstance(pop_vs_tau, list):
             pop_vs_tau = [pop_vs_tau]
-        for vref in pop_vs_tau:
-            plt.plot(vref[:, 0], vref[:, 1], 'k')
+        if len(pop_vs_tau) == 1:
+            plt.plot(pop_vs_tau[0][:, 0], pop_vs_tau[0][:, 1], 'k')
+        else:
+            for pop in pop_vs_tau:
+                plt.plot(pop[:, 0], pop[:, 1])
         plt.xlabel("Time step")
         plt.ylabel(r"Population, Weights")
         plt.savefig(save_name, bbox_inches='tight', dpi=300)
@@ -69,11 +75,11 @@ class Plotter:
         :param save_name: name of the .png file that this plot will be saved to
         :type save_name: str
         """
-        plt.plot(hist[:,0], hist[:,1]) # bins,amps
+        plt.plot(hist[:, 0], hist[:, 1])  # bins,amps
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title)
-        plt.savefig(save_name, bbox_inches='tight',dpi=300)
+        plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()
 
     @staticmethod
@@ -100,7 +106,7 @@ class Plotter:
         plt.contour(binsx, binsy, hist_2d, colors='k')
         plt.contourf(binsx, binsy, hist_2d, cmap=cm.viridis)
         cb = plt.colorbar()
-        cb.set_label(r'Probability Amplitude ($\rm{\Psi^{2}}$)', rotation=270,labelpad=20)
+        cb.set_label(r'Probability Amplitude ($\rm{\Psi^{2}}$)', rotation=270, labelpad=20)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title)
