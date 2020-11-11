@@ -2,7 +2,10 @@ Getting Started
 ===============
 
 This page details how to get started with `PyVibDMC <https://github.com/rjdirisio/pyvibdmc>`_.
-This package is still under development, so install at your own risk!
+
+The package is hosted on `PyPi <https://pypi.org/project/pyvibdmc/>`_. To install it, please use::
+
+    pip install pyvibdmc
 
 Theory of Diffusion Monte Carlo (DMC)
 -------------------------------------------------------
@@ -15,24 +18,13 @@ Installation
 --------------
 PyVibDMC is tested on and is for Mac and Linux architectures.
 
-If using Windows, use Windows Subsystem for Linux (WSL), however there are a few known issues with how PyVibDMC
+If using Windows, please use Windows Subsystem for Linux (WSL). However, there are a few known issues with how PyVibDMC
 interacts with WSL. These include:
 
 - (WSL v1) After a complete simulation, if using parallelization, the python process may hang until manually terminated. The way to currently circumvent this is through using ``pm.Potential.mp_close()`` at the end of your run script.
 - (WSL v2) If a Fortran potential reads a data file during its F2PY function call, it will seg fault or be unable to read the data file.
 
 These issues are not present on Mac or Linux.
-
-**This package is currently in development.**
-
-To do a development install of PyVibDMC, first clone it. Then, ``cd`` into the
-project directory.
-
-Then, install the package using
-
-``pip install -e .``
-
-To get the latest version of ``PyVibDMC``, make sure to ``git pull``.
 
 Dependencies (All pre-installed with Anaconda3)
 -------------------------------------------------------
@@ -42,10 +34,22 @@ Dependencies (All pre-installed with Anaconda3)
 - Tutorial: Compiler for the potential energy surface (the tutorial potential uses gfortran)
 - Tutorial: make (on Linux systems, this is usually installed via the 'build-essential' or 'Development Tools' packages)
 
+Extracting Sample Potentials and Sample DMC Results
+------------------------------------------------------
+The pyvibdmc package has two directories that are useful for the tutorial: ``sample_potentials`` and ``sample_sim_data``.
+To access these files, you will need to ``cp`` them out of the ``PyVibDMC`` package. To locate the package, first do::
+
+    pip show pyvibdmc
+
+This should tell you the ``Location`` of the installation. An example installation location is in
+``/home/<username>/.local/lib/python3.8/site-packages``.  To copy the sample directories out, then use ``cp``::
+
+    cp -r <path_to_installation>/pyvibdmc/pyvibdmc/sample_potentials/ .
+    cp -r <path_to_installation>/pyvibdmc/pyvibdmc/sample_sim_data/ .
+
 Tutorial: Water Monomer
 ------------------------
-Once ``pip`` installed, one can ``import pyvibdmc`` from any directory. It is recommended that you always run jobs outside
-the ``PyVibDMC`` directory.
+Once ``pip`` installed, one can ``import pyvibdmc`` from any directory.
 
 Before running the simulation,
 please read about
@@ -53,17 +57,16 @@ how `PyVibDMC handles external potential energy surfaces <https://pyvibdmc.readt
 
 This example script runs 5 DMC simulations on a single water molecule (H\ :sub:`2`\ O)
 using the Fortran Potential Energy Surface built by Partridge and Schwenke.  This potential energy surface is located
-in the PyVibDMC package, at ``pyvibdmc/pyvibdmc/sample_potentials/FortPots/Partridge_Schwenke_H2O``. Please ``cp`` this directory
-to outside of the package.  To expose the Fortran subroutine to Python, please ``cd`` into the directory you copied, and
-run ``make``. This will build a ``.so`` file that is called in ``h2o_potential.py``. Once you have run ``make``, you
-may now run the following script.::
+in the PyVibDMC package, at ``sample_potentials/FortPots/Partridge_Schwenke_H2O``. To expose the Fortran subroutine to Python,
+please ``cd`` into the directory you copied, and run ``make``. This will build a ``.so`` file that is called
+in ``h2o_potential.py``. Once you have run ``make``, you may now run the following script.::
 
     import numpy as np
     import pyvibdmc as dmc
     from pyvibdmc import potential_manager as pm
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
-        pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is the one you copied that is outside of pyvibdmc.
+        pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is part of the one you copied that is outside of pyvibdmc.
         py_file = 'h2o_potential.py'
         pot_func = 'water_pot' # def water_pot(cds) in h2o_potential.py
 
@@ -144,7 +147,7 @@ mass of an OH diatomic::
     import numpy as np
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
-        pot_dir = 'path/to/PythonPots' #this directory is the one you copied that is outside of pyvibdmc.
+        pot_dir = 'path/to/PythonPots' #this directory is part of the one you copied that is outside of pyvibdmc.
         py_file = 'harmonicOscillator1D.py'
         pot_func = 'oh_stretch_harm'
 
