@@ -216,3 +216,36 @@ The calculation of, say, the expectation value of the displacement of one OH str
 To see more examples of DMC wave function analysis, including more advanced ones, please check out the
 `tests/test_analysis.py <https://github.com/rjdirisio/pyvibdmc/blob/master/pyvibdmc/tests/test_analysis.py>`_ file in
 the ``PyVibDMC`` repository on Github.
+
+Extra: Working with Harmonic Oscillator Wave functions
+-------------------------------------------------------
+If you ran the tutoral on the 1-D harmonic oscillator, you do not have bond angles to look at. Instead, you were
+effectively displacing the bond length between the two diatomic molecules R\ :sub:`12.  In order to examine the probability
+amplitude along this coordinate, we will still perform a histogram. However, the coordinate structure of the numpy
+array needs to be cleaned up beforehand.  As said before, the coordinate array in ``PyVibDMC`` is normally (N,M,3),
+where N = number of walkers, M = number of atoms, and 3 is x,y,z.  With the harmonic oscillator calculation, however,
+the coordinate array is (N,1,1), since there is only one 'atom' (a particle with a reduced mass) and one dimension, say x.
+In order to project the probability amplitude onto the bond length, which is the one coordinate you have, we need to use
+``np.squeeze`` to go from (N,1,1) to (N)::
+
+    from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
+    import numpy as np
+
+    tutorial_sim = SimInfo('./harm_osc_test_sim_info.hdf5')
+    increment = 1000
+    cds, dws = tutorial_sim.get_wfns(np.arange(1500, 10000+increment, increment)) #gets back cds in angstroms
+    savefigpth = '' # save in current directory
+
+    bond_length = np.squeeze(cds) #numpy array (N,1,1) --> (N)
+
+    analyzer = AnalyzeWfn(cds)
+    bl_histo = analyzer.projection_1d(attr=bond_length,  # make a 1d histogram , x/y data
+                                       desc_weights=dws,
+                                       bin_num=25,
+                                       range=(-0.5, 0.5))
+
+    Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
+                       xlabel=r"$\rm{R_{12}}$ (Angstroms)",
+                       save_name=f'{savefigpth}harm_bond_length.png')
+
+
