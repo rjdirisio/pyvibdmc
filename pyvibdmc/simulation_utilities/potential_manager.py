@@ -43,16 +43,14 @@ class Potential:
         module = self.pyFile.split(".")[0]
         x = importlib.import_module(module)
         self._pot = getattr(x, self.pot_func)
-        os.chdir(self._curdir)
-
-    def pool_initalizer(self):
-        self._init_pot()
+        # leave pool workers there
 
     def init_pool(self):
-        if self.num_cores > 1:
-            self._potPool = mp.Pool(self.num_cores, initializer=self._init_pot())
-        else:
-            self._init_pot()
+        if self.num_cores <= 0:
+            print('Weird number of cores specified. Defaulting to 1...')
+            self.num_cores = 1
+        self._potPool = mp.Pool(self.num_cores, initializer=self._init_pot())
+        os.chdir(self._curdir)
 
     def getpot(self, cds, timeit=False):
         """

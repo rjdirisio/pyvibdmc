@@ -30,7 +30,7 @@ The ``num_cores`` parameter specifies the number of Python processes one would s
 the DMC simulation. Each Python process takes up 1 core. If you are working with a 16-core CPU,
 perhaps use 10 to 12 cores for maximum performance if you are only running one calculation at once.
 The number of walkers does NOT need to be divisible by the number of cores/processes.
-If this is run on a laptop with 4 cores, only using 2 cores is reccomended.
+If this is run on a laptop with 4 cores, only using 2 cores is recommended.
 
 Fortran Potentials: F2PY
 -------------------------------------------------------
