@@ -2,6 +2,7 @@ import multiprocessing as mp
 import os
 import sys
 import time
+import importlib
 
 import numpy as np
 
@@ -35,7 +36,6 @@ class Potential:
         """
         Sets _pot
         """
-        import importlib
         # Go to potential directory that houses python function and assign a self._pot variable to it
         self._curdir = os.getcwd()
         os.chdir(self.pot_dir)
@@ -78,3 +78,43 @@ class Potential:
         if self._potPool is not None:
             self._potPool.close()
             self._potPool.join()
+
+
+class NN_Potential:
+    def __init__(self,
+                 potential_function,
+                 potential_directory,
+                 python_file,
+                 model
+    ):
+        self.pot_func = potential_function
+        self.pyFile = python_file
+        self.pot_dir = potential_directory
+        self.model = model
+        self._init_pot()
+
+    def _init_pot(self):
+        self._curdir = os.getcwd()
+        os.chdir(self.pot_dir)
+        sys.path.insert(0, os.getcwd())
+        module = self.pyFile.split(".")[0]
+        x = importlib.import_module(module)
+        self._pot = getattr(x, self.pot_func)
+        os.chdir(self._curdir)
+
+    def getpot(self, cds, timeit=False):
+        """
+        Uses the potential function we got to call potential
+        :param cds: A stack of geometries (nxmx3, n=num_geoms;m=num_atoms;3=x,y,z) whose energies we need
+        :type cds: np.ndarray
+        :param timeit: The logger telling the potential manager whether or not to time the potential call
+        :type timeit: bool
+        """
+        if timeit:
+            start = time.time()
+        v = self._pot(cds, self.model)
+        if timeit:
+            elapsed = time.time() - start
+            return v, elapsed
+        else:
+            return v
