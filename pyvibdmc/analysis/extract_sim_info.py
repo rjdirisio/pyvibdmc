@@ -84,4 +84,16 @@ class SimInfo:
         return np.average(self.vref_vs_tau[onwards:, 1])
 
     def window_avg(self, blocks=5):
-        """Splits vref into """
+        """Splits vref into blocks, calculates zpe in each of those blocks"""
+        chunks = np.array_split(self.vref_vs_tau, blocks)
+        avgs = np.average(chunks, axis=1)
+        return avgs
+
+    @staticmethod
+    def get_training(training_file):
+        """If using deb_training_every argument, read the files with this."""
+        with h5py.File(training_file, 'r') as f:
+            cds = f['coords'][:]
+            cds = Constants.convert(cds, 'angstroms', to_AU=False)
+            dw = f['desc_wts'][:]
+        return cds, dw
