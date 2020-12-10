@@ -43,6 +43,7 @@ class SimLogger:
             self.fl.write(f"Birth/Death at time step {cur_time_step}:\n")
             self.fl.write(f"\tWalker Births: {birthdeath_branch[0]}\n")
             self.fl.write(f"\tWalker Deaths: {birthdeath_branch[1]}\n")
+            self.fl.write(f"\tNumber of Walkers: {birthdeath_branch[2]}\n")
 
         elif weighting == 'continuous':
             self.fl.write(f"Branching at time step {cur_time_step}:\n")
@@ -50,7 +51,7 @@ class SimLogger:
             self.fl.write(f"\tMax Wt before Branched: {birthdeath_branch[1]}:\n")
             self.fl.write(f"\tMin Wt before Branched: {birthdeath_branch[2]}:\n")
 
-    def write_beginning(self,attribs):
+    def write_beginning(self, attribs):
         self.fl.write(f"Simulation {attribs['sim_name']} starting at step {attribs['cur_timestep']}\n")
         self.fl.write(f"Num Walkers: {attribs['num_walkers']}\n")
         self.fl.write(f"Num Time Steps: {attribs['num_timesteps']}\n")

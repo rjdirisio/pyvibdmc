@@ -103,12 +103,10 @@ Here is the example of how to load that in and call it::
                       ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
       nw = ctypes.c_int32(6) #some integer that needs to be passed to the potential
       v = np.zeros(1)
-      vpot = np.zeros(len(x))
-      for num,coord in enumerate(x):
-          # print(v)
+      vpot = np.zeros(len(cds))
+      for num,coord in enumerate(cds):
           v = np.zeros(1)
-          # print(coord)
-          example_fun(ctypes.byref(nw),v,x[num])
+          example_fun(ctypes.byref(nw),v,coord)
           vpot[num] = v[0]
 
 In this example, all the looping is done on the Python side, and so only one geometry is fed to the

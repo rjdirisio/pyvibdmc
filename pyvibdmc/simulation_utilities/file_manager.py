@@ -24,6 +24,20 @@ class FileManager:
                 os.remove(wfns[wfnN])
 
     @staticmethod
+    def delete_older_checkpoints(chkpt_folder, sim_name, time_step):
+        """
+        When checkpointing, this helper takes deletes checkpoints along the way
+        """
+        pickles = glob.glob(f'{chkpt_folder}/{sim_name}*.pickle')
+        pickles.sort()
+        print(f'pickles {pickles}')
+        ts = [int(p.split('_')[-1].split('.')[0]) for p in pickles]
+        for pickN, pickTime in enumerate(ts):
+            if pickTime < time_step:  # if the pickle file is older than the time step you are restarting from, delete it.
+                os.remove(pickles[pickN])
+
+
+    @staticmethod
     def create_filesystem(output_folder):
         """
         Creates folders and subfolders to house the DMC simulation results and checkpoints.
@@ -32,3 +46,10 @@ class FileManager:
             os.makedirs(output_folder)
             os.makedirs(output_folder + '/chkpts')
             os.makedirs(output_folder + '/wfns')
+        else:
+            # Output folder already exists. Make sure subfolders exist.
+            if not os.path.isdir(output_folder + '/chkpts'):
+                os.makedirs(output_folder + '/chkpts')
+            if not os.path.isdir(output_folder + '/wfns'):
+                os.makedirs(output_folder + '/wfns')
+

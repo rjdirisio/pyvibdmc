@@ -127,7 +127,7 @@ optional to use, but some may find it useful in preparing their DMC simulations,
 
 The three unit conversions Constants can do are as follows:
 
-- Bohr <--> Angstroms. ``Constants.convert(nparray_or_float, 'angstrom',to_AU=TrueOrFalse)``
+- Bohr <--> Angstroms. ``Constants.convert(nparray_or_float, 'angstroms',to_AU=TrueOrFalse)``
 
 - Hartree <--> Wavenumbers ``Constants.convert(nparray_or_float, 'wavenumbers',to_AU=TrueOrFalse)``
 
@@ -162,9 +162,9 @@ it with or without using the Constants module::
     start_structure = np.array([[0.9578400,0.0000000,0.0000000],
                                 [-0.2399535,0.9272970,0.0000000],
                                 [0.0000000,0.0000000,0.0000000]])
-    start_structure = Constants.convert(start_structure,'angstrom',to_AU=True)
+    start_structure = Constants.convert(start_structure,'angstroms',to_AU=True)
     # to convert from bohr to angstrom:
-    # start_structure = Constants.convert(start_structure,'angstrom',to_AU=False)
+    # start_structure = Constants.convert(start_structure,'angstroms',to_AU=False)
 
 Reduced-Dimensional DMC Calculations: Example
 -------------------------------------------------

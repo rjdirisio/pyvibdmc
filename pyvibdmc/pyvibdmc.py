@@ -254,7 +254,7 @@ class DMC_Sim:
                                                      self._who_from[birth_mask]))
                 exp_term = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1 + ct)
                 ct += 1
-            return num_births, num_deaths
+            return num_births, num_deaths, len(self._walker_pots)
         else:
             self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
 
@@ -353,6 +353,9 @@ class DMC_Sim:
             if prop_step in self._chkpt_step:
                 self._logger.write_chkpt(prop_step)
                 self._logger = None
+                FileManager.delete_older_checkpoints(f"{self.output_folder}/chkpts",
+                                                     self.sim_name,
+                                                     prop_step)
                 SimArchivist.chkpt(self, prop_step)
                 self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
 
@@ -412,10 +415,18 @@ class DMC_Sim:
         """This function calls propagate and saves simulation results"""
         print("Starting Simulation...")
         self.propagate()
+        # Delete all checkpoints, since this is the end of the run
+        FileManager.delete_older_checkpoints(f"{self.output_folder}/chkpts",
+                                             self.sim_name,
+                                             self.cur_timestep)
+        # Convert vref vs tau to wavenumbers
         _vref_wvn = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+
         print("Simulation Complete")
         print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
         ts = np.arange(len(_vref_wvn))
+
+        # Save siminfo
         SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
                              keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
                              valz=[np.column_stack((ts, _vref_wvn)), np.column_stack((ts, self._pop_vs_tau)),

@@ -111,6 +111,7 @@ respectively, taken from a single DMC simulation::
    # cds, dws = tutorial_sim.get_wfns([2500,3500,4500,5500,6500,7500,8500,9500]) # perfectly valid, but tiresome
    increment = 1000
    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment)) # for those familiar with numpy
+   # cds is now a (n,m,3) numpy array of coordinates, where n is number of walkers * number of wave functions
 
 Projecting the Probability Density onto a desirable coordinate
 -----------------------------------------------------------------
@@ -124,23 +125,28 @@ Here is the code that will perform that projection, as well as plot it::
     from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
     import numpy as np
 
+    # STEP 1: Get wave functions (coordinates and descendant weights)
     tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
     savefigpth = '' # save in current directory
 
+    # STEP 2: Calculate the bond angle for each of your walkers
     analyzer = AnalyzeWfn(cds)  # initialize wavefunction analyzer object
     hoh_angle = analyzer.bond_angle(atm1=0,
                                     atm_vert=2,
                                     atm3=1)  # [H H O], so atm[2] at vertex
+    #hoh_angle is a numpy array (vector) of bond angles
 
     hoh_angle = np.rad2deg(hoh_angle)  # analyzer returns in radians, convert to degrees for clarity
 
+    #STEP 3: Project Psi^2 onto the hoh angle.  hoh_histo returns a (num_bins, 2) numpy array of x/y histogram data
     hoh_histo = analyzer.projection_1d(attr=hoh_angle,  # make a 1d histogram , x/y data
                                        desc_weights=dws,
                                        bin_num=20,
                                        range=(60, 150))
 
+    #STEP 4: For those who are unfamiliar with matplotlib, you can plot the projection using this Plotter class.
     Plotter.plt_hist1d(hist=hoh_histo,  # plot histogram x/y data
                        xlabel=r"HOH Angle $\rm{\theta}$ (Degrees)",
                        save_name=f'{savefigpth}HOH_angle.png')
