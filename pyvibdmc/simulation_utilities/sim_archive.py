@@ -21,13 +21,13 @@ class SimArchivist:
                                   data=val)
 
     @staticmethod
-    def chkpt(dmcObj, prop_step):
+    def chkpt(dmc_obj, prop_step):
         """
         Given a DMC object and its current time step , this will save it as a .pickle file (excluding the potential!)
         """
-        cheq = copy.deepcopy(dmcObj)  # calls __deepcopy__
-        with open(f'{dmcObj.output_folder}/chkpts/{dmcObj.sim_name}_{str(prop_step)}.pickle', 'wb') as handle:
-            pickle.dump(cheq, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        cheq = copy.deepcopy(dmc_obj)  # calls __deepcopy__
+        with open(f'{dmc_obj.output_folder}/chkpts/{dmc_obj.sim_name}_{str(prop_step)}.pickle', 'wb') as handle:
+            pickle.dump(cheq, handle, protocol=4)  # explicit protocol 4 to account for 3.8's upgrade to 5.
 
     @staticmethod
     def reload_sim(chkpt_folder, sim_name):
