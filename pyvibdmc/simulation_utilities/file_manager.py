@@ -6,12 +6,12 @@ class FileManager:
     """Helping with creating or deleting files as necessary throughout the simulation"""
 
     @staticmethod
-    def delete_future_checkpoints(chkpt_folder, sim_name, time_step):
+    def delete_future_checkpoints(sim_folder, sim_name, time_step):
         """
         When restarting and testing, this helper classs takes deletes specified simulation checkpoints and wavefunctions
         """
-        pickles = glob.glob(f'{chkpt_folder}/chkpts/{sim_name}*.pickle')
-        wfns = glob.glob(f'{chkpt_folder}/wfns/{sim_name}*.hdf5')
+        pickles = glob.glob(f'{sim_folder}/chkpts/{sim_name}_*.pickle')
+        wfns = glob.glob(f'{sim_folder}/wfns/{sim_name}_*.hdf5')
         pickles.sort()
         wfns.sort()
         ts = [int(p.split('_')[-1].split('.')[0]) for p in pickles]
@@ -24,13 +24,12 @@ class FileManager:
                 os.remove(wfns[wfnN])
 
     @staticmethod
-    def delete_older_checkpoints(chkpt_folder, sim_name, time_step):
+    def delete_older_checkpoints(sim_folder, sim_name, time_step):
         """
         When checkpointing, this helper takes deletes checkpoints along the way
         """
-        pickles = glob.glob(f'{chkpt_folder}/{sim_name}*.pickle')
+        pickles = glob.glob(f'{sim_folder}/chkpts/{sim_name}*.pickle')
         pickles.sort()
-        print(f'pickles {pickles}')
         ts = [int(p.split('_')[-1].split('.')[0]) for p in pickles]
         for pickN, pickTime in enumerate(ts):
             if pickTime < time_step:  # if the pickle file is older than the time step you are restarting from, delete it.

@@ -353,7 +353,7 @@ class DMC_Sim:
             if prop_step in self._chkpt_step:
                 self._logger.write_chkpt(prop_step)
                 self._logger = None
-                FileManager.delete_older_checkpoints(f"{self.output_folder}/chkpts",
+                FileManager.delete_older_checkpoints(self.output_folder,
                                                      self.sim_name,
                                                      prop_step)
                 SimArchivist.chkpt(self, prop_step)
@@ -416,7 +416,7 @@ class DMC_Sim:
         print("Starting Simulation...")
         self.propagate()
         # Delete all checkpoints, since this is the end of the run
-        FileManager.delete_older_checkpoints(f"{self.output_folder}/chkpts",
+        FileManager.delete_older_checkpoints(self.output_folder,
                                              self.sim_name,
                                              self.cur_timestep)
         # Convert vref vs tau to wavenumbers
@@ -447,17 +447,13 @@ class DMC_Sim:
         return res
 
 
-def dmc_restart(potential,
-                time_step,
-                chkpt_folder="exSimulation_results/",
-                sim_name='DMC_Sim'):
-    dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name, time_step)
+def dmc_restart(potential,chkpt_folder,sim_name):
+    dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     dmc_sim._prop_steps = np.arange(dmc_sim.cur_timestep, dmc_sim.num_timesteps)
     dmc_sim.potential = potential.getpot
     dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
-    FileManager.delete_future_checkpoints(chkpt_folder, sim_name, time_step)
+    FileManager.delete_future_checkpoints(chkpt_folder, sim_name, dmc_sim.cur_timestep)
     return dmc_sim
-
 
 if __name__ == "__main__":
     print('Hi, this is not how to run this code. Refer to documentation.')

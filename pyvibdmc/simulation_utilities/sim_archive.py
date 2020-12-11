@@ -1,6 +1,7 @@
 import h5py
 import pickle
 import copy
+import glob
 
 
 class SimArchivist:
@@ -29,11 +30,12 @@ class SimArchivist:
             pickle.dump(cheq, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
-    def reload_sim(chkpt_folder, sim_name, time_step):
+    def reload_sim(chkpt_folder, sim_name):
         """
         Given a .pickle file, reinitialize the DMC object and reassign potential.
         :return: DMC Object for one to run.
         """
-        with open(f"{chkpt_folder}/chkpts/{sim_name}_{time_step}.pickle", "rb") as handle:
-            dmcObj = pickle.load(handle)
-        return dmcObj
+        pickle_file = glob.glob(f"{chkpt_folder}/chkpts/{sim_name}_*.pickle")[0]
+        with open(pickle_file, "rb") as handle:
+            dmc_obj = pickle.load(handle)
+        return dmc_obj

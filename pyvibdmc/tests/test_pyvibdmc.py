@@ -19,7 +19,7 @@ def test_pyvibdmc_imported():
     assert "pyvibdmc" in sys.modules
 
 
-def test_runDMC():
+def test_run_dmc():
     import shutil
     if os.path.isdir(sim_ex_dir):
         shutil.rmtree(sim_ex_dir)
@@ -37,7 +37,7 @@ def test_runDMC():
     myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_test",
                              output_folder=sim_ex_dir,
                              weighting='discrete',
-                             num_walkers=5000,
+                             num_walkers=1000,
                              num_timesteps=1000,
                              equil_steps=100,
                              chkpt_every=50,
@@ -53,7 +53,7 @@ def test_runDMC():
     assert True
 
 
-def test_runDMC_cont():
+def test_run_dmc_cont():
 
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
@@ -81,13 +81,13 @@ def test_runDMC_cont():
                              start_structures=np.zeros((1, 1, 1)),
                              cur_timestep=0,
                              cont_wt_thresh=[0.002, 15],
-                             masses = Constants.reduced_mass('O-H')
+                             masses=Constants.reduced_mass('O-H')
                              )
     myDMC.run()
     assert True
 
 
-def test_restartDMC():
+def test_restart_dmc():
     potDir = os.path.join(os.path.dirname(__file__),
                           '../sample_potentials/PythonPots/')
     pyFile = 'harmonicOscillator1D.py'
@@ -96,7 +96,9 @@ def test_restartDMC():
                       python_file=pyFile,
                       potential_directory=potDir,
                       num_cores=2)
-
-    myDMC = pyvibdmc.dmc_restart(potential=HOpot, time_step=550, chkpt_folder=sim_ex_dir, sim_name='harm_osc_test')
+    chkpt_fold = os.path.join(os.path.dirname(__file__), '../sample_sim_data')
+    myDMC = pyvibdmc.dmc_restart(potential=HOpot,
+                                 chkpt_folder=chkpt_fold,
+                                 sim_name='pytest')
     myDMC.run()
     assert True

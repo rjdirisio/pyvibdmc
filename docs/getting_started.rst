@@ -121,11 +121,11 @@ If the simulation dies due to external factors, you may restart a particular DMC
                               potential_directory=pot_dir,
                               num_cores=2)
 
-        #restart function that reinializes the myDMC object
-        myDMC = dmc.dmc_restart(potential=water_pot,
-                                     chkpt_folder="tutorial_dmc",
-                                     sim_name='tutorial_water_{3}', #if the fourth simulation died  (0,1,2,*3*,4)
-                                     time_step=2500) #made it to step 2600, so we have a checkpoint at 2500 (chkpt_every=500)
+        # restart function that reinializes the myDMC object
+        # say the 4th [3] simulation died...
+        myDMC = pyvibdmc.dmc_restart(potential=water_pot,
+                                 chkpt_folder='tutorial_dmc',
+                                 sim_name='tutorial_water_3')
         myDMC.run()
 
 
