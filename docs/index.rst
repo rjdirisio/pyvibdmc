@@ -11,6 +11,7 @@ Welcome to PyVibDMC's documentation!
    :caption: Contents:
 
    getting_started
+   initial_conditions
    potentials
    analysis
    advanced_analysis
@@ -20,5 +21,4 @@ Welcome to PyVibDMC's documentation!
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`search`

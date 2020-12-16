@@ -110,5 +110,7 @@ ENV/
 /exSimResults/
 #Pycharm
 /pyvibdmc/.idea/
-*/.idea/
+*/.idea/*
+*.xml
+*.iml
 

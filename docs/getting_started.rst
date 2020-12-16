@@ -47,6 +47,18 @@ This should tell you the ``Location`` of the installation. An example installati
     cp -r <path_to_installation>/pyvibdmc/pyvibdmc/sample_potentials/ .
     cp -r <path_to_installation>/pyvibdmc/pyvibdmc/sample_sim_data/ .
 
+Initial Conditions in The DMC
+---------------------------------------------
+Traditionally, the starting structure that is used at the beginning of the DMC simulation is the equilibrium structure
+for the potential energy surface that is being used.  The structure is then "blown up" by 1.01 to help the walkers
+sample farther out in the potential more quickly.  You will see an example of this in the tutotial run script down below.
+
+However, there are more sophisticated methods to generate initial conditions.  For example, one can perform a harmonic
+frequency calculation, generate Cartesian normal modes, and then sample from the harmonic ground state wave function
+before the beginning of the DMC. One can also permute like atoms before running a simulation.  To do these types of things,
+please look at the `Initial Conditions page <https://pyvibdmc.readthedocs.io/en/latest/initial_conditions.html>`_.
+
+
 Tutorial: Water Monomer
 ------------------------
 Once ``pip`` installed, one can ``import pyvibdmc`` from any directory.
@@ -63,7 +75,7 @@ in ``h2o_potential.py``. Once you have run ``make``, you may now run the followi
 
     import numpy as np
     import pyvibdmc as dmc
-    from pyvibdmc import potential_manager as pm
+    from pyvibdmc.simulation_utilities import potential_manager as pm
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
         pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is part of the one you copied that is outside of pyvibdmc.
@@ -80,6 +92,7 @@ in ``h2o_potential.py``. Once you have run ``make``, you may now run the followi
 
         # Starting Structure
         # Equilibrium geometry of water in *atomic units*, then blown up by 1.01 to not start at the bottom of the potential.
+        # Can also feed in an entire ensemble of walkers.
         water_coord = np.array([[1.81005599,  0.        ,  0.        ],
                                [-0.45344658,  1.75233806,  0.        ],
                                [ 0.        ,  0.        ,  0.        ]]) * 1.01
@@ -109,7 +122,7 @@ If the simulation dies due to external factors, you may restart a particular DMC
 
     import numpy as np
     import pyvibdmc as dmc
-    from pyvibdmc import potential_manager as pm
+    from pyvibdmc.simulation_utilities import potential_manager as pm
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
         # need to reinitalize the water_pot
@@ -123,7 +136,7 @@ If the simulation dies due to external factors, you may restart a particular DMC
 
         # restart function that reinializes the myDMC object
         # say the 4th [3] simulation died...
-        myDMC = pyvibdmc.dmc_restart(potential=water_pot,
+        myDMC = dmc.dmc_restart(potential=water_pot,
                                  chkpt_folder='tutorial_dmc',
                                  sim_name='tutorial_water_3')
         myDMC.run()
@@ -143,7 +156,7 @@ To use this potential, you have to feed ``'O-H'`` to the ``atoms`` argument, whi
 mass of an OH diatomic::
 
     import pyvibdmc as dmc
-    from pyvibdmc import potential_manager as pm
+    from pyvibdmc.simulation_utilities import potential_manager as pm
     import numpy as np
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
