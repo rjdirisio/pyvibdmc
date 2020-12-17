@@ -3,6 +3,57 @@ Initial Conditions in DMC
 Typically, a blown up equillibrium geometry is enough for the DMC to begin sampling the ground state.  However, to aid
 in equilibration, we can use more advanced methods.
 
+Permutations of Like Atoms
+------------------------------
+If you want to start with a ground state geometry that has a random distribution of like atoms, you can do this with
+``pyvibdmc.simulation_utilities.initial_conditioner``.  For example, if you have a methane molecule, you may want to
+start with initial conditions so that there is not a bias in picking where "Hydrogen 1" is versus "Hydrogen 2". This
+technique will duplicate the geometry to the specified ensemble size, and for each duplication it will swap like atoms
+randomly (if you start with ``["C","H1","H2","H3","H4"]``, this code will randomly permute all Hs to get things like
+``["C","H1","H2","H4","H3"]``, ``["C","H4","H3","H2","H1"]``, and ``["C","H3","H1","H2","H4"]``).
+
+You can also use this for selective permutations, in the protonated water dimer (H5O2+), you can just permute the
+two hydrogen atoms on either side of the water.::
+
+    from pyvibdmc.simulation_utilities.initial_conditioner import *
+    from pyvibdmc.simulation_utilities import Constants
+    from pyvibdmc.simulation_utilities import potential_manager as pm
+
+    ch4 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
+                    [0.1318851447521099, 2.088940054609643, 0.000000000000000],
+                    [1.786540362044548, -1.386051328559878, 0.000000000000000],
+                    [2.233806981137821, 0.3567096955165336, 0.000000000000000],
+                    [-0.8247121421923925, -0.6295306113384560, -1.775332267901544])
+
+    ch4 = Constants.convert(ch4, "angstroms", to_AU=True)  # To Bohr from angstroms
+
+    atms = ["C", "H", "H", "H", "H"]
+    initializer = InitialConditioner(coord=ch4,
+                                     atoms=atms,
+                                     num_walkers=50000,
+                                     technique='permute_atoms',
+                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]]})
+    new_coords = initializer.run()
+
+
+    h5o2 = np.array([[ 2.25486805,  0.        ,  0.        ],
+                     [-2.25486805,  0.        ,  0.        ],
+                     [ 0.        ,  0.        ,  0.12351035],
+                     [-3.01319472,  1.48918379, -0.746598  ],
+                     [-3.20158756, -0.45448108,  1.49813637],
+                     [ 3.01319472, -1.48918379, -0.746598  ],
+                     [ 3.20158756,  0.45448108,  1.49813637]])
+    atms = ["O", "O", "H", "H", "H", "H", "H"]
+
+    # 3 and 4 are the hydrogen atoms on one side, the 5 and 6 are on the other. They will not permute with each other,
+    # only the two pairs by themselves.
+    initializer = InitialConditioner(coord=h5o2,
+                                     atoms=atms,
+                                     num_walkers=50000,
+                                     technique='permute_atoms',
+                                     technique_kwargs={'like_atoms': [[3,4],[5,6]]})
+    new_coords = initializer.run()
+
 Sampling from the Harmonic Ground State
 -------------------------------------------------------
 To sample from the separable, 3N-6 dimensional Gaussian distribution that is the harmonic ground state, you must
@@ -17,7 +68,7 @@ This is done within ``PyVibDMC`` using the
     from pyvibdmc.simulation_utilities import Constants
     from pyvibdmc.simulation_utilities import potential_manager as pm
 
-    dxx = 1.e-3
+    dxx = 1.e-3 # bohr
     water_geom = np.array([[0.9578400, 0.0000000, 0.0000000],
                            [-0.2399535, 0.9272970, 0.0000000],
                            [0.0000000, 0.0000000, 0.0000000]])
@@ -43,9 +94,9 @@ This is done within ``PyVibDMC`` using the
 
 The ``harmonic_analysis`` object can also take in the arguments ``points_diag=__`` and ``points_off_diag=__``. This
 refers to the number of finite difference points used in the generation of the Hessian matrix. These numbers default to
-5 and 3 specifically, meaning that the on-diagonal second derivatives are generated using a 5-point finite difference,
-and the mixed derivatives use a 3 point finite difference in both dimensions.  Currently, this code only supports using
-3 or 5 point finite difference for either argument.
+5 and 3 respectively, meaning that the on-diagonal second derivatives are generated using a 5-point finite difference,
+and the off-diagonal mixed derivatives use a 3 point finite difference in both dimensions.  Currently, this code only
+supports using 3 or 5 point finite difference for either argument.
 
 The 3N frequencies and normal modes that are returned from the harmonic analysis include the 6 near-zero modes from
 the translational and rotational degrees of freedom (this code does not support linear molecules).
@@ -59,7 +110,8 @@ desired ensemble of walkers that we will feed into the DMC.::
                                      technique='harmonic_sampling',
                                      technique_kwargs={'freqs': freqs,
                                                        'normal_modes': normal_modes,
-                                                       'scaling_factor': 1.5})
+                                                       'scaling_factor': 1.5},
+                                                       'ensemble': None)
     new_coords = initializer.run()
 
 The ``technique_kwargs`` you see above are all necessary to pass in. The ``scaling_factor`` broadens the 3N-6 dimensional
@@ -68,7 +120,49 @@ harmonic frequencies are all divided by 1.5, which will give you a broader distr
 walkers will sample from. This technique is described in more detail
 `in this paper <https://pubs.acs.org/doi/abs/10.1021/acs.jpca.9b06444>`_.
 
-Now, the new_coords are passed to the ``DMC_Sim`` object and used during the DMC run::
+The ``ensemble`` argument is present so that you can pass in a whole ensemble that will be displaced along those normal
+modes randomly if you want.  If left as ``None``, then it will simply duplicate the minimum energy geometry you supplied,
+and you can ignore the next code block in the tutorial.
+
+If you feed in a ``num_walkers, num_atoms, 3`` array, you can combine this  with the ``permute_atoms`` method above;
+start by swapping atoms, then take that swapped ensemble and randomly displace along the harmonic ground state: ::
+
+    from pyvibdmc.simulation_utilities.initial_conditioner import *
+    from pyvibdmc.simulation_utilities import Constants
+    from pyvibdmc.simulation_utilities import potential_manager as pm
+
+    # First, permute methane so that all Hs are equivalent in the ensemble
+    ch4 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
+                    [0.1318851447521099, 2.088940054609643, 0.000000000000000],
+                    [1.786540362044548, -1.386051328559878, 0.000000000000000],
+                    [2.233806981137821, 0.3567096955165336, 0.000000000000000],
+                    [-0.8247121421923925, -0.6295306113384560, -1.775332267901544])
+
+    ch4 = Constants.convert(ch4, "angstroms", to_AU=True)  # To Bohr from angstroms
+
+    atms = ["C", "H", "H", "H", "H"]
+    initializer = InitialConditioner(coord=ch4,
+                                     atoms=atms,
+                                     num_walkers=50000,
+                                     technique='permute_atoms',
+                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]]})
+    permuted_coords = initializer.run()
+
+    # Then, run harmonic analysis
+    freqs, normal_modes = harmonic_analysis(...)
+
+    # Then, push the freqs, normal modes, and ensemble to the InitialConditioner
+    initializer = InitialConditioner(coord=ch4,
+                                     atoms=atms,
+                                     num_walkers=50000,
+                                     technique='harmonic_sampling',
+                                     technique_kwargs={'freqs': freqs,
+                                                       'normal_modes': normal_modes,
+                                                       'scaling_factor': 1.5},
+                                                       'ensemble': permuted_coords)
+    new_coords = initializer.run()
+
+Now, the permuted-then-harmonically-sampled ``new_coords`` are passed to the ``DMC_Sim`` object and used during the DMC run::
 
     myDMC = dmc.DMC_Sim(sim_name=f"conditioner_{sim_num}",
                                   output_folder="initial_conditions_tutorial",
@@ -86,6 +180,3 @@ Now, the new_coords are passed to the ``DMC_Sim`` object and used during the DMC
                                   masses=None #can put in artificial masses, otherwise it auto-pulls values from the atoms string
             )
 
-Permutations of Like Atoms
-------------------------------
-Documentation and implementation pending.

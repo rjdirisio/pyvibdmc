@@ -32,7 +32,7 @@ class InitialConditioner:
                                  size=(self.num_walkers, len(sigmas)))
         return disps
 
-    def displace_along_nms(self, freqz, nmz, massez):
+    def displace_along_nms(self, freqz, nmz, massez, ensemble):
         three_n_6 = len(freqz)
         three_n = three_n_6 + 6
 
@@ -51,7 +51,10 @@ class InitialConditioner:
         displaced_carts = displaced_carts / np.sqrt(massez)[:, np.newaxis]
 
         # Displace the walkers along those normal modes
-        displaced_cds = np.tile(self.coord, (self.num_walkers, 1, 1))
+        if ensemble is None:
+            displaced_cds = np.tile(self.coord, (self.num_walkers, 1, 1))
+        else:
+            displaced_cds = ensemble
         displaced_cds = displaced_cds + displaced_carts
 
         return displaced_cds
@@ -60,6 +63,7 @@ class InitialConditioner:
         freqs = self.technique_kwargs['freqs']
         nms = self.technique_kwargs['normal_modes']
         scaling = self.technique_kwargs['scaling_factor']
+        ensemble = self.technique_kwargs['ensemble']
 
         mass_prelim = np.array([Constants.mass(a) for a in self.atoms])
 
@@ -70,12 +74,24 @@ class InitialConditioner:
         # Convert freqs to au scale according to input
         freqs_au = Constants.convert(freqs_3n_6, 'wavenumbers', to_AU=True)
         freqs_au = freqs_au / scaling
-        displaced_cds = self.displace_along_nms(freqs_au, nms_3n_6, mass_prelim)
+        displaced_cds = self.displace_along_nms(freqs_au, nms_3n_6, mass_prelim, ensemble)
         return displaced_cds
 
     def run_permute(self):
-        """This is where I will implement permutations of like atoms before running dmc"""
-        raise NotImplementedError("Not implemented yet...")
+        """Must pass in a list of lists."""
+        # CH5+ = [[1,2,3,4,5]] , or for testing [[1,2,3],[4,5]]
+        # H5O2+ = [[2,3],[4,5]] [O_left,O_left,H_left,H_left,H_right,H_right,H_center]
+        like_atoms = self.technique_kwargs['like_atoms']
+
+        # Get ensemble size
+        walkers = np.tile(self.coord, (self.num_walkers, 1, 1))
+        # For each tuple of like atoms, we will randomly permute them
+        for pair in like_atoms:
+            cds_to_randomize = walkers[:, pair]
+            [np.random.shuffle(x) for x in cds_to_randomize]
+            # Assign the stack of permuted atom coordinates to the appropriate place in the walker array
+            walkers[:, pair] = cds_to_randomize
+        return walkers
 
     def run(self):
         new_coords = self.run_func()
