@@ -82,9 +82,14 @@ class InitialConditioner:
         # CH5+ = [[1,2,3,4,5]] , or for testing [[1,2,3],[4,5]]
         # H5O2+ = [[2,3],[4,5]] [O_left,O_left,H_left,H_left,H_right,H_right,H_center]
         like_atoms = self.technique_kwargs['like_atoms']
+        ensemble = self.technique['ensemble']
 
         # Get ensemble size
-        walkers = np.tile(self.coord, (self.num_walkers, 1, 1))
+        if ensemble is None:
+            walkers = np.tile(self.coord, (self.num_walkers, 1, 1))
+        else:
+            walkers = ensemble
+
         # For each tuple of like atoms, we will randomly permute them
         for pair in like_atoms:
             cds_to_randomize = walkers[:, pair]

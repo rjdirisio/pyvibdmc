@@ -13,7 +13,7 @@ randomly (if you start with ``["C","H1","H2","H3","H4"]``, this code will random
 ``["C","H1","H2","H4","H3"]``, ``["C","H4","H3","H2","H1"]``, and ``["C","H3","H1","H2","H4"]``).
 
 You can also use this for selective permutations, in the protonated water dimer (H5O2+), you can just permute the
-two hydrogen atoms on either side of the water.::
+two hydrogen atoms on either side of the water. You will pass in an list of lists::
 
     from pyvibdmc.simulation_utilities.initial_conditioner import *
     from pyvibdmc.simulation_utilities import Constants
@@ -51,8 +51,12 @@ two hydrogen atoms on either side of the water.::
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='permute_atoms',
-                                     technique_kwargs={'like_atoms': [[3,4],[5,6]]})
+                                     technique_kwargs={'like_atoms': [[3,4],[5,6]],
+                                                       'ensemble': None})
     new_coords = initializer.run()
+
+The ``ensemble`` option is for if you want to pass in more than just a duplicated minimum energy structure.
+If you have an ensemble and you want to permute its like atoms, you can feed in a ``num_walkers, num_atoms, 3`` array.
 
 Sampling from the Harmonic Ground State
 -------------------------------------------------------
@@ -121,17 +125,16 @@ walkers will sample from. This technique is described in more detail
 `in this paper <https://pubs.acs.org/doi/abs/10.1021/acs.jpca.9b06444>`_.
 
 The ``ensemble`` argument is present so that you can pass in a whole ensemble that will be displaced along those normal
-modes randomly if you want.  If left as ``None``, then it will simply duplicate the minimum energy geometry you supplied,
+modes randomly if desired.  If left as ``None``, then it will simply duplicate the minimum energy geometry you supplied,
 and you can ignore the next code block in the tutorial.
 
 If you feed in a ``num_walkers, num_atoms, 3`` array, you can combine this  with the ``permute_atoms`` method above;
-start by swapping atoms, then take that swapped ensemble and randomly displace along the harmonic ground state: ::
+start by randomly displacing along the harmonic ground state, then permuting like atoms: ::
 
     from pyvibdmc.simulation_utilities.initial_conditioner import *
     from pyvibdmc.simulation_utilities import Constants
     from pyvibdmc.simulation_utilities import potential_manager as pm
 
-    # First, permute methane so that all Hs are equivalent in the ensemble
     ch4 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
                     [0.1318851447521099, 2.088940054609643, 0.000000000000000],
                     [1.786540362044548, -1.386051328559878, 0.000000000000000],
@@ -141,14 +144,7 @@ start by swapping atoms, then take that swapped ensemble and randomly displace a
     ch4 = Constants.convert(ch4, "angstroms", to_AU=True)  # To Bohr from angstroms
 
     atms = ["C", "H", "H", "H", "H"]
-    initializer = InitialConditioner(coord=ch4,
-                                     atoms=atms,
-                                     num_walkers=50000,
-                                     technique='permute_atoms',
-                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]]})
-    permuted_coords = initializer.run()
-
-    # Then, run harmonic analysis
+    # Run harmonic analysis
     freqs, normal_modes = harmonic_analysis(...)
 
     # Then, push the freqs, normal modes, and ensemble to the InitialConditioner
@@ -159,10 +155,20 @@ start by swapping atoms, then take that swapped ensemble and randomly displace a
                                      technique_kwargs={'freqs': freqs,
                                                        'normal_modes': normal_modes,
                                                        'scaling_factor': 1.5},
-                                                       'ensemble': permuted_coords)
+                                                       'ensemble': None)
+    harm_coords = initializer.run()
+
+    # Finally, then permute like atoms for each walker that are now spread along the harmonic ground state.
+    initializer = InitialConditioner(coord=ch4,
+                                     atoms=atms,
+                                     num_walkers=50000,
+                                     technique='permute_atoms',
+                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]],
+                                                       'ensemble': harm_coords})
     new_coords = initializer.run()
 
-Now, the permuted-then-harmonically-sampled ``new_coords`` are passed to the ``DMC_Sim`` object and used during the DMC run::
+
+Now, the harmonically-sampled-then-permuted ``new_coords`` are passed to the ``DMC_Sim`` object and used during the DMC run::
 
     myDMC = dmc.DMC_Sim(sim_name=f"conditioner_{sim_num}",
                                   output_folder="initial_conditions_tutorial",
@@ -180,3 +186,6 @@ Now, the permuted-then-harmonically-sampled ``new_coords`` are passed to the ``D
                                   masses=None #can put in artificial masses, otherwise it auto-pulls values from the atoms string
             )
 
+Note, you should only run the harmonic calculation THEN permute, not the other way around. This is because this code
+produces the eigenvectors of the Hessian that only correspond to the atom ordering of the non-permuted molecular system.
+You can, of course, do either individually, or neither technique before a DMC run.
