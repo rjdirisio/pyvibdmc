@@ -8,97 +8,97 @@ class MolRotator:
     numpy operations."""
 
     @staticmethod
-    def rotateGeoms(rotMs, geoms):
+    def rotate_geoms(rot_mats, geoms):
         """Takes in a stack of rotation matrices and applies it to a stack of geometries."""
         new_geoms = np.expand_dims(geoms, -1)  # nxmx3x1
-        new_rotms = np.expand_dims(rotMs, 1)  # nx1x3x3
-        rot_geoms = np.matmul(new_rotms, new_geoms).squeeze()
+        new_rot_mats = np.expand_dims(rot_mats, 1)  # nx1x3x3
+        rot_geoms = np.matmul(new_rot_mats, new_geoms).squeeze()
         return rot_geoms
 
     @staticmethod
-    def rotateVector(rotMs, vecc):
+    def rotate_vec(rot_mats, vecc):
         """Takes in a stack of rotation matrices and applies it to a stack of vector"""
         new_vecc = np.expand_dims(vecc, -1)  # nx3x1
-        rot_vecs = np.matmul(rotMs, new_vecc).squeeze()
+        rot_vecs = np.matmul(rot_mats, new_vecc).squeeze()
         return rot_vecs
 
     @staticmethod
-    def genXYZ(theta, XYZ):
+    def gen_rot_mats(theta, xyz_int):
         """Generates the 3D rotation matrix about X, Y, or Z by theta radians"""
         theta = [theta] if isinstance(theta, float) else theta
-        rotM = np.zeros(len(theta), 3, 3)
-        zeroLth = np.zeros(len(theta))
-        if XYZ == 0:
-            rotM[:, 0] = np.tile([1, 0, 0], (len(theta), 1))
-            rotM[:, 1] = np.column_stack((zeroLth, np.cos(theta), -1 * np.sin(theta)))
-            rotM[:, 2] = np.column_stack((zeroLth, np.sin(theta), np.cos(theta)))
-        elif XYZ == 1:
-            rotM[:, 0] = np.column_stack((np.cos(theta), zeroLth, -1 * np.sin(theta)))
-            rotM[:, 1] = np.tile([0, 1, 0], len(theta), 1)
-            rotM[:, 2] = np.column_stack((np.sin(theta), zeroLth, np.cos(theta)))
-        elif XYZ == 2:
-            rotM[:, 0, :] = np.column_stack((np.cos(theta), -1 * np.sin(theta), zeroLth))
-            rotM[:, 1, :] = np.column_stack((np.sin(theta), np.cos(theta), zeroLth))
-            rotM[:, 2, :] = np.tile([0, 0, 1], len(theta), 1)
-        return rotM
+        rot_mats = np.zeros((len(theta), 3, 3))
+        zeroz = np.zeros(len(theta))
+        if xyz_int == 0:    # R_x
+            rot_mats[:, 0] = np.tile([1, 0, 0], (len(theta), 1))
+            rot_mats[:, 1] = np.column_stack((zeroz, np.cos(theta), -1 * np.sin(theta)))
+            rot_mats[:, 2] = np.column_stack((zeroz, np.sin(theta), np.cos(theta)))
+        elif xyz_int == 1:  # R_y
+            rot_mats[:, 0] = np.column_stack((np.cos(theta), zeroz, -1 * np.sin(theta)))
+            rot_mats[:, 1] = np.tile([0, 1, 0], (len(theta), 1))
+            rot_mats[:, 2] = np.column_stack((np.sin(theta), zeroz, np.cos(theta)))
+        elif xyz_int == 2:  # R_z
+            rot_mats[:, 0] = np.column_stack((np.cos(theta), -1 * np.sin(theta), zeroz))
+            rot_mats[:, 1] = np.column_stack((np.sin(theta), np.cos(theta), zeroz))
+            rot_mats[:, 2] = np.tile([0, 0, 1], (len(theta), 1))
+        return rot_mats
 
     @staticmethod
-    def rotToXYPlane(geoms, orig, xax, xyp, retMat=False):
+    def rotate_to_xy_plane(geoms, orig, xax, xyp, return_mat=False):
         """
         Rotate geometries to XY plane, placing one atom at the origin, one on the xaxis,
         and one on the xyplane.  Done through successive rotations about the X-axis, Z-axis then X-axis again.
         """
         if len(geoms.shape) == 2:
             geoms = np.expand_dims(geoms, 0)
+
         # translation of orig to origin
-        geoms -= geoms[:, orig]
+        geoms = geoms - geoms[:, orig][:, np.newaxis, :]
+
         # Rotation of xax to x axis
-        xaxVec = geoms[:, xax, :]
-        x = xaxVec[:, 0]
-        y = xaxVec[:, 1]
-        z = xaxVec[:, 2]
+        xax_vec = geoms[:, xax, :]
+        x, y, z = [xax_vec[:, num] for num in range(3)]
         theta = np.arctan2(-z, y)
         alpha = np.arctan2((-1 * (y * np.cos(theta) - np.sin(theta) * z)), x)
-        r1 = MolRotator.genXYZ(theta, 0)
-        r2 = MolRotator.genXYZ(alpha, 2)
-        rotM = np.matmul(r2, r1)
-        geoms = MolRotator.rotateGeoms(rotM, geoms)
+        r1 = MolRotator.gen_rot_mats(theta, 0)
+        r2 = MolRotator.gen_rot_mats(alpha, 2)
+        rot_mat = np.matmul(r2, r1)
+        geoms = MolRotator.rotate_geoms(rot_mat, geoms)
+
         # Rotation or xyp to xyplane
-        xypVec = geoms[:, xyp]
-        z = xypVec[:, 2]
-        y = xypVec[:, 1]
+        xyz_vec = geoms[:, xyp]
+        x, y, z = [xyz_vec[:, num] for num in range(3)]
         beta = np.arctan2(-1 * z, y)
-        r3 = MolRotator.genXYZ(beta, 0)
-        geoms = MolRotator.rotateGeoms(r3, geoms)
-        if retMat:
+        r3 = MolRotator.gen_rot_mats(beta, 0)
+        geoms = MolRotator.rotate_geoms(r3, geoms)
+        if return_mat:
             return geoms, r3.dot(r2.dot(r1))
         else:
             return geoms
 
     @staticmethod
-    def genEulers(x, y, z, X, Y, Z):
+    def gen_eulers(x, y, z, X, Y, Z):
         """Takes in cartesian vectors and gives you the 3 euler angles that bring xyz to XYZ based on a 'ZYZ'
             rotation"""
-        zdot = AnalyzeWfn.dot_pdt(z, Z) / (la.norm(z, axis=1) * la.norm(Z, axis=1))
-        Yzdot = AnalyzeWfn.dot_pdt(Y, z) / (la.norm(Y, axis=1) * la.norm(z, axis=1))
-        Xzdot = AnalyzeWfn.dot_pdt(X, z) / (la.norm(X, axis=1) * la.norm(z, axis=1))
-        yZdot = AnalyzeWfn.dot_pdt(y, Z) / (la.norm(y, axis=1) * la.norm(Z, axis=1))
-        xZdot = AnalyzeWfn.dot_pdt(x, Z) / (la.norm(x, axis=1) * la.norm(Z, axis=1))
-        Theta = np.arccos(zdot)
-        tanPhi = np.arctan2(Yzdot, Xzdot)
-        tanChi = np.arctan2(yZdot, -xZdot)  # negative baked in
-        return Theta, tanPhi, tanChi
+        z_dot = AnalyzeWfn.dot_pdt(z, Z) / (la.norm(z, axis=1) * la.norm(Z, axis=1))
+        Yz_dot = AnalyzeWfn.dot_pdt(Y, z) / (la.norm(Y, axis=1) * la.norm(z, axis=1))
+        Xz_dot = AnalyzeWfn.dot_pdt(X, z) / (la.norm(X, axis=1) * la.norm(z, axis=1))
+        yZ_dot = AnalyzeWfn.dot_pdt(y, Z) / (la.norm(y, axis=1) * la.norm(Z, axis=1))
+        xZ_dot = AnalyzeWfn.dot_pdt(x, Z) / (la.norm(x, axis=1) * la.norm(Z, axis=1))
+        theta = np.arccos(z_dot)
+        phi = np.arctan2(Yz_dot, Xz_dot)
+        chi = np.arctan2(yZ_dot, -xZ_dot)  # negative baked in
+        return theta, phi, chi
 
     @staticmethod
-    def extractEulers(rotMs):
+    def extract_eulers(rot_mats):
         """From a rotation matrix, calculate the three euler angles theta,phi and Chi. This is based on
             a 'ZYZ' euler rotation"""
-        zdot = rotMs[:, -1, -1]
-        Yzdot = rotMs[:, 2, 1]
-        Xzdot = rotMs[:, 2, 0]
-        yZdot = rotMs[:, 1, 2]
-        xZdot = rotMs[:, 0, 2]
-        Theta = np.arccos(zdot)
-        tanPhi = np.arctan2(Yzdot, Xzdot)
-        tanChi = np.arctan2(yZdot, xZdot)
-        return Theta, tanPhi, tanChi
+        zdot = rot_mats[:, -1, -1]
+        Yz_dot = rot_mats[:, 2, 1]
+        Xz_dot = rot_mats[:, 2, 0]
+        yZ_dot = rot_mats[:, 1, 2]
+        xZ_dot = rot_mats[:, 0, 2]
+        theta = np.arccos(zdot)
+        phi = np.arctan2(Yz_dot, Xz_dot)
+        chi = np.arctan2(yZ_dot, xZ_dot)
+        return theta, phi, chi
