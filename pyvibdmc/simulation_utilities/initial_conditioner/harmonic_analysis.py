@@ -12,6 +12,7 @@ class harmonic_analysis:
                  eq_geom,
                  atoms,
                  potential,
+                 masses=None,
                  dx=1.0e-3,
                  points_diag=5,
                  points_off_diag=3):
@@ -21,6 +22,7 @@ class harmonic_analysis:
         :param eq_geom: Numpy array of shape (M, 3), where M is number of atoms long.
         :param atoms: A list of length M specifying the atoms. Can pass in D if deuterium is desired
         :param potential: A potential_manager object from pyvibdmc
+        :param potential: Custom masses if needed.
         :param dx: The step size. Defaults to 1e-3 bohr
         :param points_diag: This int specifies the n-point finite difference for the diagonal elements of the hessian.
         Should be [3 or 5]
@@ -30,16 +32,25 @@ class harmonic_analysis:
         self.eq_geom = eq_geom
         self.atoms = atoms
         self.potential = potential
+        self.masses = masses
         self.dx = dx
         self.points_diag = points_diag
         self.points_off_diag = points_off_diag
         self.num_elems = 3 * len(self.atoms)
+        self._initialize()
+
+    def _initialize(self):
+        if self.masses is None:
+            self.masses = np.array([Constants.mass(a) for a in self.atoms])
+        # custom masses
+        elif isinstance(self.masses, list):
+            self.masses = np.array(self.masses)
 
     def generate_hessian(self):
         num_atoms = len(self.atoms)
         hess = np.zeros((self.num_elems, self.num_elems))
 
-        # Off Diagonals 
+        # Off Diagonals
         # indexing nonsense
         d = np.ravel_multi_index(np.array((np.triu_indices(num_atoms * 3, 1))),
                                  [num_atoms * 3, num_atoms * 3])
@@ -80,8 +91,7 @@ class harmonic_analysis:
         return hess
 
     def diagonalize(self, hessian):
-        masses = np.array([Constants.mass(a) for a in self.atoms])
-        masses_dup = np.repeat(masses, 3)
+        masses_dup = np.repeat(self.masses, 3)
         hess_mw = hessian / np.sqrt(masses_dup) / np.sqrt(masses_dup[:, np.newaxis])
         freqs, normal_modes = la.eigh(hess_mw)
         freqs_cm = Constants.convert(np.sqrt(np.abs(freqs)) * np.sign(freqs), 'wavenumbers', to_AU=False)
