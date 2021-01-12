@@ -16,11 +16,26 @@ This package requires the following (all included with anaconda3):
 - h5py
 
 - A potential energy surface (PES) for a system of interest, which can be called using a Python function 
-(See [Documentation](https://pyvibdmc.readthedocs.io/en/latest/potentials.html)).
+(See Documentation).
 
-- Possibly a compiler required for the potential energy surface (the tutorial potential uses gfortran)
+- Tutorial: A compiler required for the potential energy surface (the tutorial potential uses gfortran)
 
 - Tutorial: make (on Linux systems, this is usually installed via the 'build-essential' or 'Development Tools' packages )
+
+### Documentation
+
+Visit the Documentation hosted on [ReadTheDocs](https://pyvibdmc.readthedocs.io/en/latest/)
+
+### Installation
+
+You may view the latest stable release on the [Python Package Index](https://pypi.org/project/pyvibdmc/).
+
+You may install it through `pip`:
+
+`pip install pyvibdmc`
+
+
+###Contributing
 
 Features should be developed on branches. To create and switch to a branch, use the command
 
