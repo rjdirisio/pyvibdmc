@@ -52,6 +52,8 @@ class DMC_Sim:
     :type DEBUG_save_desc_wt_tracker: bool
     :param DEBUG_save_training_every: If true, will collect coordinates and energies every n time steps
     :type DEBUG_save_training_every: int
+    :param DEBUG_mass_change: Dictionary that will scale the mass every change_every steps. The scaling factor_per_change can be an array or an int/float
+    "type DEBUG_mass_change: dict
     """
 
     def __init__(self,
@@ -75,7 +77,8 @@ class DMC_Sim:
                  cont_wt_thresh=None,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
-                 DEBUG_save_training_every=None
+                 DEBUG_save_training_every=None,
+                 DEBUG_mass_change=None
                  ):
         self.atoms = atoms
         self.sim_name = sim_name
@@ -98,6 +101,7 @@ class DMC_Sim:
         self._deb_training_every = DEBUG_save_training_every
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
+        self._deb_mass_change = DEBUG_mass_change
         self._initialize()
 
     def _initialize(self):
@@ -198,6 +202,19 @@ class DMC_Sim:
         else:
             self._cont_wts = None
         self._desc_wt = False
+
+        # Mass change throughout simulation
+        if self._deb_mass_change is not None:
+            change_every = self._deb_mass_change['change_every']
+            self._mass_change_steps = np.arange(0, self.num_timesteps, change_every)[1:]
+            self._factor_per_change = self._deb_mass_change['factor_per_change']  # number or numpy array
+            if isinstance(self._factor_per_change, int) or isinstance(self._factor_per_change, float):
+                self._factor_per_change = np.repeat(self._factor_per_change, len(self._mass_change_steps))
+            if len(self._factor_per_change) != len(self._mass_change_steps):
+                raise ValueError("Number of mass change steps must be equal to mass changes you provide.")
+            self._mass_counter = 0
+        else:
+            self._mass_change_steps = []
 
     def _branch(self, walkers_below):
         """
@@ -381,6 +398,13 @@ class DMC_Sim:
                         f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step - self.desc_wt_time_steps}ts",
                         self._who_from)
 
+            # If we are at a point to change mass (debug option, scale mass)
+            if prop_step in self._mass_change_steps:
+                self.masses = self.masses * self._factor_per_change[self._mass_counter]
+                self._sigmas = np.sqrt(self.delta_t / self.masses)
+                self._mass_counter += 1
+
+
             # 1. Move Randomly
             self.move_randomly()
 
@@ -447,13 +471,14 @@ class DMC_Sim:
         return res
 
 
-def dmc_restart(potential,chkpt_folder,sim_name):
+def dmc_restart(potential, chkpt_folder, sim_name):
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     dmc_sim._prop_steps = np.arange(dmc_sim.cur_timestep, dmc_sim.num_timesteps)
     dmc_sim.potential = potential.getpot
     dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
     FileManager.delete_future_checkpoints(chkpt_folder, sim_name, dmc_sim.cur_timestep)
     return dmc_sim
+
 
 if __name__ == "__main__":
     print('Hi, this is not how to run this code. Refer to documentation.')

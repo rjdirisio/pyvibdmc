@@ -30,7 +30,7 @@ class SimInfo:
             self.atom_masses = f['atomic_masses'][:]
 
     @staticmethod
-    def _get_wfn(wfn_fl):
+    def get_wfn(wfn_fl):
         """
         Given a .hdf5 file, return wave function and descendant weights associated with that wave function.
 
@@ -55,7 +55,7 @@ class SimInfo:
         tot_cds = []
         tot_dw = []
         for fl in fl_list:
-            cds, dw = self._get_wfn(fl)
+            cds, dw = self.get_wfn(fl)
             tot_cds.append(cds)
             tot_dw.append(dw)
         tot_cds = np.concatenate(tot_cds)

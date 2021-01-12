@@ -39,10 +39,10 @@ H5Py allows reading .hdf5 files as if they are dictionaries, and allow us to use
 
 The ``*sim_info.hdf5`` files produced by PyVibDMC have numerous arrays stored in them.  They are keyed by:
 
-- 'vref_vs_tau'
-- 'pop_vs_tau'
-- 'atomic_nums'
-- 'atomic_masses'
+- ``'vref_vs_tau'``
+- ``'pop_vs_tau'``
+- ``'atomic_nums'``
+- ``'atomic_masses'``
 
 The names should be quite self explanatory. The first is the vref array, which stores the energies at each time step,
 the next stores the population (either the size of the ensemble for discrete weighting or the sum of the
@@ -90,13 +90,13 @@ files::
 Advanced and Debug Keyword Arguments in DMC_Sim
 -------------------------------------------------------
 
-- DEBUG_alpha: The number that will be used instead of 1/(2*delta_t) for alpha. This number modulates the fluctuation of
+- ``DEBUG_alpha``: The number that will be used instead of 1/(2*delta_t) for alpha. This number modulates the fluctuation of
   vref throughout the simulation. A smaller alpha value leads to a more stringent fluctuation. However, as alpha
   increaese, the previous time step's vref has more impact on the current time step's vref. This is not proper for a
   stochastic simulation and should be avoided. There should be a strong fluctuation of vref about the zero-point energy
   for almost the entire simulation.
 
-- DEBUG_save_desc_wt_tracker: This boolean argument will save the "who_from" array. During descendant weighting, one
+- ``DEBUG_save_desc_wt_tracker``: This boolean argument will save the "who_from" array. During descendant weighting, one
   needs to keep track of which new walkers come from branching. In order to accomplish this, a "who_from" array is
   initalized at the beginning of the descendant weighting cycle, and is used at the end to count up descendants. If one
   would like this array at every time step within the descendant weighting cycle to be saved, you can turn this on.
@@ -104,14 +104,23 @@ Advanced and Debug Keyword Arguments in DMC_Sim
   the cycle, i.e. if you were trying to understand how Psi^2 looks different depending on how long you descendant weight
   for.
 
-- DEBUG_save_training_every: This is a variable that saves the potential energies and coordinates of each walker
+- ``DEBUG_save_training_every``: This is a variable that saves the potential energies and coordinates of each walker
   in the ensemble every x time steps.
 
-- branch_every: This argument will not branch (do births and deaths) at every step of the DMC simulation.  This is
+- ``DEBUG_mass_change``: This changes the mass by a factor of ``factor_per_change`` every ``change_every`` time steps of the
+  simulation.  For example, if one starts off the simulation with a massive 50x regular mass atom set, every x time steps
+  the mass will go from 50x as massive to 25x to  12.5x ... until the simulation finishes if ``factor_per_change=0.5``.
+  You will run into issues if you change the masses by a lot quickly. All your walkers die as they will explore
+  farther out in the PES too quickly. You can also feed in an array to ``factor_per_change``, which could make it linear
+  scaling instead of logarithmic. For example, if one started off with 5x massive atoms, you can then do something like
+  ``factor_array=[1,1,1,1,....,4/5,1,1,1,1....,3/4,1,1,1,1....2/3,...]`` and set ``change_every=1`` to decrease it from
+  5x as massive to 4x massive to 3x massive...which will happen every n time steps.
+
+- ``branch_every``: This argument will not branch (do births and deaths) at every step of the DMC simulation.  This is
   typically for high-performance computing environments to eliminate cross-node communication. HPC DMC is not currently
   implemented, so this argument should always be 1.
 
-- cont_wt_thresh: This argument only does anything when you are using continuous weighting.  If this is a single number, it is
+- ``cont_wt_thresh``: This argument only does anything when you are using continuous weighting.  If this is a single number, it is
   specifying the lower bound on the allowable walker weight in the simulation (if it gets below this number, the walker will
   be removed and the highest weight walker will be split into two walkers at the same coordinate but with 1/2 the weight).
   If it is two numbers, the first number will be the lower bound, and the second number will be ther upper bound (if it

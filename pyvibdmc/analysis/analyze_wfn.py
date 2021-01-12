@@ -85,11 +85,15 @@ class AnalyzeWfn:
         bis = la.norm(b1, axis=1) * b2 + la.norm(b2, axis=1) * b1
         return bis / la.norm(bis, axis=1)
 
-    def dihedral(self, vec1, vec2, vec3):
-        """Looking down vec2, calculate dihedral angle
+    def dihedral(self, atm_1, atm_2, atm_3, atm_4):
+        """
         https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
         https://en.wikipedia.org/w/index.php?title=Dihedral_angle&oldid=689165217#Angle_between_three_vectors
         """
+        vec1 = self.xx[:, atm_2] - self.xx[:, atm_1]
+        vec2 = self.xx[:, atm_3] - self.xx[:, atm_2]
+        vec3 = self.xx[:, atm_4] - self.xx[:, atm_3]
+
         crossterm1 = np.cross(np.cross(vec1, vec2, axis=1),
                               np.cross(vec2, vec3, axis=1), axis=1)
 

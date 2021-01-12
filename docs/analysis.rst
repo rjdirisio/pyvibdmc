@@ -113,6 +113,9 @@ respectively, taken from a single DMC simulation::
    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment)) # for those familiar with numpy
    # cds is now a (n,m,3) numpy array of coordinates, where n is number of walkers * number of wave functions
 
+If you have a specific ``.hdf5`` wave function file you would like to load, you can simply use the
+``cd, dw = SimInfo.get_wfn()`` method and pass in the string corresponding to a wave function file.
+
 Projecting the Probability Density onto a desirable coordinate
 -----------------------------------------------------------------
 With the wave function and descendant weights, we may then examine at the probability amplitude (:math:`\Psi^{2}`).
