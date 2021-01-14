@@ -35,7 +35,7 @@ You may install it through `pip`:
 `pip install pyvibdmc`
 
 
-###Contributing
+### Contributing
 
 Features should be developed on branches. To create and switch to a branch, use the command
 
