@@ -18,6 +18,8 @@ This package requires the following (all included with anaconda3):
 - A potential energy surface (PES) for a system of interest, which can be called using a Python function 
 (See Documentation).
 
+- Optional: Tensorflow (for Neural Network PES)
+
 - Tutorial: A compiler required for the potential energy surface (the tutorial potential uses gfortran)
 
 - Tutorial: make (on Linux systems, this is usually installed via the 'build-essential' or 'Development Tools' packages )
