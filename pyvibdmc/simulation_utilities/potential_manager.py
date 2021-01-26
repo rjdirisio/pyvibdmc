@@ -23,13 +23,14 @@ class Potential:
                  potential_function,
                  potential_directory,
                  python_file,
-                 num_cores=1
+                 num_cores=1,
+                 pot_kwargs=None,
                  ):
         self.pot_func = potential_function
         self.pyFile = python_file
         self.pot_dir = potential_directory
         self.num_cores = num_cores
-        self._potPool = None
+        self.pot_kwargs = pot_kwargs
         self.init_pool()
 
     def _init_pot(self):
@@ -63,13 +64,17 @@ class Potential:
         if timeit:
             start = time.time()
         if self._potPool is not None:
+            from itertools import repeat
             cds = np.array_split(cds, self.num_cores)
-            res = self._potPool.map(self._pot, cds)
+            if self.pot_kwargs is not None:
+                res = self._potPool.starmap(self._pot, zip(cds, repeat(self.pot_kwargs, len(cds))))
+            else:
+                res = self._potPool.map(self._pot, cds)
             v = np.concatenate(res)
         else:
             v = self._pot(cds)
         if timeit:
-            elapsed = time.time()-start
+            elapsed = time.time() - start
             return v, elapsed
         else:
             return v
@@ -85,12 +90,13 @@ class NN_Potential:
                  potential_function,
                  potential_directory,
                  python_file,
-                 model
-    ):
+                 model,
+                 pot_kwargs=None):
+        self.model = model
         self.pot_func = potential_function
         self.pyFile = python_file
         self.pot_dir = potential_directory
-        self.model = model
+        self.pot_kwargs = pot_kwargs
         self._init_pot()
 
     def _init_pot(self):
@@ -112,7 +118,7 @@ class NN_Potential:
         """
         if timeit:
             start = time.time()
-        v = self._pot(cds, self.model)
+        v = self._pot(cds, self.model, self.pot_kwargs)
         if timeit:
             elapsed = time.time() - start
             return v, elapsed

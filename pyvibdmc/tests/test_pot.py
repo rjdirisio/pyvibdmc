@@ -5,136 +5,71 @@ Unit and regression test for the pyvibdmc package.
 import numpy as np
 # Import package, test suite, and other packages as needed
 
-import pyvibdmc
 from ..simulation_utilities import *
 from ..analysis import *
 import pytest
-import sys
 import os
+import time
 
-sim_ex_dir = "exSimResults"
-
-
-def test_pyvibdmc_imported():
-    """Sample test, will always pass so long as import statement worked"""
-    assert "pyvibdmc" in sys.modules
-
-
-def test_run_dmc():
-    import shutil
-    if os.path.isdir(sim_ex_dir):
-        shutil.rmtree(sim_ex_dir)
-
+def test_regular_pot():
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
-    # purposes
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'oh_stretch_harm'
     harm_pot = Potential(potential_function=potFunc,
                          python_file=pyFile,
                          potential_directory=potDir,
                          num_cores=2)
-
-    myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_test",
-                             output_folder=sim_ex_dir,
-                             weighting='discrete',
-                             num_walkers=1000,
-                             num_timesteps=1000,
-                             equil_steps=100,
-                             chkpt_every=50,
-                             wfn_every=200,
-                             desc_wt_steps=199,
-                             atoms=["O-H"],
-                             delta_t=5,
-                             potential=harm_pot,
-                             log_every=50,
-                             start_structures=np.zeros((1, 1, 1)),
-                             cur_timestep=0)
-    myDMC.run()
+    cds = np.random.random((100, 1, 1))
+    start = time.time()
+    for _ in range(10):
+        v = harm_pot.getpot(cds)
+    print(time.time() - start)
     assert True
 
 
-def test_run_dmc_cont():
+def test_arg_pot():
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
-    # purposes
     pyFile = 'harmonicOscillator1D.py'
-    potFunc = 'oh_stretch_harm'
+    potFunc = 'oh_stretch_harm_with_arg'
+    pot_dict = {'freq': Constants.convert(4000, 'wavenumbers', to_AU=True),
+                'mass': Constants.reduced_mass("O-H",to_AU=True)}
     harm_pot = Potential(potential_function=potFunc,
-                         python_file=pyFile,
-                         potential_directory=potDir,
-                         num_cores=2)
-
-    myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_cont",
-                             output_folder=sim_ex_dir,
-                             weighting='continuous',
-                             num_walkers=5000,
-                             num_timesteps=1000,
-                             equil_steps=200,
-                             chkpt_every=100,
-                             wfn_every=500,
-                             desc_wt_steps=499,
-                             atoms=["X"],
-                             delta_t=5,
-                             potential=harm_pot,
-                             log_every=50,
-                             start_structures=np.zeros((1, 1, 1)),
-                             cur_timestep=0,
-                             cont_wt_thresh=[0.002, 15],
-                             masses=Constants.reduced_mass('O-H')
+                             python_file=pyFile,
+                             potential_directory=potDir,
+                             num_cores=2,
+                             pot_kwargs=pot_dict
                              )
-    myDMC.run()
+    cds = np.random.random((100, 1, 1))
+    start = time.time()
+    for _ in range(10):
+        v = harm_pot.getpot(cds, pot_dict)
+    print(time.time() - start)
     assert True
 
+def test_nn_pot():
+    from ..simulation_utilities.tensorflow_descriptors.tf_coulomb import TF_Coulomb
+    import tensorflow as tf
 
-def test_restart_dmc():
-    potDir = os.path.join(os.path.dirname(__file__),
-                          '../sample_potentials/PythonPots/')
-    pyFile = 'harmonicOscillator1D.py'
-    potFunc = 'oh_stretch_harm'
-    HOpot = Potential(potential_function=potFunc,
-                      python_file=pyFile,
-                      potential_directory=potDir,
-                      num_cores=2)
-    chkpt_fold = os.path.join(os.path.dirname(__file__), '../sample_sim_data')
-    myDMC = pyvibdmc.dmc_restart(potential=HOpot,
-                                 chkpt_folder=chkpt_fold,
-                                 sim_name='pytest')
-    myDMC.run()
-    assert True
-
-
-def test_mass_increase_dmc():
-    potDir = os.path.join(os.path.dirname(__file__),
-                          '../sample_potentials/PythonPots/')
-    pyFile = 'harmonicOscillator1D.py'
-    potFunc = 'oh_stretch_harm'
-    harm_pot = Potential(potential_function=potFunc,
-                         python_file=pyFile,
-                         potential_directory=potDir,
-                         num_cores=2)
-    myDMC = pyvibdmc.DMC_Sim(sim_name="harm_osc_cont",
-                             output_folder=sim_ex_dir,
-                             weighting='discrete',
-                             num_walkers=5000,
-                             num_timesteps=10000,
-                             equil_steps=200,
-                             chkpt_every=100,
-                             wfn_every=500,
-                             desc_wt_steps=499,
-                             atoms=["X"],
-                             delta_t=5,
-                             potential=harm_pot,
-                             log_every=50,
-                             start_structures=np.zeros((1, 1, 1)),
-                             cur_timestep=0,
-                             # cont_wt_thresh=[0.002, 15],
-                             masses=Constants.reduced_mass('O-H') * 50,
-                             DEBUG_mass_change={'change_every': 1000,
-                                                'factor_per_change': 0.5}
-                             )
-    myDMC.run()
-    sim = SimInfo(f'{sim_ex_dir}/harm_osc_cont_sim_info.hdf5')
-    Plotter.plt_vref_vs_tau(sim.get_vref())
-    Plotter.plt_pop_vs_tau(sim.get_pop())
+    # initialize potential
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/TensorflowPots/')  # only necesary for testing
+    pyFile = 'call_sample_model.py'
+    potFunc = 'sample_h4o2_pot'
+    coulomb = TF_Coulomb([8, 1, 1, 8, 1, 1])
+    pot_dict = {'descriptor': coulomb,
+                'batch_size': 100}
+    model_path = f'{potDir}/sample_h4o2_nn.h5'
+    model = tf.keras.models.load_model(model_path)
+    harm_pot = NN_Potential(potential_function=potFunc,
+                            python_file=pyFile,
+                            potential_directory=potDir,
+                            model=model,
+                            pot_kwargs=pot_dict
+                            )
+    cds = np.random.random((100, 6, 3))
+    start = time.time()
+    for _ in range(10):
+        v = harm_pot.getpot(cds)
+    print(time.time() - start)
     assert True

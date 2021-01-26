@@ -7,20 +7,21 @@ PyVibDMC Requires the potential energy surface to be callable from Python.
 
 - All calculations inside the DMC simulation are done in atomic units.
 
-- ``PyVibDMC`` passes only the coordinates, in Bohr, as a nxmx3 (n=num_geoms,m=num_atoms,3=xyz) NumPy array to the Python potential function. Your function must only take in coords as an argument ``def example_call(coords):`` All other attributes you must pass to the Fortran/C side must be done inside your python function.
+- ``PyVibDMC`` itself passes only the coordinates, in Bohr, as a nxmx3 (n=num_geoms,m=num_atoms,3=xyz) NumPy array to the Potential Wrapper ``potential_manager``. To pass more than one argument to the Python function you are using, you will need to create a dictionary that you pass to the potential manager (example below). Otherwise, you will just write a function like: ``def example_potential(cds)``
 
-- ``PyVibDMC`` expects the function to return a 1D NumPy array of potential values in Hartree.
+- ``PyVibDMC`` expects the function you write to return a 1D NumPy array of potential values in Hartree.
 
 Please follow the next steps for calling a PES from Python written in Fortran or C/C++ after a brief note about
 parallelization.
 
 Multiproccesing Pool: Parallelizing Potential Calls
 -------------------------------------------------------
-The ``Potential`` manager has an option to parallelize the potential call across CPU cores.  This will almost always
+The ``Potential`` manager uses multiprocessing by default. This allows the user to parallelize the potential call across CPU cores.  This will almost always
 yield a very large speed-up, and is highly reccomended. ``PyVibDMC`` uses
 Python's `Multiprocessing <https://docs.python.org/3.7/library/multiprocessing.html#module-multiprocessing>`_ module to
 do this. The only argument you need to use in order to take advantage of this is the ``num_cores`` parameter::
 
+    from pyvibdmc.simulation_utilities import potential_manager as pm
     water_pot = pm.Potential(potential_function=pot_func,
                           python_file=py_file,
                           potential_directory=pot_dir,
@@ -31,6 +32,59 @@ the DMC simulation. Each Python process takes up 1 core. If you are working with
 perhaps use 10 to 12 cores for maximum performance if you are only running one calculation at once.
 The number of walkers does NOT need to be divisible by the number of cores/processes.
 If this is run on a laptop with 4 cores, only using 2 cores is recommended.
+
+Passing more than just the coordinates to the potential manager
+------------------------------------------------------------------
+The potential wrapper can take in more than just the coordinates if desired.  However, these arguments must be
+`pickleable <https://stackoverflow.com/questions/3603581/what-does-it-mean-for-an-object-to-be-picklable-or-pickle-able>`_ due to how multiprocessing works.  The other arguments to be passed to each of
+the multiprocessing instances should be in the form of a Python dictionary::
+
+    from pyvibdmc.simulation_utilities import potential_manager as pm
+    extra_args = {'num_water_molecules': 6, 'other_parameter': True}
+    water_pot = pm.Potential(potential_function=pot_func,
+                          python_file=py_file,
+                          potential_directory=pot_dir,
+                          num_cores=2,
+                          pot_kwargs=extra_args)
+
+Then, when writing the Python function::
+
+    def sample_potential(cds, extra_args):
+        num_waters = extra_args['num_water_molecules']
+        other_param = extra_args['other_parameter']
+        ...
+
+Tensorflow Keras Neural Network Potentials
+-------------------------------------------------------
+It is possible to run a DMC simulation using a potential energy surface generated using neural networks.  If you have
+a tensorflow keras model trained and ready to go, you can plug it in to the potential manager's ``NN_Potential`` object::
+
+    from pyvibdmc.simulation_utilities import potential_manager as pm
+    from pyvibdmc.simulation_utilities.tensorflow_descriptors.tf_coulomb import TF_Coulomb
+    import tensorflow as tf
+    coulomb_transformer = TF_Coulomb([8,1,1,8,1,1]) # water dimer
+    extra_args = {'descriptorizer': coulomb_transformer, 'batch_size': 100000}
+    my_nn_model = tf.keras.models.load_model('/path/to/model')
+    water_pot = pm.NN_Potential(potential_function=pot_func,
+                          python_file=py_file,
+                          potential_directory=pot_dir,
+                          model=my_nn_model,
+                          pot_kwargs=extra_args)
+
+Then, for the potential call::
+
+    #some other py_file
+    def call_nn_potential(cds, model, extra_args):
+        batch_size = extra_args['batch_size']
+        descriptor = extra_args['descriptorizer']
+        transformed_cds = descriptor.get_coulomb(cds)
+        y = model.predict(transformed_cds,batch_size=batch_size)
+        ...
+        return v
+
+This was written with the intention that these models would be evaluated on GPUs, so ``NN_Potential`` does not have multiprocessing support.
+As such, the ``extra_args`` here do not have to be pickleable.
+This infrastructure is not confined to tensorflow, however other ML packages have not been tested within the confines of ``PyVibDMC``
 
 Fortran Potentials: F2PY
 -------------------------------------------------------
@@ -95,7 +149,7 @@ Here is the example of how to load that in and call it::
    import numpy as np
 
    def call_a_cpot(cds):
-      lib = ctypes.cdll.LoadLibrary("./lib_expot.so")
+      lib = ctypes.cdll.LoadLibrary("./libexpot.so")
       example_fun = lib.calcpot_
       example_fun.restype = None
       example_fun.argtypes = [ctypes.POINTER(ctypes.c_int),
@@ -118,6 +172,36 @@ Nonetheless, you may then use this Python function in the ``Potential`` object b
               python_file='call_cpot.py',
               potential_directory=pot_dir,
               num_cores=4)
+
+You don't need to load the shared object file each time, though, thanks to the ``pot_kwargs`` option::
+
+    #before passing to the potential manager...
+    lib = ctypes.cdll.LoadLibrary("./libexpot.so")
+    example_fun = lib.calcpot_
+    example_fun.restype = None
+    example_fun.argtypes = [ctypes.POINTER(ctypes.c_int),
+                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                      ndpointer(ctypes.c_double, flags="C_CONTIGUOUS")]
+
+    my_kwargs = {'example_fun': example_fun, 'nw': ctypes.c_int32(6)}
+    Potential(potential_function='call_a_cpot',
+              python_file='call_cpot.py',
+              potential_directory=pot_dir,
+              num_cores=4,
+              pot_kwargs= my_kwargs )
+
+Then...::
+
+    # in the python function call...
+    def call_a_cpot(cds, extra_args):
+      ex_fun = extra_args['example_fun']
+      nw = extra_args['nw']
+      v = np.zeros(1)
+      vpot = np.zeros(len(cds))
+      for num,coord in enumerate(cds):
+          v = np.zeros(1)
+          ex_fun(ctypes.byref(nw),v,coord)
+          vpot[num] = v[0]
 
 Alternative Approach (Not recommended): executables and subprocess calls
 -------------------------------------------------------------------------------
