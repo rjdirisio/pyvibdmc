@@ -17,6 +17,25 @@ def test_pyvibdmc_imported():
     assert "pyvibdmc" in sys.modules
 
 
+def test_initial_conditions_premute():
+    ch5 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
+                    [0.1318851447521099, 2.088940054609643, 0.000000000000000],
+                    [1.786540362044548, -1.386051328559878, 0.000000000000000],
+                    [2.233806981137821, 0.3567096955165336, 0.000000000000000],
+                    [-0.8247121421923925, -0.6295306113384560, -1.775332267901544],
+                    [-0.8247121421923925, -0.6295306113384560, 1.775332267901544]])
+    atms = ["C", "H", "H", "H", "H", "H"]
+    ch5 = np.expand_dims(ch5, 0)
+    initializer = InitialConditioner(coord=ch5,
+                                     atoms=atms,
+                                     num_walkers=5000,
+                                     technique='permute_atoms',
+                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4, 5]],
+                                                       'ensemble': None})
+    permuted_coords = initializer.run()
+    assert True
+
+
 # def test_harm_analysis():
 #     dxx = 1.e-3
 #     water_geom = np.array([[0.9578400, 0.0000000, 0.0000000],
@@ -105,53 +124,3 @@ def test_pyvibdmc_imported():
 #                                   bin_num=30)
 #     Plotter.plt_hist1d(xy, xlabel='Bend (Degrees)', save_name='bend.png')
 #     assert True
-
-# def test_initial_conditions_premute():
-#     ch5 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
-#                     [0.1318851447521099, 2.088940054609643, 0.000000000000000],
-#                     [1.786540362044548, -1.386051328559878, 0.000000000000000],
-#                     [2.233806981137821, 0.3567096955165336, 0.000000000000000],
-#                     [-0.8247121421923925, -0.6295306113384560, -1.775332267901544],
-#                     [-0.8247121421923925, -0.6295306113384560, 1.775332267901544]])
-#
-#     atms = ["C", "H", "H", "H", "H", "H"]
-#     initializer = InitialConditioner(coord=ch5,
-#                                      atoms=atms,
-#                                      num_walkers=5000,
-#                                      technique='permute_atoms',
-#                                      technique_kwargs={'like_atoms': [[1, 2, 3], [4, 5]]})
-#
-#     permuted_coords = initializer.run()
-#
-#     pot_dir = '/home/rjdirisio/Documents/Potentials/BowmanCH5Pot/'
-#     py_file = 'call_ch5.py'
-#     pot_func = 'rjd_ch5'
-#
-#     ch5_pot = pm.Potential(potential_function=pot_func,
-#                            python_file=py_file,
-#                            potential_directory=pot_dir,
-#                            num_cores=1)
-#     v = ch5_pot.getpot(permuted_coords)
-#     un = np.unique(np.around(v, 7), return_counts=True)
-#     # Do harmonic analysis
-#     print("Running harmonic analysis...")
-#     ha = harmonic_analysis(eq_geom=ch5,
-#                            atoms=atms,
-#                            potential=ch5_pot,
-#                            )
-#
-#     freqz, nmz = ha.run()
-#     print("Done with harmonic analysis...")
-#     print(f"Harmonic Frequencies: {freqz}")
-#
-#     # Do initial conditions based on freqs and normal modes
-#     initializer = InitialConditioner(coord=ch5,
-#                                      atoms=atms,
-#                                      num_walkers=5000,
-#                                      technique='harmonic_sampling',
-#                                      technique_kwargs={'freqs': freqz,
-#                                                        'normal_modes': nmz,
-#                                                        'scaling_factor': 1,
-#                                                        'ensemble': permuted_coords})
-#     new_coords = initializer.run()
-#     print('-_-')

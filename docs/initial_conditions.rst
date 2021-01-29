@@ -32,7 +32,8 @@ two hydrogen atoms on either side of the water. You will pass in an list of list
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='permute_atoms',
-                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]]})
+                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]],
+                                                       'ensemble': None})
     new_coords = initializer.run()
 
 

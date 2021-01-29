@@ -82,7 +82,7 @@ class InitialConditioner:
         # CH5+ = [[1,2,3,4,5]] , or for testing [[1,2,3],[4,5]]
         # H5O2+ = [[2,3],[4,5]] [O_left,O_left,H_left,H_left,H_right,H_right,H_center]
         like_atoms = self.technique_kwargs['like_atoms']
-        ensemble = self.technique['ensemble']
+        ensemble = self.technique_kwargs['ensemble']
 
         # Get ensemble size
         if ensemble is None:

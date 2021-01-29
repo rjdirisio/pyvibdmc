@@ -16,3 +16,4 @@ comment:
 ignore:
   - "versioneer.py"
   - "**/_version.py"
+  - "pyvibdmc/_version.py"
