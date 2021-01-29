@@ -1,17 +1,12 @@
 name: test
 channels:
 dependencies:
-    # Base depends
-  - python
-  - pip
     # Package dependencies
   - numpy
   - h5py
   - matplotlib
+  - tensorflow
     # Testing
   - pytest
   - pytest-cov
   - codecov
-    # Pip installs - tensorflow is an optional package for use, but mandatory for tests
-  - pip:
-      - tensorflow
