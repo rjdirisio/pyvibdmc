@@ -2,7 +2,7 @@ PyVibDMC
 ==============================
 [//]: # (Badges)
 [![codecov](https://codecov.io/gh/rjdirisio/PyVibDMC/branch/master/graph/badge.svg)](https://codecov.io/gh/rjdirisio/PyVibDMC/branch/master)
-![pytest](https://github.com/actions/pyvibdmc/workflows/pytest/badge.svg)
+![pytest](https://github.com/rjdirisio/pyvibdmc/workflows/pytest/badge.svg)
 
 
 A general purpose diffusion monte carlo code for studying vibrational problems
