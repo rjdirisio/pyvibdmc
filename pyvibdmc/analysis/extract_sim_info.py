@@ -91,9 +91,10 @@ class SimInfo:
 
     @staticmethod
     def get_training(training_file):
-        """If using deb_training_every argument, read the files with this."""
+        """If using deb_training_every argument, read the files with this. Returns walkers in angstr and engs in cm-1"""
         with h5py.File(training_file, 'r') as f:
             cds = f['coords'][:]
             cds = Constants.convert(cds, 'angstroms', to_AU=False)
-            dw = f['desc_wts'][:]
-        return cds, dw
+            pots = f['pots'][:]
+            pots = Constants.convert(pots, 'wavenumbers', to_AU=False)
+        return cds, pots
