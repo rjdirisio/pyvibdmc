@@ -10,8 +10,9 @@ class SimLogger:
         else:
             self.fl = open(fname, 'a')
 
-    def finish_sim(self):
+    def finish_sim(self, final_time):
         self.fl.write("Simulation has finished.\n\n")
+        self.fl.write(f"Simulation took {final_time} seconds.\n\n")
         self.fl.close()
 
     def write_ts(self, cur_time_step):

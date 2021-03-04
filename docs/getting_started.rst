@@ -3,10 +3,6 @@ Getting Started
 
 This page details how to get started with `PyVibDMC <https://github.com/rjdirisio/pyvibdmc>`_.
 
-The package is hosted on `PyPi <https://pypi.org/project/pyvibdmc/>`_. To install it, please use::
-
-    pip install pyvibdmc
-
 Theory of Diffusion Monte Carlo (DMC)
 -------------------------------------------------------
 If you do not have experience with Diffusion Monte Carlo, I suggest reading the
@@ -16,6 +12,10 @@ This reference also has links to academic publications that detail the method fu
 
 Installation
 --------------
+The package is hosted on `PyPi <https://pypi.org/project/pyvibdmc/>`_. To install it, please use::
+
+    pip install pyvibdmc
+
 PyVibDMC is tested on and is for Mac and Linux architectures.
 
 If using Windows, please use Windows Subsystem for Linux (WSL). However, there are a few known issues with how PyVibDMC

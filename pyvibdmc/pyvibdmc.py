@@ -438,6 +438,7 @@ class DMC_Sim:
     def run(self):
         """This function calls propagate and saves simulation results"""
         print("Starting Simulation...")
+        dmc_time_start = time.time()
         self.propagate()
         # Delete all checkpoints, since this is the end of the run
         FileManager.delete_older_checkpoints(self.output_folder,
@@ -455,7 +456,8 @@ class DMC_Sim:
                              keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
                              valz=[np.column_stack((ts, _vref_wvn)), np.column_stack((ts, self._pop_vs_tau)),
                                    self._atm_nums, self.masses])
-        self._logger.finish_sim()
+        finish = time.time() - dmc_time_start
+        self._logger.finish_sim(finish)
 
     def __deepcopy__(self, memodict={}):
         """
