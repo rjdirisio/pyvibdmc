@@ -13,6 +13,8 @@ class MolRotator:
         new_geoms = np.expand_dims(geoms, -1)  # nxmx3x1
         new_rot_mats = np.expand_dims(rot_mats, 1)  # nx1x3x3
         rot_geoms = np.matmul(new_rot_mats, new_geoms).squeeze()
+        if len(rot_geoms.shape) == 2:
+            rot_geoms = np.expand_dims(rot_geoms,0)
         return rot_geoms
 
     @staticmethod

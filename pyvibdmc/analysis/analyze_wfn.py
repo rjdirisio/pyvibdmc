@@ -82,8 +82,8 @@ class AnalyzeWfn:
         """
         b1 = self.xx[:, atm1] - self.xx[:, atm_vert]
         b2 = self.xx[:, atm3] - self.xx[:, atm_vert]
-        bis = la.norm(b1, axis=1) * b2 + la.norm(b2, axis=1) * b1
-        return bis / la.norm(bis, axis=1)
+        bis = (b1 + b2) / la.norm(b1 + b2, axis=1).reshape(-1, 1)
+        return bis
 
     def dihedral(self, atm_1, atm_2, atm_3, atm_4):
         """

@@ -3,7 +3,6 @@ import numpy.linalg as la
 import itertools as itt
 
 from .. import Constants
-from .. import potential_manager as pm
 from .finite_difference import MolFiniteDifference as MolFD
 
 

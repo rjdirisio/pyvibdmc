@@ -50,7 +50,7 @@ class xyz_npy:
         :return: np.ndarray
         """
         if len(coords.shape) == 2:
-            array = np.expand_dims(coords, axis=0)
+            coords = np.expand_dims(coords, axis=0)
         if cmt is None:
             cmt = np.repeat("", len(coords))
         else:
