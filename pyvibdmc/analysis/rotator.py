@@ -2,6 +2,7 @@ import numpy as np
 import numpy.linalg as la
 from .analyze_wfn import AnalyzeWfn
 
+__all__=['MolRotator']
 
 class MolRotator:
     """A helper class that will rotate a stack of molecules and generate 3D rotation matrices using vectorized

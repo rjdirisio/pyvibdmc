@@ -1,6 +1,8 @@
 import os
 import glob as glob
 
+__all__ = ['FileManager']
+
 
 class FileManager:
     """Helping with creating or deleting files as necessary throughout the simulation"""
@@ -35,7 +37,6 @@ class FileManager:
             if pickTime < time_step:  # if the pickle file is older than the time step you are restarting from, delete it.
                 os.remove(pickles[pickN])
 
-
     @staticmethod
     def create_filesystem(output_folder):
         """
@@ -51,4 +52,3 @@ class FileManager:
                 os.makedirs(output_folder + '/chkpts')
             if not os.path.isdir(output_folder + '/wfns'):
                 os.makedirs(output_folder + '/wfns')
-

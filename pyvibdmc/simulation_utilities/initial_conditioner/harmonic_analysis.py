@@ -5,8 +5,10 @@ import itertools as itt
 from .. import Constants
 from .finite_difference import MolFiniteDifference as MolFD
 
+__all__ = ['HarmonicAnalysis']
 
-class harmonic_analysis:
+
+class HarmonicAnalysis:
     def __init__(self,
                  eq_geom,
                  atoms,
@@ -66,7 +68,7 @@ class harmonic_analysis:
                                                   num_disps=self.points_off_diag,
                                                   )
             potz = self.potential.getpot(stencil_cds)
-            potz = np.reshape(potz, (self.points_off_diag,self.points_off_diag))
+            potz = np.reshape(potz, (self.points_off_diag, self.points_off_diag))
             hess[off_diags[k]] = MolFD.differentiate(values=potz,
                                                      dx=self.dx,
                                                      num_points=self.points_off_diag,

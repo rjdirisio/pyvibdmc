@@ -1,6 +1,8 @@
 import numpy as np
 import numpy.linalg as la
 
+__all__ = ['AnalyzeWfn']
+
 
 class AnalyzeWfn:
     def __init__(self, coordinates):
@@ -128,7 +130,7 @@ class AnalyzeWfn:
         return r, th, phi
 
     @staticmethod
-    def projection_1d(attr, desc_weights, bin_num=25, range=None, normalize=True):
+    def projection_1d(attr, desc_weights, bins=25, range=None, normalize=True):
         """
         Project the probability amplitude onto a particular coordinate, 1D Histogram.
         
@@ -136,7 +138,7 @@ class AnalyzeWfn:
         :type attr: np.ndarray
         :param desc_weights: the descendant weights for \psi**2
         :type desc_weights: np.ndarray
-        :param bin_num: Number of bins in histogram (higher number, more number of walkers needed)
+        :param bins: Number of bins in histogram (higher number, more number of walkers needed)
         :type attr: int
         :param range: Range over which attr is histogrammed
         :type range: tuple
@@ -145,15 +147,15 @@ class AnalyzeWfn:
         :return: np.ndarray of shape (bin_num-1 x 2), bin centers, amplitude at bin centers
         """
         amp, bin_edge = np.histogram(attr,
-                                    bins=bin_num,
-                                    range=range,
-                                    weights=desc_weights,
-                                    density=normalize)
+                                     bins=bins,
+                                     range=range,
+                                     weights=desc_weights,
+                                     density=normalize)
         xx = 0.5 * (bin_edge[1:] + bin_edge[:-1])  # get bin centers
         return np.column_stack((xx, amp))
 
     @staticmethod
-    def projection_2d(attr1, attr2, desc_weights, bin_num=[25, 25], range=None, normalize=True):
+    def projection_2d(attr1, attr2, desc_weights, bins=[25, 25], range=None, normalize=True):
         """
         Project the probability amplitude onto a 2 coordinates, 2D Histogram.
 
@@ -163,7 +165,7 @@ class AnalyzeWfn:
         :type attr: np.ndarray
         :param desc_weights: the descendant weights for \psi**2
         :type desc_weights: np.ndarray
-        :param bin_num: Number of bins for histogram in both directions (higher number, more number of walkers needed)
+        :param bins: Number of bins for histogram in both directions (higher number, more number of walkers needed)
         :type attr: tuple
         :param range: Range over which attr is histogrammed
         :type range: list of two tuples
@@ -173,7 +175,7 @@ class AnalyzeWfn:
         """
         amps, bin_edges_x, bin_edges_y = np.histogram2d(attr1,
                                                         attr2,
-                                                        bins=bin_num,
+                                                        bins=bins,
                                                         range=range,
                                                         weights=desc_weights,
                                                         density=normalize)

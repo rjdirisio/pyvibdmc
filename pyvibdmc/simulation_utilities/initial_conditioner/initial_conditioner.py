@@ -1,6 +1,7 @@
-from .harmonic_analysis import *
-from ..xyz_npy import *
-from ...pyvibdmc import DMC_Sim
+import numpy as np
+from ..Constants import *
+
+__all__ = ['InitialConditioner']
 
 
 class InitialConditioner:
@@ -24,7 +25,7 @@ class InitialConditioner:
         elif self.technique == 'permute_atoms':
             self.run_func = self.run_permute
         else:
-            raise NotImplementedError("Choose another initial condition: harmonic or permute")
+            raise NotImplementedError("Choose another initial condition: harmonic_sampling or permute_atoms")
 
     def gen_disps(self, sigmas):
         disps = np.random.normal(loc=0,

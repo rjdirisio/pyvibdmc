@@ -6,6 +6,8 @@ import importlib
 
 import numpy as np
 
+__all__ = ['Potential', 'NN_Potential']
+
 
 class Potential:
     """

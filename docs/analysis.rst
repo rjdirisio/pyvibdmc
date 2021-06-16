@@ -146,7 +146,7 @@ Here is the code that will perform that projection, as well as plot it::
     #STEP 3: Project Psi^2 onto the hoh angle.  hoh_histo returns a (num_bins, 2) numpy array of x/y histogram data
     hoh_histo = analyzer.projection_1d(attr=hoh_angle,  # make a 1d histogram , x/y data
                                        desc_weights=dws,
-                                       bin_num=20,
+                                       bins=20,
                                        range=(60, 150))
 
     #STEP 4: For those who are unfamiliar with matplotlib, you can plot the projection using this Plotter class.
@@ -186,7 +186,7 @@ do that::
 
         bl_histo = analyzer.projection_1d(attr=cur_bl,  # make a 1d histogram , x/y data
                                       desc_weights=dws,
-                                      bin_num=30,
+                                      bins=30,
                                       range=ranges[combo_num])
 
         Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
@@ -250,7 +250,7 @@ In order to project the probability amplitude onto the bond length, which is the
     analyzer = AnalyzeWfn(cds)
     bl_histo = analyzer.projection_1d(attr=bond_length,  # make a 1d histogram , x/y data
                                        desc_weights=dws,
-                                       bin_num=25,
+                                       bins=25,
                                        range=(-0.5, 0.5))
 
     Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data

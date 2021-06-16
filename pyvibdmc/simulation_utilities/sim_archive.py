@@ -3,6 +3,8 @@ import pickle
 import copy
 import glob
 
+__all__ = ['SimArchivist']
+
 
 class SimArchivist:
     """A utility class for saving wave functions, checkpoint files, and reloading DMC sims"""

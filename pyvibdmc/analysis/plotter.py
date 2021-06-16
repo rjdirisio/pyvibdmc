@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+__all__=['Plotter']
 
 class Plotter:
     """

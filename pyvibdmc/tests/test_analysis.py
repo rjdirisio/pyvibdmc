@@ -1,12 +1,11 @@
-import pyvibdmc
-import matplotlib.pyplot as plt
-from ..analysis import *
-from ..simulation_utilities import *
 import numpy as np
+import matplotlib.pyplot as plt
 import pytest
 import sys
 
-test_sim = SimInfo('pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+import pyvibdmc as pv
+
+test_sim = pv.SimInfo('pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
 savefigpth = 'pyvibdmc/tests/'
 
 
@@ -14,9 +13,9 @@ savefigpth = 'pyvibdmc/tests/'
 def test_write_xyz_file():
     cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
     atm_str_list = ["H", "H", "O"]
-    xyz_npy.write_xyz(coords=cds, fname=f'{savefigpth}water_cds.xyz', atm_strings=atm_str_list,
-                      cmt='from dmc simulation')
-    cds_back = xyz_npy.extract_xyz(f'{savefigpth}water_cds.xyz', num_atoms=len(atm_str_list))
+    pv.XYZNPY.write_xyz(coords=cds, fname=f'{savefigpth}water_cds.xyz', atm_strings=atm_str_list,
+                     cmt='from dmc simulation')
+    cds_back = pv.XYZNPY.extract_xyz(f'{savefigpth}water_cds.xyz', num_atoms=len(atm_str_list))
     assert np.allclose(cds, cds_back)
 
 
@@ -35,7 +34,7 @@ def test_sim_data_zpe():
 def test_zpe_std():
     zpes = []
     for sim_num in range(5):
-        test_sim = SimInfo(
+        test_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
         this_zpe = test_sim.get_zpe(onwards=100)
         zpes.append(this_zpe)
@@ -62,7 +61,7 @@ def test_ana_wfn_blens():
     for wn, water in enumerate(sample_waters):
         water[0, 0] += 0.005 * wn
 
-    ana_o = AnalyzeWfn(sample_waters)
+    ana_o = pv.AnalyzeWfn(sample_waters)
     bond_lengths = ana_o.bond_length(0, 2)  # OH bond length
     print(bond_lengths)
     assert np.allclose(bond_lengths, expected_blens)
@@ -72,7 +71,7 @@ def test_ana_wfn_blens():
 def test_plt_atm_atm_dists():
     import itertools as itt
     cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
-    analyzer = AnalyzeWfn(cds)  # initialize analyzer object
+    analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
 
     num_atoms = cds.shape[1]
     combos = itt.combinations(range(num_atoms), 2)
@@ -83,13 +82,13 @@ def test_plt_atm_atm_dists():
                                           desc_weights=dws,
                                           range=(0, 3))
 
-        Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
+        pv.Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
                            xlabel=f"Bond Length R{combo[0]}-R{combo[1]} (Angstroms)",
                            save_name=f'{savefigpth}BondLength_R{combo[0]}R{combo[1]}.png')
 
 
 def test_plt_vref():
-    Plotter.plt_vref_vs_tau(vref_vs_tau=test_sim.get_vref(),
+    pv.Plotter.plt_vref_vs_tau(vref_vs_tau=test_sim.get_vref(),
                             save_name=f'{savefigpth}test_vref.png')
     assert True
 
@@ -97,7 +96,7 @@ def test_plt_vref():
 def test_plt_water_angle():
     cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
 
-    analyzer = AnalyzeWfn(cds)  # initialize analyzer object
+    analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
     hoh_angle = analyzer.bond_angle(atm1=0,
                                     atm_vert=2,
                                     atm3=1)  # [H H O], so atm[2] at vertex
@@ -106,10 +105,10 @@ def test_plt_water_angle():
 
     hoh_histo = analyzer.projection_1d(attr=hoh_angle,  # make a 1d histogram , x/y data
                                        desc_weights=dws,
-                                       bin_num=20,
+                                       bins=20,
                                        range=(60, 150))
 
-    Plotter.plt_hist1d(hist=hoh_histo,  # plot histogram x/y data
+    pv.Plotter.plt_hist1d(hist=hoh_histo,  # plot histogram x/y data
                        xlabel=r"HOH Angle $\rm{\theta}$ (Degrees)",
                        save_name=f'{savefigpth}HOH_angle.png')
 
@@ -126,7 +125,7 @@ def test_adv_plt_many_vrefs():
     # Time to plot!
     fig, ax = plt.subplots()
     for sim_num in range(5):
-        temp_sim = SimInfo(
+        temp_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
         this_vref = temp_sim.get_vref()
         ax.plot(this_vref[:, 0], this_vref[:, 1])
@@ -141,7 +140,7 @@ def test_adv_plt_2dhistogram():
     tot_cds = []
     tot_dw = []
     for sim_num in range(5):
-        temp_sim = SimInfo(
+        temp_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
         cds, dw = temp_sim.get_wfns([2500, 3500])
         tot_cds.append(cds)
@@ -150,7 +149,7 @@ def test_adv_plt_2dhistogram():
     tot_dw = np.concatenate(tot_dw)
 
     # Advanced: 2D Histogram
-    analyzer = AnalyzeWfn(tot_cds)  # initialize analyzer object
+    analyzer = pv.AnalyzeWfn(tot_cds)  # initialize analyzer object
     bond_len_OH1 = analyzer.bond_length(0, 2)
     bond_len_OH2 = analyzer.bond_length(1, 2)
     # bond_angle = np.rad2deg(analyzer.bond_angle(atm1=0,atm_vert=2,atm3=1))
@@ -158,10 +157,10 @@ def test_adv_plt_2dhistogram():
     bins_x, bins_y, amp = analyzer.projection_2d(bond_len_OH1,
                                                  bond_len_OH2,
                                                  desc_weights=tot_dw,
-                                                 bin_num=[15, 15],
+                                                 bins=[15, 15],
                                                  range=[[0.5, 1.5], [0.5, 1.5]],
                                                  normalize=True)
-    Plotter.plt_hist2d(binsx=bins_x,
+    pv.Plotter.plt_hist2d(binsx=bins_x,
                        binsy=bins_y,
                        hist_2d=amp,
                        xlabel="ROH 1 (Angstroms)",

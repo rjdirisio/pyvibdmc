@@ -1,14 +1,17 @@
 import numpy as np
 
+__all__ = ['MolFiniteDifference']
+
 
 class MolFiniteDifference:
     """Helper to calculate derivatives of some value as a function of Cartesian displacements in a molecule."""
-    weights_der1 = {'3': np.array([-1/2,0,1/2]),
-                    '5': np.array([1/12, -2/3, 0, 2/3, -1/12])
+    weights_der1 = {'3': np.array([-1 / 2, 0, 1 / 2]),
+                    '5': np.array([1 / 12, -2 / 3, 0, 2 / 3, -1 / 12])
                     }
     weights_der2 = {'3': np.array([-1, 2, 1]),
-                    '5': np.array([-1/12, 4/3, -5/2, 4/3, -1/12])
+                    '5': np.array([-1 / 12, 4 / 3, -5 / 2, 4 / 3, -1 / 12])
                     }
+
     @staticmethod
     def displace_molecule(eq_geom, atm_cd, dx, num_disps):
         """
@@ -37,7 +40,7 @@ class MolFiniteDifference:
             cd1 = atm_cd[1]
             atm2 = atm_cd[2]
             cd2 = atm_cd[3]
-            displaced_cds = np.zeros(np.concatenate(([len(dx_ordering)**2], np.shape(eq_geom))))
+            displaced_cds = np.zeros(np.concatenate(([len(dx_ordering) ** 2], np.shape(eq_geom))))
             ct = 0
             for disp_num, disp in enumerate(dx_ordering):
                 for disp_num_2, disp2 in enumerate(dx_ordering):
@@ -60,6 +63,6 @@ class MolFiniteDifference:
             diff = np.dot(wts, np.dot(wts, values))
         elif der == 2:  # Second derivative, one dimension
             wts = cls.weights_der2[str(num_points)]
-            wts = wts / dx**2  # since it's one dimensional
+            wts = wts / dx ** 2  # since it's one dimensional
             diff = np.dot(wts, values)
         return diff

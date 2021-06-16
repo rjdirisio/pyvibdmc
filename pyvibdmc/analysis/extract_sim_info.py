@@ -1,5 +1,9 @@
-import matplotlib.pyplot as plt
+import h5py
+import numpy as np
+
 from ..simulation_utilities import *
+
+__all__ = ['SimInfo']
 
 
 class SimInfo:

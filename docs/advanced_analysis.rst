@@ -10,7 +10,7 @@ Viewing walkers using Jmol/Avogadro
 to file::
 
     from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
-    from pyvibdmc.simulation_utilities import xyz_npy as xyz
+    from pyvibdmc.simulation_utilities import XYZNPY as xyz
 
     import numpy as np
 
@@ -75,7 +75,7 @@ However, ``PyVibDMC`` has ways to extract these arrays so that the user does not
 files::
 
     from pyvibdmc.analysis import * # this imports SimInfo, AnalyzeWfn as well as Plotter
-    from pyvibdmc.simulation_utilities import xyz_npy as xyz
+    from pyvibdmc.simulation_utilities import XYZNPY as xyz
 
     import numpy as np
 

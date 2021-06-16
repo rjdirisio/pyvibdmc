@@ -3,8 +3,14 @@ This is the main file, which runs the DMC code itself.  To see the basic algorit
 action, go to self.propagate()
 """
 import numpy as np
+import time, copy
 
-from .simulation_utilities import *
+from .simulation_utilities.file_manager import *
+from .simulation_utilities.sim_archive import *
+from .simulation_utilities.Constants import *
+from .simulation_utilities.sim_logger import *
+
+__all__ = ['DMC_Sim', 'dmc_restart']
 
 
 class DMC_Sim:
@@ -403,7 +409,6 @@ class DMC_Sim:
                 self.masses = self.masses * self._factor_per_change[self._mass_counter]
                 self._sigmas = np.sqrt(self.delta_t / self.masses)
                 self._mass_counter += 1
-
 
             # 1. Move Randomly
             self.move_randomly()

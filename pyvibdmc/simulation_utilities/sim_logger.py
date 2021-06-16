@@ -1,5 +1,7 @@
 from .Constants import *
 
+__all__ = ['SimLogger']
+
 
 class SimLogger:
     """A utility class for logging the simulation, writes to .log file."""

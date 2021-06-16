@@ -1,22 +1,16 @@
-"""
-Unit and regression test for the pyvibdmc package.
-
-"""
-import numpy as np
-# Import package, test suite, and other packages as needed
-
-from ..simulation_utilities import *
-from ..analysis import *
-import pytest
 import os
 import time
+
+import pytest
+import numpy as np
+import pyvibdmc as pv
 
 def test_regular_pot():
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'oh_stretch_harm'
-    harm_pot = Potential(potential_function=potFunc,
+    harm_pot = pv.Potential(potential_function=potFunc,
                          python_file=pyFile,
                          potential_directory=potDir,
                          num_cores=2)
@@ -33,9 +27,9 @@ def test_arg_pot():
     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'oh_stretch_harm_with_arg'
-    pot_dict = {'freq': Constants.convert(4000, 'wavenumbers', to_AU=True),
-                'mass': Constants.reduced_mass("O-H",to_AU=True)}
-    harm_pot = Potential(potential_function=potFunc,
+    pot_dict = {'freq': pv.Constants.convert(4000, 'wavenumbers', to_AU=True),
+                'mass': pv.Constants.reduced_mass("O-H",to_AU=True)}
+    harm_pot = pv.Potential(potential_function=potFunc,
                              python_file=pyFile,
                              potential_directory=potDir,
                              num_cores=2,
@@ -61,7 +55,7 @@ def test_nn_pot():
                 'batch_size': 100}
     model_path = f'{potDir}/sample_h4o2_nn.h5'
     model = tf.keras.models.load_model(model_path)
-    harm_pot = NN_Potential(potential_function=potFunc,
+    harm_pot = pv.NN_Potential(potential_function=potFunc,
                             python_file=pyFile,
                             potential_directory=potDir,
                             model=model,

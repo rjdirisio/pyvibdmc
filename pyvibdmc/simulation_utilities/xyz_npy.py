@@ -1,7 +1,9 @@
 import numpy as np
 
+__all__ = ['XYZNPY']
 
-class xyz_npy:
+
+class XYZNPY:
     """Handler of xyz <-> npy conversion, like a personal version of openBabel."""
 
     @staticmethod
@@ -37,7 +39,6 @@ class xyz_npy:
                 else:
                     line_ct += 1
         return np.array(cd_list)
-
 
     @staticmethod
     def write_xyz(coords, fname, atm_strings, cmt=None):
