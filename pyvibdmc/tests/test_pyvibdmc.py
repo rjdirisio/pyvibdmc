@@ -108,7 +108,7 @@ def test_mass_increase_dmc():
                              output_folder=sim_ex_dir,
                              weighting='discrete',
                              num_walkers=5000,
-                             num_timesteps=10000,
+                             num_timesteps=1000,
                              equil_steps=200,
                              chkpt_every=100,
                              wfn_every=500,
@@ -121,7 +121,7 @@ def test_mass_increase_dmc():
                              cur_timestep=0,
                              # cont_wt_thresh=[0.002, 15],
                              masses=pv.Constants.reduced_mass('O-H') * 50,
-                             DEBUG_mass_change={'change_every': 1000,
+                             DEBUG_mass_change={'change_every': 100,
                                                 'factor_per_change': 0.5}
                              )
     myDMC.run()

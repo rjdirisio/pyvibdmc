@@ -9,15 +9,13 @@ Viewing walkers using Jmol/Avogadro
 ``PyVibDMC`` has a numpy array <--> .xyz converter built in. In order to write the walkers from the DMC simulation
 to file::
 
-    from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
-    from pyvibdmc.simulation_utilities import XYZNPY as xyz
-
+    import pyvibdmc as pv
     import numpy as np
 
-    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
-    xyz.write_xyz(coords=cds, fname='water_geoms.xyz', atm_strings=['H','H','O']) #writes the wave functions to file
+    pv.XYZNPY.write_xyz(coords=cds, fname='water_geoms.xyz', atm_strings=['H','H','O']) #writes the wave functions to file
 
 Once you have the .xyz file, you may then open it in your molecular visualization software of choice. One can imagine
 even sorting your top 100 walkers by their descendant weight and writing those to file as well::
@@ -26,7 +24,7 @@ even sorting your top 100 walkers by their descendant weight and writing those t
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
     idx = np.flip(np.argsort(dws)) # sorted array index from highest to lowest descendant weight
     written_cds = cds[idx[:100]]  # index over coordinates, grabbing top 100 from idx[:100]
-    xyz.write_xyz(coords=written_cds, fname='top_water_geoms.xyz', atm_strings=['H','H','O']) #writes the wave functions to file
+    pv.XYZNPY.write_xyz(coords=written_cds, fname='top_water_geoms.xyz', atm_strings=['H','H','O']) #writes the wave functions to file
 
 
 Working with HDF5 files in Python (and how not to)
@@ -74,12 +72,11 @@ accessed in the same way::
 However, ``PyVibDMC`` has ways to extract these arrays so that the user does not even need to know how to manipulate .hdf5
 files::
 
-    from pyvibdmc.analysis import * # this imports SimInfo, AnalyzeWfn as well as Plotter
-    from pyvibdmc.simulation_utilities import XYZNPY as xyz
+    import pyvibdmc as pv
 
     import numpy as np
 
-    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     vref_vs_tau =  tutorial_sim.get_vref()
     pop_vs_tau =  tutorial_sim.get_pop()
     atom_nums  = tutorial_sim.get_atomic_nums()
@@ -147,17 +144,18 @@ from `NIST <https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-re
 and also includes the mass of deuterium and tritium::
 
     import numpy as np
-    from pyvibdmc.simulation_utilities import * # imports Constants
+    from pyvibdmc import Constants
+    # or just import pyvibdmc as pv and do pv.Constants
     atoms = ["H", "D", "T", "N", "Br"]
-    atomic_masses = [Constants.mass(atom) for atom in atoms] # returns in atomic units
-    atomic_masses = [Constants.mass(atom, to_AU=False) for atom in atoms] # returns in amu
+    atomic_masses = [pv.Constants.mass(atom) for atom in atoms] # returns in atomic units
+    atomic_masses = [pv.Constants.mass(atom, to_AU=False) for atom in atoms] # returns in amu
     one_mass = Constants.mass("O")
 
 If one had a starting structure in angstroms but needed to convert it to Bohr as an input structure, one could go about
 it with or without using the Constants module::
 
     import numpy as np
-    from pyvibdmc.simulation_utilities import * # imports Constants
+    from pyvibdmc import Constants
 
     # Scenario 1: not using Constants
     bohr_to_ang = 0.529177 # multiply something in bohr by this to get to angstroms
@@ -171,9 +169,9 @@ it with or without using the Constants module::
     start_structure = np.array([[0.9578400,0.0000000,0.0000000],
                                 [-0.2399535,0.9272970,0.0000000],
                                 [0.0000000,0.0000000,0.0000000]])
-    start_structure = Constants.convert(start_structure,'angstroms',to_AU=True)
+    start_structure = pv.Constants.convert(start_structure,'angstroms',to_AU=True)
     # to convert from bohr to angstrom:
-    # start_structure = Constants.convert(start_structure,'angstroms',to_AU=False)
+    # start_structure = pv.Constants.convert(start_structure,'angstroms',to_AU=False)
 
 Reduced-Dimensional DMC Calculations: Example
 -------------------------------------------------
@@ -198,7 +196,7 @@ of the hydrogen we want to move, in this case the coordinate ``start_structure[0
 So, we will set up a 1D DMC starting structure::
 
     harm_coord = np.zeros((1,1,1)) # we are going to set up our initial ensemble to be (n, 1, 1) numpy array
-    harm_coord[0,0,0] = Constants.convert(0.9578400,'angstroms',to_AU=True) # using the Constants class from above!
+    harm_coord[0,0,0] = pv.Constants.convert(0.9578400,'angstroms',to_AU=True) # using the Constants class from above!
 
 Now, we will modify our potential energy call, as the coordinates passed to the potential will be n_walkers x 1 x 1::
 
@@ -216,7 +214,7 @@ Now, we will modify our potential energy call, as the coordinates passed to the 
         eq = np.array([[0.9578400,0.0000000,0.0000000],
              [-0.2399535,0.9272970,0.0000000],
              [0.0000000,0.0000000,0.0000000]])
-        eq = Constants.convert(eq,'angstroms',to_AU=True) #convert eq structure to bohr
+        eq = pv.Constants.convert(eq,'angstroms',to_AU=True) #convert eq structure to bohr
         geoms = np.tile(eq, (len(cds), 1, 1)) #make n copies of start structure, now geoms is a (n, 3, 3) array
         geoms[:,0,0] = cds.squeeze() #put displaced 1D walkers from DMC into the eq structure, just modifying the x part of H
         v = calc_hoh_pot(geoms, len(geoms)) #call potential with full geometry, only the OH stretch is displaced
@@ -225,9 +223,8 @@ Now, we will modify our potential energy call, as the coordinates passed to the 
 Now, we can run the 1D DMC simulation where are walkers are functionally just 1D particles, but the potential is acting
 as if it is a full dimensional system.  Of course, the wave functions then will be only 1D in this case::
 
-    import pyvibdmc as dmc
+    import pyvibdmc as pv
     from pyvibdmc import potential_manager as pm
-    from pyvibdmc.simulation_utilities import *
 
     pot_dir = 'Path/To/Partridge_Schwenke_H2O' #this directory is the one you copied that is outside of pyvibdmc.
     py_file = 'h2o_potential.py'
@@ -241,13 +238,13 @@ as if it is a full dimensional system.  Of course, the wave functions then will 
 
     # Equilibrium "geometry" of the 1d harmonic oscillator in *atomic units*,
     red_coord = np.zeros((1,1,1))
-    red_coord[0,0,0] = Constants.convert(0.9578400,'angstroms',to_AU=True) #we only need one geometry, PyVibDMC will duplicate it for us.
+    red_coord[0,0,0] = pv.Constants.convert(0.9578400,'angstroms',to_AU=True) #we only need one geometry, PyVibDMC will duplicate it for us.
 
     # reduced mass - automated way
-    mass = Constants.reduced_mass("O-H")
+    mass = pv.Constants.reduced_mass("O-H")
 
     for sim_num in range(5):
-        red_DMC = dmc.DMC_Sim(sim_name=f"water1d_dt10_{sim_num}",
+        red_DMC = pv.DMC_Sim(sim_name=f"water1d_dt10_{sim_num}",
                                output_folder="red_dim_dmc",
                                weighting='discrete', #or 'continuous'. 'continuous' keeps the ensemble size constant.
                                num_walkers=10000, #number of geometries exploring the potential surface
@@ -264,6 +261,6 @@ as if it is a full dimensional system.  Of course, the wave functions then will 
         )
         red_DMC.run()
 
-Performing 3D Rotations of atoms using PyVibDMC
+Performing 3D Rotations of molecules using PyVibDMC
 -------------------------------------------------
 Documentation pending.

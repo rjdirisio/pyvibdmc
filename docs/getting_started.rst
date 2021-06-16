@@ -74,8 +74,8 @@ please ``cd`` into the directory you copied, and run ``make``. This will build a
 in ``h2o_potential.py``. Once you have run ``make``, you may now run the following script.::
 
     import numpy as np
-    import pyvibdmc as dmc
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+    import pyvibdmc as pv
+    from pyvibdmc import potential_manager as pm
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
         pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is part of the one you copied that is outside of pyvibdmc.
@@ -96,9 +96,10 @@ in ``h2o_potential.py``. Once you have run ``make``, you may now run the followi
         water_coord = np.array([[1.81005599,  0.        ,  0.        ],
                                [-0.45344658,  1.75233806,  0.        ],
                                [ 0.        ,  0.        ,  0.        ]]) * 1.01
+        start_coord = np.expand_dims(water_coord,axis=0) # Make it (1 x num_atoms x 3)
 
         for sim_num in range(5):
-            myDMC = dmc.DMC_Sim(sim_name=f"tutorial_water_{sim_num}",
+            myDMC = pv.DMC_Sim(sim_name=f"tutorial_water_{sim_num}",
                                   output_folder="tutorial_dmc",
                                   weighting='discrete', #or 'continuous'. 'continuous' keeps the ensemble size constant.
                                   num_walkers=8000, #number of geometries exploring the potential surface
@@ -106,11 +107,11 @@ in ``h2o_potential.py``. Once you have run ``make``, you may now run the followi
                                   equil_steps=500, #how long before we start collecting wave functions
                                   chkpt_every=500, #checkpoint the simulation every "chkpt_every" time steps
                                   wfn_every=1000, #collect a wave function every "wfn_every" time steps
-                                  desc_wt_steps=100, #number of time steps you allow for descendant weighting per wave function
+                                  desc_wt_steps=300, #number of time steps you allow for descendant weighting per wave function
                                   atoms=['H','H','O'],
                                   delta_t=5, #the size of the time step in atomic units
                                   potential=water_pot,
-                                  start_structures=np.expand_dims(water_coord,axis=0), #can provide a single geometry, or an ensemble of geometries
+                                  start_structures=start_coord, #can provide a single geometry, or an ensemble of geometries
                                   masses=None #can put in artificial masses, otherwise it auto-pulls values from the atoms string
             )
             myDMC.run()
@@ -120,9 +121,8 @@ for all the options you may pass the ``DMC_Sim``.
 
 If the simulation dies due to external factors, you may restart a particular DMC simulation using the following code::
 
-    import numpy as np
-    import pyvibdmc as dmc
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+    import pyvibdmc as pv
+    from pyvibdmc import potential_manager as pm
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
         # need to reinitalize the water_pot
@@ -136,7 +136,7 @@ If the simulation dies due to external factors, you may restart a particular DMC
 
         # restart function that reinializes the myDMC object
         # say the 4th [3] simulation died...
-        myDMC = dmc.dmc_restart(potential=water_pot,
+        myDMC = pv.dmc_restart(potential=water_pot,
                                  chkpt_folder='tutorial_dmc',
                                  sim_name='tutorial_water_3')
         myDMC.run()
@@ -155,8 +155,8 @@ This folder includes ``harmonicOscillator1D.py``. In ``harmonicOscillator1D.py``
 To use this potential, you have to feed ``'O-H'`` to the ``atoms`` argument, which tells the DMC simulation to use a reduced
 mass of an OH diatomic::
 
-    import pyvibdmc as dmc
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+    import pyvibdmc as pv
+    from pyvibdmc import potential_manager as pm
     import numpy as np
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
@@ -181,7 +181,7 @@ mass of an OH diatomic::
                                 )
         #optional num_cores parameter for multiprocessing, should not exceed the number of cores on the CPU
         #your machine has. Can use multiprocessing.cpu_count()
-        harm_DMC = dmc.DMC_Sim(sim_name=f"tutorial_HarmOsc_OH_0,
+        harm_DMC = pv.DMC_Sim(sim_name=f"tutorial_HarmOsc_OH_0,
                                   output_folder="tutorial_HarmOsc_dmc",
                                   weighting='discrete', #or 'continuous'. 'continuous' keeps the ensemble size constant.
                                   num_walkers=8000, #number of geometries exploring the potential surface
@@ -202,4 +202,6 @@ One can then, of course, modify the ``harmonicOscillator1D.py`` file in order to
 such as N\ :sub:`2` , HCl, or others. You just have to feed in ``'N-N'`` or ``'H-Cl'``, respectively, to ``atoms``. Those examples are
 included in the ``.py`` file, feel free to come up with your own!
 
-One can also adjust the frequency in the potential function to be more in line with the frequency of the stretch in the diatomic.
+One can also pass in multiple arguments other than just the coordinate function by using the ``pot_kwargs`` argument
+to the ``potential_manager``. To do this, see
+`the potentials page <https://pyvibdmc.readthedocs.io/en/latest/potentials.html>`_

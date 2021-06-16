@@ -49,9 +49,12 @@ zero-point energy as the simulation moves forward.
 
 Plotting Vref::
 
-    from pyvibdmc.analysis import * #this imports AnalyzeWfn, SimInfo, and Plotter
-    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
-    Plotter.plt_vref_vs_tau(vref_vs_tau=tutorial_sim.get_vref(),
+    import pyvibdmc as pv
+    # or do
+    # from pyvibdmc import SimInfo, Plotter
+    # then you don't need a `pv.` in front of stuff
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    pv.Plotter.plt_vref_vs_tau(vref_vs_tau=tutorial_sim.get_vref(),
 	                    save_name=f'test_vref.png')
 
 .. figure:: figures/test_vref.png
@@ -63,7 +66,7 @@ Plotting Vref::
 To calculate the zero-point energy based on a single DMC simulation, one would do::
 
    time_step_onwards = 2000
-   tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+   tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
    zpe = tutorial_sim.get_zpe(onwards=time_step_onwards)
 
 The ``onwards`` argument to ``get_zpe`` is specifying at which time step should I begin averaging ``Vref``.  The ``PyVibDMC`` code
@@ -83,7 +86,7 @@ This is how one would compare across DMC simulations using ``PyVibDMC``::
 
     zpes = []
     for sim_num in range(5):
-        tutorial_sim = SimInfo(f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 DMC sims!
+        tutorial_sim = pv.SimInfo(f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 DMC sims!
         this_zpe = tutorial_sim.get_zpe(onwards=2000)
         zpes.append(this_zpe)
     final_zpe = np.average(zpes)
@@ -107,7 +110,7 @@ Here is how to combine the various snapshots (2500 to 9500), and their descendan
 respectively, taken from a single DMC simulation::
 
    import numpy as np
-   tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+   tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
    # cds, dws = tutorial_sim.get_wfns([2500,3500,4500,5500,6500,7500,8500,9500]) # perfectly valid, but tiresome
    increment = 1000
    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment)) # for those familiar with numpy
@@ -125,17 +128,17 @@ ground state probability amplitude along the HOH bend in a water molecule.
 
 Here is the code that will perform that projection, as well as plot it::
 
-    from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
+    import pyvibdmc as pv
     import numpy as np
 
     # STEP 1: Get wave functions (coordinates and descendant weights)
-    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
     savefigpth = '' # save in current directory
 
     # STEP 2: Calculate the bond angle for each of your walkers
-    analyzer = AnalyzeWfn(cds)  # initialize wavefunction analyzer object
+    analyzer = pv.AnalyzeWfn(cds)  # initialize wavefunction analyzer object
     hoh_angle = analyzer.bond_angle(atm1=0,
                                     atm_vert=2,
                                     atm3=1)  # [H H O], so atm[2] at vertex
@@ -150,7 +153,7 @@ Here is the code that will perform that projection, as well as plot it::
                                        range=(60, 150))
 
     #STEP 4: For those who are unfamiliar with matplotlib, you can plot the projection using this Plotter class.
-    Plotter.plt_hist1d(hist=hoh_histo,  # plot histogram x/y data
+    pv.Plotter.plt_hist1d(hist=hoh_histo,  # plot histogram x/y data
                        xlabel=r"HOH Angle $\rm{\theta}$ (Degrees)",
                        save_name=f'{savefigpth}HOH_angle.png')
 
@@ -173,10 +176,10 @@ A way to get a good overview of a molecular system is by examining all atom-atom
 do that::
 
     import itertools as itt
-    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
-    analyzer = AnalyzeWfn(cds)  # initialize analyzer object
+    analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
 
     num_atoms = cds.shape[1] #remember, (n,m,3) array, so this is m
     combos = itt.combinations(range(num_atoms), 2) #get all numbered pairs of atoms
@@ -208,15 +211,15 @@ the descendant weights in Monte Carlo Integration.  For a more detailed explanat
 please see `this paper by Suhm and Watts <https://doi.org/10.1016/0370-1573(91)90136-A>`_.
 The calculation of, say, the expectation value of the displacement of one OH stretch in water would be done as follows::
 
-    from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
+    import pyvibdmc as pv
     import numpy as np
 
-    tutorial_sim = SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
     savefigpth = '' # save in current directory
 
-    analyzer = AnalyzeWfn(cds)  # initialize wavefunction analyzer object
+    analyzer = pv.AnalyzeWfn(cds)  # initialize wavefunction analyzer object
     bl_oh = analyzer.bond_length(atm1=0,
                                  atm2=2)  # [H H O]
     exp_val_OH = analyzer.exp_val(operator=bl_oh, dw=dws)
@@ -237,23 +240,23 @@ the coordinate array is (N,1,1), since there is only one 'atom' (a particle with
 In order to project the probability amplitude onto the bond length, which is the one coordinate you have, we need to use
 ``np.squeeze`` to go from (N,1,1) to (N)::
 
-    from pyvibdmc.analysis import * # this imports AnalyzeWfn as well as Plotter
+    import pyvibdmc as pv
     import numpy as np
 
-    tutorial_sim = SimInfo('./harm_osc_test_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('./harm_osc_test_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(1500, 10000+increment, increment)) #gets back cds in angstroms
     savefigpth = '' # save in current directory
 
     bond_length = np.squeeze(cds) #numpy array (N,1,1) --> (N)
 
-    analyzer = AnalyzeWfn(cds)
+    analyzer = pv.AnalyzeWfn(cds)
     bl_histo = analyzer.projection_1d(attr=bond_length,  # make a 1d histogram , x/y data
                                        desc_weights=dws,
                                        bins=25,
                                        range=(-0.5, 0.5))
 
-    Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
+    pv.Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
                        xlabel=r"$\rm{R_{12}}$ (Angstroms)",
                        save_name=f'{savefigpth}harm_bond_length.png')
 

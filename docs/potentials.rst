@@ -3,13 +3,15 @@ Potential Energy Surface Interface
 
 PyVibDMC Requires the potential energy surface to be callable from Python.
 
-**Some important points and constraints:**
+**Important points and constraints:**
 
-- All calculations inside the DMC simulation are done in atomic units.
+* All calculations inside the DMC simulation are done in atomic units.
 
-- ``PyVibDMC`` itself passes only the coordinates, in Bohr, as a nxmx3 (n=num_geoms,m=num_atoms,3=xyz) NumPy array to the Potential Wrapper ``potential_manager``. To pass more than one argument to the Python function you are using, you will need to create a dictionary that you pass to the potential manager (example below). Otherwise, you will just write a function like: ``def example_potential(cds)``
+* ``PyVibDMC`` itself passes only the coordinates, in Bohr, as a nxmx3 (n=num_geoms,m=num_atoms,3=xyz) NumPy array to the Potential Wrapper ``potential_manager``.
 
-- ``PyVibDMC`` expects the function you write to return a 1D NumPy array of potential values in Hartree.
+  - To pass more than one argument to the Python function you are using, you will need to create a dictionary that you pass to the potential manager (example below). Otherwise, you will just write a function like: ``def example_potential(cds)``
+
+* ``PyVibDMC`` expects the function you write to return a 1D NumPy array of potential values in Hartree.
 
 Please follow the next steps for calling a PES from Python written in Fortran or C/C++ after a brief note about
 parallelization.
@@ -21,7 +23,7 @@ yield a very large speed-up, and is highly reccomended. ``PyVibDMC`` uses
 Python's `Multiprocessing <https://docs.python.org/3.7/library/multiprocessing.html#module-multiprocessing>`_ module to
 do this. The only argument you need to use in order to take advantage of this is the ``num_cores`` parameter::
 
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+    from pyvibdmc import potential_manager as pm
     water_pot = pm.Potential(potential_function=pot_func,
                           python_file=py_file,
                           potential_directory=pot_dir,
@@ -33,11 +35,28 @@ perhaps use 10 to 12 cores for maximum performance if you are only running one c
 The number of walkers does NOT need to be divisible by the number of cores/processes.
 If this is run on a laptop with 4 cores, only using 2 cores is recommended.
 
+If you explicity do NOT want to use multiprocessing for some reason, such as the parallelization is done elsewhere,
+there is a ``Potential_NoMP`` object that you can use instead::
+
+    from pyvibdmc import potential_manager as pm
+    water_pot = pm.Potential_NoMP(potential_function=pot_func,
+                          python_file=py_file,
+                          potential_directory=pot_dir,
+                          ch_dir=True)
+
+This works identically to ``Potential`` but does not involve the ``multiprocessing`` module at all. Because of how this
+code calls the potential, it does not by default call the Python function from the directory of the python function,
+instead it calls it from the current working directory that you are running th calculation in. If your python function
+relies on the code being in the directory where the python function is housed, you can pass the ``ch_dir=True`` keyword
+argument to ``Potential_NoMP``, which will cause the code to chdir into the directory of interest, call the potential,
+and then cd back out each time the potential is called. ``ch_dir`` is set to ``False`` by default for computational
+efficiency.
+
 Passing more than just the coordinates to the potential manager
 ------------------------------------------------------------------
 The potential wrapper can take in more than just the coordinates if desired.  However, these arguments must be
-`pickleable <https://stackoverflow.com/questions/3603581/what-does-it-mean-for-an-object-to-be-picklable-or-pickle-able>`_ due to how multiprocessing works.  The other arguments to be passed to each of
-the multiprocessing instances should be in the form of a Python dictionary::
+`pickleable <https://stackoverflow.com/questions/3603581/what-does-it-mean-for-an-object-to-be-picklable-or-pickle-able>`_ due to how multiprocessing works.
+The other arguments to be passed to each of the multiprocessing instances should be in the form of a Python dictionary::
 
     from pyvibdmc.simulation_utilities import potential_manager as pm
     extra_args = {'num_water_molecules': 6, 'other_parameter': True}
@@ -54,13 +73,13 @@ Then, when writing the Python function::
         other_param = extra_args['other_parameter']
         ...
 
-Tensorflow Keras Neural Network Potentials
+In Development: Tensorflow Keras Neural Network Potentials
 -------------------------------------------------------
 It is possible to run a DMC simulation using a potential energy surface generated using neural networks.  If you have
 a tensorflow keras model trained and ready to go, you can plug it in to the potential manager's ``NN_Potential`` object::
 
-    from pyvibdmc.simulation_utilities import potential_manager as pm
-    from pyvibdmc.simulation_utilities.tensorflow_descriptors.tf_coulomb import TF_Coulomb
+    from pyvibdmc import potential_manager as pm
+    from pyvibdmc.simulation_utilities.tensorflow_descriptors.tf_coulomb import TF_Coulomb #experimental cds <--> descriptor module
     import tensorflow as tf
     coulomb_transformer = TF_Coulomb([8,1,1,8,1,1]) # water dimer
     extra_args = {'descriptorizer': coulomb_transformer, 'batch_size': 100000}
@@ -82,9 +101,9 @@ Then, for the potential call::
         ...
         return v
 
-This was written with the intention that these models would be evaluated on GPUs, so ``NN_Potential`` does not have multiprocessing support.
-As such, the ``extra_args`` here do not have to be pickleable.
-This infrastructure is not confined to tensorflow, however other ML packages have not been tested within the confines of ``PyVibDMC``
+This was written with the intention that these models would be evaluated on GPUs, so ``NN_Potential`` does not have multiprocessing
+support and is actually a subclass of ``Potential_NoMP``. As such, the ``extra_args`` here do not have to be pickleable.
+The potential wrapper is not confined to tensorflow, however other ML packages have not been tested within the confines of ``PyVibDMC``
 
 Fortran Potentials: F2PY
 -------------------------------------------------------
@@ -114,7 +133,7 @@ This is done in ``h2o_potential.py``::
 
 
     def water_pot(cds):
-        return calc_hoh_pot(cds, len(cds))
+        return calc_hoh_pot(cds, len(cds)) # returns a 1D numpy array of potential energy values in Hartree
 
 
     if __name__ == '__main__':
@@ -205,7 +224,7 @@ Then...::
 
 Alternative Approach (Not recommended): executables and subprocess calls
 -------------------------------------------------------------------------------
-If for some reason these do not meet your needs, you can always write the (nxmx3) geometries to a file, call an
+If for some reason these approaches do not meet your needs, you can always write the (nxmx3) geometries to a file, call an
 executable that loads in the file, and then reload back in the potential values written to a second file, all in
 a Python call. This is not recommended as it will be slow, as hard drive reads/writes are slow (especially if you have
 a hard drive vs an SSD).  Nonetheless, here is an example of how to do such a thing::

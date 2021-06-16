@@ -5,8 +5,8 @@ in equilibration, we can use more advanced methods.
 
 Permutations of Like Atoms
 ------------------------------
-If you want to start with a ground state geometry that has a random distribution of like atoms, you can do this with
-``pyvibdmc.simulation_utilities.initial_conditioner``.  For example, if you have a methane molecule, you may want to
+If you want to start with a ground state geometry that has a random distribution of like atoms, you can do this with the
+``InitialConditioner`` object.  For example, if you have a methane molecule, you may want to
 start with initial conditions so that there is not a bias in picking where "Hydrogen 1" is versus "Hydrogen 2". This
 technique will duplicate the geometry to the specified ensemble size, and for each duplication it will swap like atoms
 randomly (if you start with ``["C","H1","H2","H3","H4"]``, this code will randomly permute all Hs to get things like
@@ -15,9 +15,10 @@ randomly (if you start with ``["C","H1","H2","H3","H4"]``, this code will random
 You can also use this for selective permutations, in the protonated water dimer (H5O2+), you can just permute the
 two hydrogen atoms on either side of the water. You will pass in an list of lists::
 
-    from pyvibdmc.simulation_utilities.initial_conditioner import *
-    from pyvibdmc.simulation_utilities import Constants
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+
+    import pyvibdmc as pv
+    from pyvibdmc import Constants
+    from pyvibdmc import potential_manager as pm
 
     ch4 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
                     [0.1318851447521099, 2.088940054609643, 0.000000000000000],
@@ -28,7 +29,7 @@ two hydrogen atoms on either side of the water. You will pass in an list of list
     ch4 = Constants.convert(ch4, "angstroms", to_AU=True)  # To Bohr from angstroms
 
     atms = ["C", "H", "H", "H", "H"]
-    initializer = InitialConditioner(coord=ch4,
+    initializer = pv.InitialConditioner(coord=ch4,
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='permute_atoms',
@@ -63,15 +64,12 @@ Sampling from the Harmonic Ground State
 -------------------------------------------------------
 To sample from the separable, 3N-6 dimensional Gaussian distribution that is the harmonic ground state, you must
 run a (Cartesian) normal mode analysis calculation first.  If you have run any electronic structure calculations before
-(Psi4, NWChem, Gaussian, etc.), this is equivalent to running a frequency calculation, just on a fitted potential
-energy surface rather than an ab initio one.
+(Psi4, NWChem, Gaussian, etc.), this is equivalent to running a frequency calculation, just using fitted potential
+energy surface rather than an ab initio one.::
 
-This is done within ``PyVibDMC`` using the
-``pyvibdmc.simulation_utilities.initial_conditioner``::
-
-    from pyvibdmc.simulation_utilities.initial_conditioner import *
-    from pyvibdmc.simulation_utilities import Constants
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+    import pyvibdmc as pv
+    from pyvibdmc import Constants
+    from pyvibdmc import potential_manager as pm
 
     dxx = 1.e-3 # bohr
     water_geom = np.array([[0.9578400, 0.0000000, 0.0000000],
@@ -88,16 +86,16 @@ This is done within ``PyVibDMC`` using the
     geom = Constants.convert(water_geom, "angstroms", to_AU=True)  # To Bohr from angstroms
     atms = ["H", "H", "O"]
 
-    harm_h2o = harmonic_analysis(eq_geom=geom,
+    harm_h2o = pv.HarmonicAnalysis(eq_geom=geom,
                                  atoms=atms,
                                  potential=partridge_schwenke,
                                  dx=dxx)
-    freqs, normal_modes = harmonic_analysis.run(harm_h2o)
+    freqs, normal_modes = harm_h2o.run(harm_h2o)
     # Turns of scientific notation
     np.set_printoptions(suppress=True)
     print(f"Freqs (cm-1): {freqs}")
 
-The ``harmonic_analysis`` object can also take in the arguments ``points_diag=__`` and ``points_off_diag=__``. This
+The ``HarmonicAnalysis`` object can also take in the arguments ``points_diag=__`` and ``points_off_diag=__``. This
 refers to the number of finite difference points used in the generation of the Hessian matrix. These numbers default to
 5 and 3 respectively, meaning that the on-diagonal second derivatives are generated using a 5-point finite difference,
 and the off-diagonal mixed derivatives use a 3 point finite difference in both dimensions.  Currently, this code only
@@ -109,7 +107,7 @@ From there, you will pass these frequencies and normal modes to the ``InitialCon
 desired ensemble of walkers that we will feed into the DMC.::
 
     # Do initial conditions based on freqs and normal modes
-    initializer = InitialConditioner(coord=water_geom,
+    initializer = pv.InitialConditioner(coord=water_geom,
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='harmonic_sampling',
@@ -132,9 +130,9 @@ and you can ignore the next code block in the tutorial.
 If you feed in a ``num_walkers, num_atoms, 3`` array, you can combine this  with the ``permute_atoms`` method above;
 start by randomly displacing along the harmonic ground state, then permuting like atoms: ::
 
-    from pyvibdmc.simulation_utilities.initial_conditioner import *
-    from pyvibdmc.simulation_utilities import Constants
-    from pyvibdmc.simulation_utilities import potential_manager as pm
+    from pyvibdmc import InitialConditioner, HarmonicAnalysis
+    from pyvibdmc import Constants
+    from pyvibdmc import potential_manager as pm
 
     ch4 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
                     [0.1318851447521099, 2.088940054609643, 0.000000000000000],
@@ -146,7 +144,7 @@ start by randomly displacing along the harmonic ground state, then permuting lik
 
     atms = ["C", "H", "H", "H", "H"]
     # Run harmonic analysis
-    freqs, normal_modes = harmonic_analysis(...)
+    freqs, normal_modes = HarmonicAnalysis(...)
 
     # Then, push the freqs, normal modes, and ensemble to the InitialConditioner
     initializer = InitialConditioner(coord=ch4,
@@ -171,7 +169,8 @@ start by randomly displacing along the harmonic ground state, then permuting lik
 
 Now, the harmonically-sampled-then-permuted ``new_coords`` are passed to the ``DMC_Sim`` object and used during the DMC run::
 
-    myDMC = dmc.DMC_Sim(sim_name=f"conditioner_{sim_num}",
+    import pyvibdmc as pv
+    myDMC = pv.DMC_Sim(sim_name=f"conditioner_{sim_num}",
                                   output_folder="initial_conditions_tutorial",
                                   weighting='discrete', #or 'continuous'. 'continuous' keeps the ensemble size constant.
                                   num_walkers=50000, #number of geometries exploring the potential surface
@@ -189,4 +188,4 @@ Now, the harmonically-sampled-then-permuted ``new_coords`` are passed to the ``D
 
 Note, you should only run the harmonic calculation THEN permute, not the other way around. This is because this code
 produces the eigenvectors of the Hessian that only correspond to the atom ordering of the non-permuted molecular system.
-You can, of course, do either individually, or neither technique before a DMC run.
+You can, of course, do either individually or use neither technique before a DMC run.
