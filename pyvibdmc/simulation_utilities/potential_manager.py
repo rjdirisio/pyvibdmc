@@ -6,7 +6,7 @@ import importlib
 
 import numpy as np
 
-__all__ = ['Potential', 'NN_Potential']
+__all__ = ['Potential', 'Potential_NoMP', 'NN_Potential']
 
 
 class Potential:
@@ -33,7 +33,7 @@ class Potential:
         self.pot_dir = potential_directory
         self.num_cores = num_cores
         self.pot_kwargs = pot_kwargs
-        self.init_pool()
+        self._init_pool()
 
     def _init_pot(self):
         """
@@ -48,7 +48,7 @@ class Potential:
         self._pot = getattr(x, self.pot_func)
         # leave pool workers there
 
-    def init_pool(self):
+    def _init_pool(self):
         if self.num_cores <= 0:
             print('Weird number of cores specified. Defaulting to 1...')
             self.num_cores = 1
@@ -87,18 +87,24 @@ class Potential:
             self._potPool.join()
 
 
-class NN_Potential:
+class Potential_NoMP:
+    """
+    Version of Potential where no multiprocessing is included. As such, it does not leave a worker in the potential
+    directory of interest. If you need to cd into the directory to call a potential (for example, the potential
+    loads in a file using a relative path or something), then use ch_dir=True. Not the default since it is
+    computationally inefficient to cd during each potential call when not necessary.
+    """
     def __init__(self,
                  potential_function,
                  potential_directory,
                  python_file,
-                 model,
+                 ch_dir=False,
                  pot_kwargs=None):
-        self.model = model
         self.pot_func = potential_function
         self.pyFile = python_file
         self.pot_dir = potential_directory
         self.pot_kwargs = pot_kwargs
+        self.ch_dir = ch_dir
         self._init_pot()
 
     def _init_pot(self):
@@ -120,7 +126,55 @@ class NN_Potential:
         """
         if timeit:
             start = time.time()
-        v = self._pot(cds, self.model, self.pot_kwargs)
+
+        if not self.ch_dir:
+            if self.pot_kwargs is not None:
+                v = self._pot(cds, self.pot_kwargs)
+            else:
+                v = self._pot(cds)
+        else:
+            # Change to the potential directory and then change back after call
+            os.chdir(self.pot_dir)
+            if self.pot_kwargs is not None:
+                v = self._pot(cds, self.pot_kwargs)
+            else:
+                v = self._pot(cds)
+            os.chdir(self._curdir)
+
+        if timeit:
+            elapsed = time.time() - start
+            return v, elapsed
+        else:
+            return v
+
+
+class NN_Potential(Potential_NoMP):
+    """
+    Subclass of Potential_NoMP, where a model argument is provided for convenience
+    """
+    def __init__(self,
+                 potential_function,
+                 potential_directory,
+                 python_file,
+                 model,
+                 ch_dir=False,
+                 pot_kwargs=None):
+        super().__init__(potential_function, potential_directory, python_file, ch_dir, pot_kwargs)
+        self.model = model
+        # Kwargs: if passed to NN_Potential, override Potential_NoMP default values vv
+        self.ch_dir = ch_dir
+        self.pot_kwards = pot_kwargs
+
+    def getpot(self, cds, timeit=False):
+        """
+        Subclass of Potential_NoMP, but with an explicit argument passed for the NN model for convenience.
+        """
+        if timeit:
+            start = time.time()
+        if self.pot_kwargs is not None:
+            v = self._pot(cds, self.model, self.pot_kwargs)
+        else:
+            v = self._pot(cds, self.model)
         if timeit:
             elapsed = time.time() - start
             return v, elapsed

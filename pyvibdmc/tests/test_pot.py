@@ -5,15 +5,16 @@ import pytest
 import numpy as np
 import pyvibdmc as pv
 
+
 def test_regular_pot():
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'oh_stretch_harm'
     harm_pot = pv.Potential(potential_function=potFunc,
-                         python_file=pyFile,
-                         potential_directory=potDir,
-                         num_cores=2)
+                            python_file=pyFile,
+                            potential_directory=potDir,
+                            num_cores=2)
     cds = np.random.random((100, 1, 1))
     start = time.time()
     for _ in range(10):
@@ -28,13 +29,13 @@ def test_arg_pot():
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'oh_stretch_harm_with_arg'
     pot_dict = {'freq': pv.Constants.convert(4000, 'wavenumbers', to_AU=True),
-                'mass': pv.Constants.reduced_mass("O-H",to_AU=True)}
+                'mass': pv.Constants.reduced_mass("O-H", to_AU=True)}
     harm_pot = pv.Potential(potential_function=potFunc,
-                             python_file=pyFile,
-                             potential_directory=potDir,
-                             num_cores=2,
-                             pot_kwargs=pot_dict
-                             )
+                            python_file=pyFile,
+                            potential_directory=potDir,
+                            num_cores=2,
+                            pot_kwargs=pot_dict
+                            )
     cds = np.random.random((100, 1, 1))
     start = time.time()
     for _ in range(10):
@@ -42,12 +43,33 @@ def test_arg_pot():
     print(time.time() - start)
     assert True
 
+
+def test_no_mp_pot():
+    """Tests if one can load in a data file when you chdir into the pot directory and call the potential"""
+    # initialize potential
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
+    pyFile = 'harmonicOscillator1D.py'
+    potFunc = 'oh_stretch_harm_loadtxt'
+    harm_pot = pv.Potential_NoMP(potential_function=potFunc,
+                            python_file=pyFile,
+                            potential_directory=potDir,
+                            ch_dir=True)
+    cds = np.random.random((100, 1, 1))
+    start = time.time()
+    for _ in range(10):
+        v = harm_pot.getpot(cds)
+    print(time.time() - start)
+    assert True
+
+
+
 def test_nn_pot():
     from ..simulation_utilities.tensorflow_descriptors.tf_coulomb import TF_Coulomb
     import tensorflow as tf
 
     # initialize potential
-    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/TensorflowPots/')  # only necesary for testing
+    potDir = os.path.join(os.path.dirname(__file__),
+                          '../sample_potentials/TensorflowPots/')  # only necesary for testing
     pyFile = 'call_sample_model.py'
     potFunc = 'sample_h4o2_pot'
     coulomb = TF_Coulomb([8, 1, 1, 8, 1, 1])
@@ -56,11 +78,11 @@ def test_nn_pot():
     model_path = f'{potDir}/sample_h4o2_nn.h5'
     model = tf.keras.models.load_model(model_path)
     harm_pot = pv.NN_Potential(potential_function=potFunc,
-                            python_file=pyFile,
-                            potential_directory=potDir,
-                            model=model,
-                            pot_kwargs=pot_dict
-                            )
+                               python_file=pyFile,
+                               potential_directory=potDir,
+                               model=model,
+                               pot_kwargs=pot_dict
+                               )
     cds = np.random.random((100, 6, 3))
     start = time.time()
     for _ in range(10):

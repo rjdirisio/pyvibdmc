@@ -22,6 +22,12 @@ def oh_stretch_harm_with_arg(cds,extra_args):
     omega = extra_args['freq']
     return np.squeeze(0.5 * mass * omega ** 2 * cds ** 2)
 
+def oh_stretch_harm_loadtxt(cds):
+    """Will try to load random.txt. Part of testing that Potential_NoMP works the way it is intended"""
+    mass = Constants.reduced_mass('O-H', to_AU=True)
+    omega = Constants.convert(3700., 'wavenumbers', to_AU=True)
+    a = np.loadtxt('random.txt')
+    return np.squeeze(0.5 * mass * omega ** 2 * cds ** 2)
 
 def n2_stretch_harm(cds):
     """For tutorial. Compulsory numpy array cds input (N,1,1), output a numpy array in hartrees"""
