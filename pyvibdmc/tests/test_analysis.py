@@ -14,7 +14,7 @@ def test_write_xyz_file():
     cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
     atm_str_list = ["H", "H", "O"]
     pv.XYZNPY.write_xyz(coords=cds, fname=f'{savefigpth}water_cds.xyz', atm_strings=atm_str_list,
-                     cmt='from dmc simulation')
+                        cmt='from dmc simulation')
     cds_back = pv.XYZNPY.extract_xyz(f'{savefigpth}water_cds.xyz', num_atoms=len(atm_str_list))
     assert np.allclose(cds, cds_back)
 
@@ -67,6 +67,39 @@ def test_ana_wfn_blens():
     assert np.allclose(bond_lengths, expected_blens)
 
 
+def test_dihedral():
+    # CHHO - formaldehyde has an improper dihedral angle.
+    formie = np.array([[0.0, 0.538978, 0.000000],
+                       [0.05, 1.122055, 0.946279],
+                       [0.0, 1.122055, -0.946279],
+                       [0.0, -0.684747, 0.0]])
+    # This is an equilibrium configuration of the water dimer
+    dimie = np.array([[1.513632, -0.005249, -0.121857],
+                      [0.560102, 0.002812, 0.048059],
+                      [1.913196, 0.033035, 0.750687],
+                      [-1.385643, 0.004325, 0.110302],
+                      [-1.750594, 0.746224, -0.382028],
+                      [-1.746613, -0.774680, -0.324277]])
+    formie = np.tile(formie, (2, 1, 1))
+    dimie = np.tile(dimie, (2, 1, 1))
+    analyzer_dim = pv.AnalyzeWfn(dimie)
+    # dim_nums = [3,1,4,5]
+    angle = np.degrees(analyzer_dim.dihedral(3 - 1, 1 - 1, 4 - 1, 5 - 1))
+    assert pytest.approx(angle, 122.56)
+
+    angle2 = np.degrees(analyzer_dim.dihedral(3 - 1, 1 - 1, 4 - 1, 6 - 1))
+    assert pytest.approx(angle2, -123.14)
+
+    # Improper Dihedral
+    analyzer_form = pv.AnalyzeWfn(formie)
+
+    # form_nums = [3,1,4,2]
+    improp = np.degrees(analyzer_form.dihedral(3 - 1, 1 - 1, 4 - 1, 2 - 1))
+    assert pytest.approx(improp, 177)
+    improp2 = np.degrees(analyzer_form.dihedral(2 - 1, 1 - 1, 4 - 1, 3 - 1))
+    assert pytest.approx(improp2, -177)
+
+
 # Plotting and analyzing tests
 def test_plt_atm_atm_dists():
     import itertools as itt
@@ -83,13 +116,13 @@ def test_plt_atm_atm_dists():
                                           range=(0, 3))
 
         pv.Plotter.plt_hist1d(hist=bl_histo,  # plot histogram x/y data
-                           xlabel=f"Bond Length R{combo[0]}-R{combo[1]} (Angstroms)",
-                           save_name=f'{savefigpth}BondLength_R{combo[0]}R{combo[1]}.png')
+                              xlabel=f"Bond Length R{combo[0]}-R{combo[1]} (Angstroms)",
+                              save_name=f'{savefigpth}BondLength_R{combo[0]}R{combo[1]}.png')
 
 
 def test_plt_vref():
     pv.Plotter.plt_vref_vs_tau(vref_vs_tau=test_sim.get_vref(),
-                            save_name=f'{savefigpth}test_vref.png')
+                               save_name=f'{savefigpth}test_vref.png')
     assert True
 
 
@@ -109,8 +142,8 @@ def test_plt_water_angle():
                                        range=(60, 150))
 
     pv.Plotter.plt_hist1d(hist=hoh_histo,  # plot histogram x/y data
-                       xlabel=r"HOH Angle $\rm{\theta}$ (Degrees)",
-                       save_name=f'{savefigpth}HOH_angle.png')
+                          xlabel=r"HOH Angle $\rm{\theta}$ (Degrees)",
+                          save_name=f'{savefigpth}HOH_angle.png')
 
 
 def test_adv_plt_many_vrefs():
@@ -161,8 +194,8 @@ def test_adv_plt_2dhistogram():
                                                  range=[[0.5, 1.5], [0.5, 1.5]],
                                                  normalize=True)
     pv.Plotter.plt_hist2d(binsx=bins_x,
-                       binsy=bins_y,
-                       hist_2d=amp,
-                       xlabel="ROH 1 (Angstroms)",
-                       ylabel="ROH 2 (Angstroms)",
-                       save_name=f"{savefigpth}2d_histogram.png")
+                          binsy=bins_y,
+                          hist_2d=amp,
+                          xlabel="ROH 1 (Angstroms)",
+                          ylabel="ROH 2 (Angstroms)",
+                          save_name=f"{savefigpth}2d_histogram.png")

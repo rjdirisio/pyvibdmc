@@ -2,7 +2,8 @@ import numpy as np
 import numpy.linalg as la
 from .analyze_wfn import AnalyzeWfn
 
-__all__=['MolRotator']
+__all__ = ['MolRotator']
+
 
 class MolRotator:
     """A helper class that will rotate a stack of molecules and generate 3D rotation matrices using vectorized
@@ -15,7 +16,7 @@ class MolRotator:
         new_rot_mats = np.expand_dims(rot_mats, 1)  # nx1x3x3
         rot_geoms = np.matmul(new_rot_mats, new_geoms).squeeze()
         if len(rot_geoms.shape) == 2:
-            rot_geoms = np.expand_dims(rot_geoms,0)
+            rot_geoms = np.expand_dims(rot_geoms, 0)
         return rot_geoms
 
     @staticmethod
@@ -31,7 +32,7 @@ class MolRotator:
         theta = [theta] if isinstance(theta, float) else theta
         rot_mats = np.zeros((len(theta), 3, 3))
         zeroz = np.zeros(len(theta))
-        if xyz_int == 0:    # R_x
+        if xyz_int == 0:  # R_x
             rot_mats[:, 0] = np.tile([1, 0, 0], (len(theta), 1))
             rot_mats[:, 1] = np.column_stack((zeroz, np.cos(theta), -1 * np.sin(theta)))
             rot_mats[:, 2] = np.column_stack((zeroz, np.sin(theta), np.cos(theta)))
@@ -79,9 +80,20 @@ class MolRotator:
             return geoms
 
     @staticmethod
-    def gen_eulers(x, y, z, X, Y, Z):
+    def gen_eulers(xyz, XYZ):
         """Takes in cartesian vectors and gives you the 3 euler angles that bring xyz to XYZ based on a 'ZYZ'
             rotation"""
+        if len(xyz.shape) == 1:
+            np.expand_dims(xyz, 0)
+        if len(XYZ.shape) == 1:
+            np.expand_dims(XYZ, 0)
+        x = xyz[:, 0]
+        y = xyz[:, 1]
+        z = xyz[:, 2]
+        X = XYZ[:, 0]
+        Y = XYZ[:, 1]
+        Z = XYZ[:, 2]
+
         z_dot = AnalyzeWfn.dot_pdt(z, Z) / (la.norm(z, axis=1) * la.norm(Z, axis=1))
         Yz_dot = AnalyzeWfn.dot_pdt(Y, z) / (la.norm(Y, axis=1) * la.norm(z, axis=1))
         Xz_dot = AnalyzeWfn.dot_pdt(X, z) / (la.norm(X, axis=1) * la.norm(z, axis=1))
@@ -96,6 +108,8 @@ class MolRotator:
     def extract_eulers(rot_mats):
         """From a rotation matrix, calculate the three euler angles theta,phi and Chi. This is based on
             a 'ZYZ' euler rotation"""
+        if (rot_mats.shape) == 2:
+            rot_mats = np.expand_dims(rot_mats,0)
         zdot = rot_mats[:, -1, -1]
         Yz_dot = rot_mats[:, 2, 1]
         Xz_dot = rot_mats[:, 2, 0]
@@ -103,5 +117,5 @@ class MolRotator:
         xZ_dot = rot_mats[:, 0, 2]
         theta = np.arccos(zdot)
         phi = np.arctan2(Yz_dot, Xz_dot)
-        chi = np.arctan2(yZ_dot, xZ_dot)
+        chi = np.arctan2(yZ_dot, -xZ_dot)
         return theta, phi, chi

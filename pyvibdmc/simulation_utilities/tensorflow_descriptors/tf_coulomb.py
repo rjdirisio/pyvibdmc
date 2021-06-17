@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 class TF_Coulomb:
+    """Tensorflow implementation of the coulomb matrix by Fenris Lu. Experimental and not documented"""
     def __init__(self, zs, labels=None):
         self.zs = tf.constant(zs, dtype=tf.float64)
         self.n = self.zs.shape[0]

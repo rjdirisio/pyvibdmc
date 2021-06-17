@@ -89,19 +89,22 @@ class AnalyzeWfn:
 
     def dihedral(self, atm_1, atm_2, atm_3, atm_4):
         """
+        Defines the dihedral coordinate using 3 vectors. vec_1 and vec_2 form a plane, and vec_2 and vec_3 form a plane.
+        The dihedral angle is the calculated angle betwen these two planes. The sign is dependent on the direction of the
+        vectors, as the cross product is taken between the two pairs of two vectors
         https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
         https://en.wikipedia.org/w/index.php?title=Dihedral_angle&oldid=689165217#Angle_between_three_vectors
         """
-        vec1 = self.xx[:, atm_2] - self.xx[:, atm_1]
-        vec2 = self.xx[:, atm_3] - self.xx[:, atm_2]
-        vec3 = self.xx[:, atm_4] - self.xx[:, atm_3]
+        vec_1 = self.xx[:, atm_1] - self.xx[:, atm_2]
+        vec_2 = self.xx[:, atm_3] - self.xx[:, atm_2]
+        vec_3 = self.xx[:, atm_3] - self.xx[:, atm_4]
 
-        crossterm1 = np.cross(np.cross(vec1, vec2, axis=1),
-                              np.cross(vec2, vec3, axis=1), axis=1)
+        crossterm1 = np.cross(np.cross(vec_1, vec_2, axis=1),
+                              np.cross(vec_2, vec_3, axis=1), axis=1)
 
-        term1 = self.dot_pdt(crossterm1, (vec2 / la.norm(vec2, axis=1)[:, np.newaxis]))
+        term1 = self.dot_pdt(crossterm1, (vec_2 / la.norm(vec_2, axis=1)[:, np.newaxis]))
 
-        term2 = self.dot_pdt(np.cross(vec1, vec2, axis=1), np.cross(vec2, vec3, axis=1))
+        term2 = self.dot_pdt(np.cross(vec_1, vec_2, axis=1), np.cross(vec_2, vec_3, axis=1))
 
         dh = np.arctan2(term1, term2)
         return dh

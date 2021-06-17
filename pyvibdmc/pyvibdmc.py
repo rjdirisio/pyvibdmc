@@ -326,8 +326,6 @@ class DMC_Sim:
     def calc_desc_wts(self):
         """
         At the end of desc_wt_timeendent weighting, count up which walkers came from other walkers (desc_wt_timeendants)
-
-        :param desc_wts: The array in which the desc_wt_timeendent weights will be stored
         """
         if self.weighting == 'discrete':
             unique, counts = np.unique(self._who_from, return_counts=True)
@@ -367,8 +365,7 @@ class DMC_Sim:
                 self._logger.write_ts(prop_step)
 
             if prop_step in self.deb_train_save_step and prop_step != 0:
-                print(prop_step, self.deb_train_save_step)
-                print(self._walker_coords.shape, self._walker_pots)
+                print(f'{self._walker_coords.shape} walkers collected')
                 SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
                                      keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 

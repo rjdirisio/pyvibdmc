@@ -261,6 +261,76 @@ as if it is a full dimensional system.  Of course, the wave functions then will 
         )
         red_DMC.run()
 
+Calculating Dihedral Angles
+-------------------------------------------------
+While this is not an advanced quantity to calculate, its usage requires some finesse. The ``AnalyzeWfn.dihedral()`` function
+handles both proper and improper dihedral angles the same way.  The equations used to calculate the angles can be found
+in this `old wikipedia article <https://en.wikipedia.org/w/index.php?title=Dihedral_angle&oldid=689165217#Angle_between_three_vectors>`_
+which cites `this paper <https://onlinelibrary.wiley.com/doi/10.1002/(SICI)1096-987X(19960715)17:9%3C1132::AID-JCC5%3E3.0.CO;2-T>`_
+
+Knowledge of these articles is not necessary to calculate the dihedral angle. All one needs to do is: ::
+
+    import pyvibdmc as pv
+    import numpy as np
+    analyzer = pv.AnalyzeWfn(coords)
+    angle = np.degrees(analyzer_dim.dihedral(atm_1, atm_2, atm_3, atm_4))
+
+All angles in ``PyVibDMC`` are returned in radians, so we can convert to degrees if desired.  The atom numbering is crucial:
+For proper dihedral angles (like the carbon chain in butane), simply go from one end of the carbon chain to another (C1-C2-C3-C4).
+For improper dihedral angles, such as formaledhyde, you should label the atoms according to H-C-O-H, much like one would
+if using GaussView or Avogadro using the "measure" tool.
+
 Performing 3D Rotations of molecules using PyVibDMC
 -------------------------------------------------
-Documentation pending.
+One can perform 3D Rotations using the AnalyzeWfn tool in ``PyVibDMC``. The way to do this is to use the ``MolRotator``
+object, which can generate rotation matrices, rotate molecules and vectors, and generate and extract Euler angles (not rigorously tested).
+
+For rotating a 3 atoms in a molecule to the xy plane, one can use the ``rotate_to_xy_plane`` method::
+
+    from pyvibdmc import MolRotator as rot
+    coords = ... #some nxmx3 numpy array or mx3 numpy array
+    rot.rotate_to_xy_plane(coords, origin_atm, x_ax_atm, xyp_atm)
+
+Where ``origin_atm`` is the atom index corresponding to the atom that will end up on the origin, the ``x_ax_atm`` on the
+x-axis, and the ``xyp_atm`` on the xy-plane.
+
+If you have a bunch of vectors, like the dipole moments for each of your walkers in a DMC simulation, one can rotate
+those vectors according to a particular rotation matrix. For example, say I have a rotation matrix for each walker
+generated from an Eckart rotation. You can apply the rotation matrix to both the molecule itself but also the dipole
+vectors (dipole shape: num_walkersx3)::
+
+    from pyvibdmc import MolRotator as rot
+    rot_mats = ... # my num_walkers x 3 x 3 rotation matrices
+    vecs = ... # my num_walkers x 3 vectors
+    coords = ... # my num_walkers x num_atoms x 3 array
+
+    # Let's rotate each of our dipole vectors according to the corresponding rotation matrix
+    rotated_vecs = rot.rotate_vec(rot_mats,vec)
+    # Let's rotate each of our walkers according to the corresponding rotation matrix
+    rotated_coords = rot.rotate_geoms(rot_mats,coords)
+
+Of course, if you want to apply the same rotation matrix to every walker, you can still use ``rot.rotate_geoms`` but
+just make a ``num_walkers x 3 x 3`` copy of your ``3 x 3`` rotation matrix using ``np.tile`` or something similar.
+
+Generating and Extracting Euler Angles
+-------------------------------------------------
+
+WARNING: This is not well tested. There may be some phase issues (+/-) in the calculated angles.
+
+The Euler angles that are calculated and extracted in this code use a ``ZYZ`` rotation formalism.  This code is not well
+tested and someone may improve upon it in the future.  To generate Euler angles, one needs two coordinate systems.
+The ``gen_eulers`` method generates Euler angles that rotate ``xyz`` to ``XYZ``::
+
+    from pyvibdmc import MolRotator as rot
+    xyz = ... #For each walker, the coordinate system that will be rotated to the new one. (num_walkers x 3) , or just (3)
+    XYZ = ... #For each walker, the coordinate system that xyz will be rotated to (num_walkers x 3), or just (3)
+    theta, phi, chi = rot.gen_eulers(xyz,XYZ)
+
+Where ``theta`` is defined from ``0 to pi`` and ``phi`` and ``chi`` are defined from ``0 to 2*pi``.
+
+In order to extract the Euler angles from a rotation matrix, you can use ``extract_eulers``::
+
+    from pyvibdmc import MolRotator as rot
+    rot_mats = ... # num_walkers x 3 x 3 rotation matrix, or just 3 x 3
+    theta, phi, chi = rot.extract_eulers(rot_mats)
+

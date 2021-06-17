@@ -18,3 +18,13 @@ def test_generate_xyz_rot():
     test_zeros = np.concatenate((new_geoms[0, 0], new_geoms[0, 1, 1:], [new_geoms[0, 4, -1]]))
     all_close = np.allclose(test_zeros, np.zeros(6))
     assert all_close
+
+
+def test_rotate_vectors():
+    rot_mat = pv.MolRotator.gen_rot_mats(np.pi, 2)
+    radz = np.linspace(0, np.pi * 2, num=100)
+    rot_mats = pv.MolRotator.gen_rot_mats(radz, 2)
+    vecc = np.array([0.5, 0.5, -1.0])
+    vecc = np.tile(vecc, (len(rot_mats), 1))
+    result = pv.MolRotator.rotate_vec(rot_mats, vecc)
+    assert True
