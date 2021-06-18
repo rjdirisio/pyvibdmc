@@ -56,6 +56,11 @@ class SimLogger:
 
     def write_beginning(self, attribs):
         self.fl.write(f"Simulation {attribs['sim_name']} starting at step {attribs['cur_timestep']}\n")
+        self.fl.write(f"Potential attributes: \n")
+        potential_info = attribs['potential_info']
+        for key, value in potential_info.items():
+            if not key.startswith("_"):
+                self.fl.write(f"\t{key}: {value}\n")
         self.fl.write(f"Num Walkers: {attribs['num_walkers']}\n")
         self.fl.write(f"Num Time Steps: {attribs['num_timesteps']}\n")
         self.fl.write(f"Weighting Type: {attribs['weighting']}\n")

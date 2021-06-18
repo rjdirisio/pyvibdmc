@@ -91,6 +91,7 @@ class DMC_Sim:
         self.output_folder = output_folder
         self.num_walkers = num_walkers
         self.num_timesteps = num_timesteps
+        self.potential_info = vars(potential)
         self.potential = potential.getpot
         self.weighting = weighting.lower()
         self.desc_wt_time_steps = desc_wt_steps
@@ -470,7 +471,7 @@ class DMC_Sim:
         res = cls.__new__(cls)
         memodict[id(self)] = res
         for k, v in self.__dict__.items():
-            if k != 'potential':
+            if k != 'potential' and k != 'potential_info':
                 setattr(res, k, copy.deepcopy(v, memodict))
         return res
 

@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+from pyvibdmc import DistIt
 
 udu = np.array([[-5.1637122053302426E-002, -0.64283289924786391, 1.5013908299665704],
                 [-6.6986645862392238E-002, -1.0712440718151974, 0.63206523297920003],
@@ -22,15 +23,40 @@ uuu = np.array([[-2.5959991041286115E-002, 1.4991768513805555, -0.60084982145893
 cds = np.array([udu, uuu])
 
 
-def test_dist_it():
+def test_dist():
+    """Unsorted distance matrix descriptor"""
+    transformer = DistIt(zs=[8, 1, 1] * 3,
+                         method='distance',
+                         full_mat=False)
+    dist_vec = transformer.run(cds)
+    transformer = DistIt(zs=[8, 1, 1] * 3,
+                         method='distance',
+                         full_mat=True)
+    dist_mat = transformer.run(cds)
+    assert True
+
+
+def test_spf():
     """Sorted/Unsorted distance matrix descriptor"""
     from pyvibdmc import DistIt
     transformer = DistIt(zs=[8, 1, 1] * 3,
-                         full_mat=True,
-                         sort_mat=True,
-                         like_atoms=[[0,3,6],[1,2],[4,5],[7,8]]) #oxygen atoms with oxygen atoms
+                         method='spf',
+                         eq_xyz=cds[0],
+                         full_mat=False,
+                         sorted_atoms=[[0], [1, 2], [3], [4, 5], [6], [7, 8]]
+                         )
     dist_mat_sorted = transformer.run(cds)
-    transformer2 = DistIt(zs=[8, 1, 1] * 3,
-                         full_mat=True)
-    dist_mat = transformer2.run(cds)
+    assert True
+
+
+def test_coulomb():
+    """Sorted/Unsorted distance matrix descriptor"""
+    from pyvibdmc import DistIt
+    transformer = DistIt(zs=[8, 1, 1] * 3,
+                         method='coulomb',
+                         full_mat=True,
+                         sorted_atoms=[[0], [1, 2], [3], [4, 5], [6], [7, 8]],
+                         sorted_groups=[[0, 1, 2], [6, 7, 8]]
+                         )
+    dist_mat_sorted = transformer.run(np.tile(udu, (10, 1, 1)))
     assert True
