@@ -480,6 +480,7 @@ def dmc_restart(potential, chkpt_folder, sim_name):
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     dmc_sim._prop_steps = np.arange(dmc_sim.cur_timestep, dmc_sim.num_timesteps)
     dmc_sim.potential = potential.getpot
+    dmc_sim.potential_info = vars(dmc_sim.potential)
     dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
     FileManager.delete_future_checkpoints(chkpt_folder, sim_name, dmc_sim.cur_timestep)
     return dmc_sim
