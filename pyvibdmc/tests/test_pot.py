@@ -64,7 +64,7 @@ def test_no_mp_pot():
 
 
 def test_nn_pot():
-    from ..simulation_utilities.tensorflow_descriptors.tf_coulomb import TF_Coulomb
+    from ..simulation_utilities.tensorflow_descriptors.distance_descriptors import DistIt
     import tensorflow as tf
 
     # initialize potential
@@ -72,7 +72,8 @@ def test_nn_pot():
                           '../sample_potentials/TensorflowPots/')  # only necesary for testing
     pyFile = 'call_sample_model.py'
     potFunc = 'sample_h4o2_pot'
-    coulomb = TF_Coulomb([8, 1, 1, 8, 1, 1])
+    coulomb = DistIt([8,1,1]*2,
+                 'coulomb')
     pot_dict = {'descriptor': coulomb,
                 'batch_size': 100}
     model_path = f'{potDir}/sample_h4o2_nn.h5'
