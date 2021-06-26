@@ -25,17 +25,16 @@ class MPI_Potential:
     def _initialize(self):
         comm = MPI.COMM_WORLD
         self.num_mpi = comm.Get_size()
-        print(self.num_mpi)
+        print(f'MPI RANKS: {self.num_mpi}')
 
-    @staticmethod
-    def prep_pot(pot_func, pyFile, pot_dir):
+    def prep_pot(self):
         """Pretty much exactly what happens when mp pool is initialized in the potential_manager"""
         _curdir = os.getcwd()
-        os.chdir(pot_dir)
+        os.chdir(self.pot_dir)
         sys.path.insert(0, os.getcwd())
-        module = pyFile.split(".")[0]
+        module = self.pyFile.split(".")[0]
         x = importlib.import_module(module)
-        pot = getattr(x, pot_func)
+        pot = getattr(x, self.pot_func)
         return pot
 
     @staticmethod
@@ -43,8 +42,7 @@ class MPI_Potential:
         v = pot(cds)
         return v
 
-    @staticmethod
-    def initwrapper(pre, initargs, call_the_pot, cdz):
+    def initwrapper(self, cdz):
         """
         pre is prep_pot, which takes the tuple initargs that has the python file stuff in it.
         call_the_pot is the variable name for the  callpot function.
@@ -52,9 +50,9 @@ class MPI_Potential:
         """
         global inited, poot
         if not inited:
-            poot = pre(*initargs)
+            poot = self.prep_pot()
             inited = True
-        vs = call_the_pot(cdz, poot)
+        vs = self.callpot(cdz, poot)
         return vs
 
     def getpot(self, cds, timeit=False):
@@ -63,9 +61,6 @@ class MPI_Potential:
             start = time.time()
         with MPICommExecutor() as executor:
             result = list(executor.map(self.initwrapper,
-                                       [self.prep_pot] * self.num_mpi,
-                                       [(self.pot_func, self.pyFile, self.pot_dir)] * self.num_mpi,
-                                       [self.callpot] * self.num_mpi,
                                        split_cds))
             v = np.concatenate(result)
         if timeit:
