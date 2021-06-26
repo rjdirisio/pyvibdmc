@@ -6,6 +6,7 @@ dependencies:
   - h5py
   - matplotlib
   - tensorflow
+  - mpi4py
     # Testing
   - pytest
   - pytest-cov
