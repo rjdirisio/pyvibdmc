@@ -91,12 +91,12 @@ def test_nn_pot():
     assert True
 
 
-def test_mpi_pot():
-    cdz = np.random.random((100, 1, 1))
-    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
-    pyFile = 'harmonicOscillator1D.py'
-    potFunc = 'oh_stretch_harm'
-    mpi = pv.MPI_Potential(potential_function=potFunc,
-                 potential_directory=potDir,
-                 python_file=pyFile)
-    mpi.getpot(cdz)
+# def test_mpi_pot():
+#     cdz = np.random.random((100, 1, 1))
+#     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
+#     pyFile = 'harmonicOscillator1D.py'
+#     potFunc = 'oh_stretch_harm'
+#     mpi = pv.MPI_Potential(potential_function=potFunc,
+#                  potential_directory=potDir,
+#                  python_file=pyFile)
+#     mpi.getpot(cdz)
