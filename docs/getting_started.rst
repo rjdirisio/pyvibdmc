@@ -26,13 +26,15 @@ interacts with WSL. These include:
 
 These issues are not present on Mac or Linux.
 
-Dependencies (All pre-installed with Anaconda3)
+Dependencies
 -------------------------------------------------------
 - numpy
 - matplotlib
 - h5py
 - Tutorial: Compiler for the potential energy surface (the tutorial potential uses gfortran)
 - Tutorial: make (on Linux systems, this is usually installed via the 'build-essential' or 'Development Tools' packages)
+- (Optional) MPI Potential Calls: MPI4Py and an analogous MPI package
+- (Optional) TensorFlow: NN-DMC potential calls
 
 Extracting Sample Potentials and Sample DMC Results
 ------------------------------------------------------

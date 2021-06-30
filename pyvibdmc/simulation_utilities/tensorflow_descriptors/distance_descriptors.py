@@ -164,6 +164,7 @@ class DistIt:
         Takes in cartesian coordinates, outputs the descriptor matrix in either
         vector form (upper triangle) or matrix form.
         """
+        cds = self.xp.asarray(cds)
         # all pariwise Atom - atom distances, returned in matrix form
         atm_atm_vec = self.atm_atm_dists(cds)
         # Put on extra dressing for coulomb and spf

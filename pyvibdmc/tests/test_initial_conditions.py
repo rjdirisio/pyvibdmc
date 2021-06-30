@@ -12,7 +12,7 @@ mac and linux environments.
 
 
 def test_initial_conditions_premute():
-    ch5 = np.array([[0.000000000000000, 0.000000000000000, 0.000000000000000],
+    ch5 = np.array([[1.000000000000000, 2.000000000000000, 3.000000000000000],
                     [0.1318851447521099, 2.088940054609643, 0.000000000000000],
                     [1.786540362044548, -1.386051328559878, 0.000000000000000],
                     [2.233806981137821, 0.3567096955165336, 0.000000000000000],
@@ -24,7 +24,7 @@ def test_initial_conditions_premute():
                                         atoms=atms,
                                         num_walkers=5000,
                                         technique='permute_atoms',
-                                        technique_kwargs={'like_atoms': [[1, 2, 3, 4, 5]],
+                                        technique_kwargs={'like_atoms': [[0], [1, 2, 3, 4, 5]],
                                                           'ensemble': None})
     permuted_coords = initializer.run()
     assert True

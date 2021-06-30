@@ -14,6 +14,7 @@ Welcome to PyVibDMC's documentation!
    initial_conditions
    potentials
    analysis
+   molecular_descriptors
    advanced_analysis
 
 

@@ -8,7 +8,7 @@ PyVibDMC
 
 A general purpose diffusion monte carlo code for studying vibrational problems
 
-This package requires the following (all included with anaconda3):
+This package requires the following:
 
 - NumPy
 
@@ -19,6 +19,8 @@ This package requires the following (all included with anaconda3):
 - A potential energy surface (PES) for a system of interest, which can be called using a Python function 
 (See Documentation).
 
+- Optional: MPI4Py (for multi-node PES evaluation, otherwise uses multiprocessing for multi-core PES evaluation)
+  
 - Optional: Tensorflow (for Neural Network PES)
 
 - Tutorial: A compiler required for the potential energy surface (the tutorial potential uses gfortran)

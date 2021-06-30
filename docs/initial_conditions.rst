@@ -33,7 +33,7 @@ two hydrogen atoms on either side of the water. You will pass in an list of list
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='permute_atoms',
-                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]],
+                                     technique_kwargs={'like_atoms': [[0],[1, 2, 3, 4]],
                                                        'ensemble': None})
     new_coords = initializer.run()
 
@@ -53,7 +53,7 @@ two hydrogen atoms on either side of the water. You will pass in an list of list
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='permute_atoms',
-                                     technique_kwargs={'like_atoms': [[3,4],[5,6]],
+                                     technique_kwargs={'like_atoms': [[0],[1],[2],[3,4],[5,6]],
                                                        'ensemble': None})
     new_coords = initializer.run()
 
@@ -162,7 +162,7 @@ start by randomly displacing along the harmonic ground state, then permuting lik
                                      atoms=atms,
                                      num_walkers=50000,
                                      technique='permute_atoms',
-                                     technique_kwargs={'like_atoms': [[1, 2, 3, 4]],
+                                     technique_kwargs={'like_atoms': [[0],[1, 2, 3, 4]],
                                                        'ensemble': harm_coords})
     new_coords = initializer.run()
 

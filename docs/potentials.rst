@@ -222,6 +222,65 @@ Then...::
           ex_fun(ctypes.byref(nw),v,coord)
           vpot[num] = v[0]
 
+MPI4Py: Parallelizing Potential Calls
+-------------------------------------------------------
+
+If one has a Python function that calls the potential, one can also parallelize the calls to it using MPI. This is
+handled internally using the ``futures`` module in ``MPI4Py``.  While one can run on multiple cores using multiprocessing,
+one can run on multiple cores/nodes in high-performance computing environments using the ``MPI_Potential``::
+
+    from pyvibdmc.simulation_utilities.mpi_potential_manager import MPI_Potential
+    # Import is like this rather than import pyvibdmc as pv so that people don't have to have MPI4Py installed
+
+    if __name__=='__main__':
+        pot_dir = '.../legacy_mbpol/'
+        py_file = 'call_mbpol.py'
+        pot_func = 'call_any'
+
+        mbp_dimer_pot = MPI_Potential(potential_function=pot_func,
+                              python_file=py_file,
+                              potential_directory=pot_dir,
+                              pot_kwargs={'nw':2})
+
+As you can see, the syntax for ``MPI_Potential`` is similar to the ``Potential`` manager above. No other work needs
+to be done to parallelize the code on the user side, this is all handled internally. The ``num_cores``
+argument should not be used, as the ``MPI_Potential`` manager simply looks for the ``MPI.COMM_WORLD.get_size()``
+attribute to figure out how many MPI processes to use.
+
+The more difficult part of the MPI potential manager is setting up the desired MPI environment for the high-performance
+computing environment one may want to work on. In the McCoy group, we have `containers on dockerhub <https://hub.docker.com/orgs/mccoygroup>_`
+for McCoy group students to use. The dockerfiles for these containers are hosted on GitHub on the
+`McCoy Group GitHub page <https://github.com/McCoyGroup/mpi-centos-container>_`.
+
+Of course, one could compile or the load the the appropriate MPI module installed on the supercomputer of interest,
+and simply load that before using this feature. If using the ``MPI_Potential`` manager, one should run the code
+using ``mpirun``
+
+Here is an example ``sbatch`` file for running a containerized MPI DMC simulation using Singularity on Mox::
+
+    #!/bin/bash
+    #SBATCH --job-name=mpi_test
+    #SBATCH --partition=ilahie
+    #SBATCH --account=ilahie
+    #SBATCH --nodes=2
+    #SBATCH --ntasks-per-node=28
+    #SBATCH --time=01:00:00
+    #SBATCH --mem=120G
+    #SBATCH --chdir=.
+
+    module load singularity
+    . /.../mcenv.sh
+    MCENV_IMAGE=/.../mcenv_centos.sif
+    MCENV_PACKAGES_PATH=/.../packages
+
+    module load icc_19-ompi_3.1.4
+
+    mcenv=$(mcenv -e)
+    mpirun --mca mpi_warn_on_fork 0 -n $SLURM_NTASKS $mcenv --exec python -m mpi4py.futures pv_mpi_test.py
+
+The ``python -m mpi4py.futures pv_mpi_test.py`` syntax should be used regardless of whether or not one is in a container,
+amd ``$SLURM_NTASKS`` here is the number of nodes * the number of tasks per node.
+
 Alternative Approach (Not recommended): executables and subprocess calls
 -------------------------------------------------------------------------------
 If for some reason these approaches do not meet your needs, you can always write the (nxmx3) geometries to a file, call an

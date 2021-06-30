@@ -1,8 +1,3 @@
-Advanced Features in PyVibDMC
-=========================================================
-
-``PyVibDMC`` has some advanced features that are not usually necessary for running a 'bare bones' DMC simulation.
-This is the documentation page that goes over some of them.
 
 Viewing walkers using Jmol/Avogadro
 -------------------------------------------------
