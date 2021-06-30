@@ -51,16 +51,15 @@ def test_no_mp_pot():
     pyFile = 'harmonicOscillator1D.py'
     potFunc = 'oh_stretch_harm_loadtxt'
     harm_pot = pv.Potential_NoMP(potential_function=potFunc,
-                            python_file=pyFile,
-                            potential_directory=potDir,
-                            ch_dir=True)
+                                 python_file=pyFile,
+                                 potential_directory=potDir,
+                                 ch_dir=True)
     cds = np.random.random((100, 1, 1))
     start = time.time()
     for _ in range(10):
         v = harm_pot.getpot(cds)
     print(time.time() - start)
     assert True
-
 
 
 def test_nn_pot():
@@ -72,8 +71,8 @@ def test_nn_pot():
                           '../sample_potentials/TensorflowPots/')  # only necesary for testing
     pyFile = 'call_sample_model.py'
     potFunc = 'sample_h4o2_pot'
-    coulomb = DistIt([8,1,1]*2,
-                 'coulomb')
+    coulomb = DistIt([8, 1, 1] * 2,
+                     'coulomb')
     pot_dict = {'descriptor': coulomb,
                 'batch_size': 100}
     model_path = f'{potDir}/sample_h4o2_nn.h5'
@@ -96,8 +95,10 @@ def test_nn_pot():
 #     cdz = np.random.random((100, 1, 1))
 #     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
 #     pyFile = 'harmonicOscillator1D.py'
-#     potFunc = 'oh_stretch_harm'
+#     potFunc = 'oh_stretch_harm_with_arg'
+#     ex_arg = {'mass': 1.0, 'freq': 1.0}
 #     mpi = pv.MPI_Potential(potential_function=potFunc,
-#                  potential_directory=potDir,
-#                  python_file=pyFile)
+#                            potential_directory=potDir,
+#                            python_file=pyFile,
+#                            pot_kwargs=ex_arg)
 #     mpi.getpot(cdz)

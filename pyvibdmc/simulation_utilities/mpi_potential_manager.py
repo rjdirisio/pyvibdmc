@@ -37,22 +37,20 @@ class MPI_Potential:
         pot = getattr(x, self.pot_func)
         return pot
 
-    @staticmethod
-    def callpot(cds, pot):
-        v = pot(cds)
-        return v
-
-    def initwrapper(self, cdz):
+    def initwrapper(self, cds):
         """
         pre is prep_pot, which takes the tuple initargs that has the python file stuff in it.
         call_the_pot is the variable name for the  callpot function.
         cdz are the coordinates.
         """
-        global inited, poot
+        global inited, pt
         if not inited:
-            poot = self.prep_pot()
+            pt = self.prep_pot()
             inited = True
-        vs = self.callpot(cdz, poot)
+        if self.pot_kwargs is None:
+            vs = pt(cds)
+        else:
+            vs = pt(cds, self.pot_kwargs)
         return vs
 
     def getpot(self, cds, timeit=False):
