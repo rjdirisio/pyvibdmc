@@ -28,8 +28,8 @@ class SimLogger:
         self.fl.write(f"Will save wave function from time step {cur_time_step}\n")
 
     def write_desc_wt(self, cur_time_step):
-        self.fl.write(f"Finished descendant weighting, time step {cur_time_step}\n")
-        self.fl.write(f"Saving Wave function with descendant weights, time step {cur_time_step}\n")
+        self.fl.write(f"Finished descendant weighting at end of time step {cur_time_step}\n")
+        self.fl.write(f"Saving wave function with descendant weights\n")
 
     def write_pot_time(self, cur_time_step, pot_time, maxpot, minpot, avgpot):
         maxpot = Constants.convert(maxpot, 'wavenumbers', to_AU=False)

@@ -28,9 +28,9 @@ class Potential:
                  num_cores=1,
                  pot_kwargs=None,
                  ):
-        self.pot_func = potential_function
-        self.pyFile = python_file
-        self.pot_dir = potential_directory
+        self.potential_function = potential_function
+        self.python_file = python_file
+        self.potential_directory = potential_directory
         self.num_cores = num_cores
         self.pot_kwargs = pot_kwargs
         self._init_pool()
@@ -41,11 +41,11 @@ class Potential:
         """
         # Go to potential directory that houses python function and assign a self._pot variable to it
         self._curdir = os.getcwd()
-        os.chdir(self.pot_dir)
+        os.chdir(self.potential_directory)
         sys.path.insert(0, os.getcwd())
-        module = self.pyFile.split(".")[0]
+        module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
-        self._pot = getattr(x, self.pot_func)
+        self._pot = getattr(x, self.potential_function)
         # leave pool workers there
 
     def _init_pool(self):
@@ -100,20 +100,20 @@ class Potential_NoMP:
                  python_file,
                  ch_dir=False,
                  pot_kwargs=None):
-        self.pot_func = potential_function
-        self.pyFile = python_file
-        self.pot_dir = potential_directory
+        self.potential_function = potential_function
+        self.python_file = python_file
+        self.potential_directory = potential_directory
         self.pot_kwargs = pot_kwargs
         self.ch_dir = ch_dir
         self._init_pot()
 
     def _init_pot(self):
         self._curdir = os.getcwd()
-        os.chdir(self.pot_dir)
+        os.chdir(self.potential_directory)
         sys.path.insert(0, os.getcwd())
-        module = self.pyFile.split(".")[0]
+        module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
-        self._pot = getattr(x, self.pot_func)
+        self._pot = getattr(x, self.potential_function)
         os.chdir(self._curdir)
 
     def getpot(self, cds, timeit=False):
@@ -134,7 +134,7 @@ class Potential_NoMP:
                 v = self._pot(cds)
         else:
             # Change to the potential directory and then change back after call
-            os.chdir(self.pot_dir)
+            os.chdir(self.potential_directory)
             if self.pot_kwargs is not None:
                 v = self._pot(cds, self.pot_kwargs)
             else:

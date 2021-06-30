@@ -16,9 +16,9 @@ class MPI_Potential:
                  python_file,
                  pot_kwargs=None,
                  ):
-        self.pot_func = potential_function
-        self.pyFile = python_file
-        self.pot_dir = potential_directory
+        self.potential_function = potential_function
+        self.python_file = python_file
+        self.potential_directory = potential_directory
         self.pot_kwargs = pot_kwargs
         self._initialize()
 
@@ -30,11 +30,11 @@ class MPI_Potential:
     def prep_pot(self):
         """Pretty much exactly what happens when mp pool is initialized in the potential_manager"""
         _curdir = os.getcwd()
-        os.chdir(self.pot_dir)
+        os.chdir(self.potential_directory)
         sys.path.insert(0, os.getcwd())
-        module = self.pyFile.split(".")[0]
+        module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
-        pot = getattr(x, self.pot_func)
+        pot = getattr(x, self.potential_function)
         return pot
 
     def initwrapper(self, cds):

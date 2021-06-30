@@ -119,7 +119,7 @@ class DMC_Sim:
         # Arrays used to mark important events throughout the simulation
         self._prop_steps = np.arange(0, self.num_timesteps)
         self._branch_step = np.arange(0, self.num_timesteps + self.branch_every, self.branch_every)
-        self._chkpt_step = np.arange(0, self.num_timesteps + self.chkpt_every, self.chkpt_every)
+        self._chkpt_step = np.arange(self.chkpt_every, self.num_timesteps + self.chkpt_every, self.chkpt_every)
         self._wfn_save_step = np.arange(self.equil_steps, self.num_timesteps + self.wfn_every, self.wfn_every)
         self._desc_wt_save_step = self._wfn_save_step + self.desc_wt_time_steps
         if self._deb_training_every is not None:
@@ -129,7 +129,7 @@ class DMC_Sim:
             self.deb_train_save_step = []
         self._log_steps = np.arange(0, self.num_timesteps, self.log_every)
         # Arrays that carry data throughout the simulation
-        self._who_from = None  # desc_wt_timeendant weighting doesn't happen right away, no need to init
+        self._who_from = None  # weighting doesn't happen right away, no need to init
         self._walker_pots = None  # will get returned from potential function
         self._vref_vs_tau = np.zeros(self.num_timesteps)
         self._pop_vs_tau = np.zeros(self.num_timesteps)
@@ -373,11 +373,6 @@ class DMC_Sim:
                 self._logger.write_ts(prop_step)
 
             # Check if prop_step is at a special point in simulation
-            # First, save training data if it's being collected
-            if prop_step in self.deb_train_save_step and prop_step != 0:
-                print(f'{self._walker_coords.shape} walkers collected')
-                SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
-                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 
             # If we are at a checkpoint
             if prop_step in self._chkpt_step:
@@ -397,19 +392,6 @@ class DMC_Sim:
                 self._who_from = np.arange(len(self._walker_coords))
                 self._desc_wt = True
 
-            # If desc_wt_time weighting is over, save the wfn and weights
-            if prop_step in self._desc_wt_save_step:
-                self._logger.write_desc_wt(prop_step)
-                self._desc_wt = False
-                self.calc_desc_wts()
-                SimArchivist.save_h5(
-                    fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step - self.desc_wt_time_steps}ts.hdf5",
-                    keyz=['coords', 'desc_wts'],
-                    valz=[self._parent, self._desc_wts])
-                if self._deb_desc_wt_tracker:
-                    np.save(
-                        f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step - self.desc_wt_time_steps}ts",
-                        self._who_from)
 
             # If we are at a point to change mass (debug option, scale mass)
             if prop_step in self._mass_change_steps:
@@ -446,6 +428,26 @@ class DMC_Sim:
             # 4. Update Vref.
             self.calc_vref()
             self.update_sim_arrays(prop_step)
+
+            # Save training data if it's being collected
+            if prop_step in self.deb_train_save_step:
+                print(f'{self._walker_coords.shape} walkers collected')
+                SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
+                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
+
+            # If desc_wt_time weighting is over, save the wfn and weights
+            if prop_step + 1 in self._desc_wt_save_step:
+                self._logger.write_desc_wt(prop_step)
+                self._desc_wt = False
+                self.calc_desc_wts()
+                SimArchivist.save_h5(
+                    fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step+1 - self.desc_wt_time_steps}ts.hdf5",
+                    keyz=['coords', 'desc_wts'],
+                    valz=[self._parent, self._desc_wts])
+                if self._deb_desc_wt_tracker:
+                    np.save(
+                        f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step+1 - self.desc_wt_time_steps}ts",
+                        self._who_from)
 
     def run(self):
         """This function calls propagate and saves simulation results"""

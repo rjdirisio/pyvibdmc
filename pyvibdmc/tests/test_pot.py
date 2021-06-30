@@ -91,14 +91,15 @@ def test_nn_pot():
     assert True
 
 
-# def test_mpi_pot():
-#     cdz = np.random.random((100, 1, 1))
-#     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
-#     pyFile = 'harmonicOscillator1D.py'
-#     potFunc = 'oh_stretch_harm_with_arg'
-#     ex_arg = {'mass': 1.0, 'freq': 1.0}
-#     mpi = pv.MPI_Potential(potential_function=potFunc,
-#                            potential_directory=potDir,
-#                            python_file=pyFile,
-#                            pot_kwargs=ex_arg)
-#     mpi.getpot(cdz)
+def test_mpi_pot():
+    from pyvibdmc.simulation_utilities.mpi_potential_manager import MPI_Potential
+    cdz = np.random.random((100, 1, 1))
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
+    pyFile = 'harmonicOscillator1D.py'
+    potFunc = 'oh_stretch_harm_with_arg'
+    ex_arg = {'mass': 1.0, 'freq': 1.0}
+    mpi = MPI_Potential(potential_function=potFunc,
+                           potential_directory=potDir,
+                           python_file=pyFile,
+                           pot_kwargs=ex_arg)
+    mpi.getpot(cdz)
