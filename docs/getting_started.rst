@@ -136,11 +136,25 @@ If the simulation dies due to external factors, you may restart a particular DMC
 
         # restart function that reinializes the myDMC object
         # say the 4th [3] simulation died...
+        # myDMC is a DMC_Sim object
         myDMC = pv.dmc_restart(potential=water_pot,
                                  chkpt_folder='tutorial_dmc',
                                  sim_name='tutorial_water_3')
         myDMC.run()
 
+One can also extract the ``Vref`` array from a checkpointed simulation to check on the status of the simulation::
+
+    if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
+        # need to reinitalize the water_pot
+        pot_dir = 'path/to/Partridge_Schwenke_H2O/' #this directory is the one you copied that is outside of pyvibdmc.
+        py_file = 'h2o_potential.py'
+        pot_func = 'water_pot' # def water_pot(cds) in h2o_potential.py
+        water_pot = pm.Potential(potential_function=pot_func,
+                              python_file=py_file,
+                              potential_directory=pot_dir,
+                              num_cores=2)
+        # myDMC is a DMC_Sim object. Can extract vref by getting vref_vs_tau attribute of it.
+        vref = myDMC.vref_vs_tau # An array that is the length of the number of time steps run so far.
 
 Once you have run this simulation, you can then analyze the results:
 

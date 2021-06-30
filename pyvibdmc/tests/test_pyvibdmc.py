@@ -91,6 +91,7 @@ def test_restart_dmc():
     myDMC = pv.dmc_restart(potential=HOpot,
                                  chkpt_folder=chkpt_fold,
                                  sim_name='pytest')
+    vref = myDMC.vref_vs_tau
     myDMC.run()
     assert True
 

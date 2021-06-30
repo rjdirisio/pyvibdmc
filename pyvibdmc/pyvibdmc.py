@@ -119,7 +119,7 @@ class DMC_Sim:
         # Arrays used to mark important events throughout the simulation
         self._prop_steps = np.arange(0, self.num_timesteps)
         self._branch_step = np.arange(0, self.num_timesteps + self.branch_every, self.branch_every)
-        self._chkpt_step = np.arange(self.equil_steps, self.num_timesteps + self.chkpt_every, self.chkpt_every)
+        self._chkpt_step = np.arange(0, self.num_timesteps + self.chkpt_every, self.chkpt_every)
         self._wfn_save_step = np.arange(self.equil_steps, self.num_timesteps + self.wfn_every, self.wfn_every)
         self._desc_wt_save_step = self._wfn_save_step + self.desc_wt_time_steps
         if self._deb_training_every is not None:
@@ -174,6 +174,8 @@ class DMC_Sim:
 
         if len(self.masses) != len(self.atoms):
             raise Exception("Your number of atoms list does not match your number of masses you provided.")
+        if self._walker_coords.shape[1] != len(self.atoms):
+            raise Exception("Your number of atoms list does not match the shape of your walkers.")
 
         # Constants for simulation
         self._sigmas = np.sqrt(self.delta_t / self.masses)
@@ -235,6 +237,12 @@ class DMC_Sim:
                 self._who_from[walker] = self._who_from[max_walker]
             self._cont_wts[max_walker] /= 2.0
             self._cont_wts[walker] = np.copy(self._cont_wts[max_walker])
+
+    @property
+    def vref_vs_tau(self):
+        """Returns the vref array, including zeros from initialization"""
+        vref_wvn = Constants.convert(self._vref_vs_tau[:self.cur_timestep], "wavenumbers", to_AU=False)
+        return np.column_stack((np.arange(len(vref_wvn)), vref_wvn))
 
     def birth_or_death(self):
         """
@@ -361,10 +369,11 @@ class DMC_Sim:
             if self.cur_timestep == self._prop_steps[0]:
                 self._logger.write_beginning(self.__dict__)
 
-            # Check if prop_step is at a special point in simulation
             if prop_step in self._log_steps:
                 self._logger.write_ts(prop_step)
 
+            # Check if prop_step is at a special point in simulation
+            # First, save training data if it's being collected
             if prop_step in self.deb_train_save_step and prop_step != 0:
                 print(f'{self._walker_coords.shape} walkers collected')
                 SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
