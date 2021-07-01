@@ -25,8 +25,9 @@ simulations run on a water monomer. The potential energy surface for these calcu
   at the user specified time steps (from ``wfn_every``), and also its corresponding descendant weights.  Typically, these wave functions and \
   descendant weights are combined into one, larger wave function to improve on statistical uncertainty in the wave function.
 
-- One (or zero) ``chkpts/{sim_name}_{current_time_step}.pickle`` files, which is the simulation checkpointing itself every x \
-  time steps specified by the user in ``chkpt_every``. If the simulation completes with no issue, there are no .pickle files in the end.
+- One ``chkpts/{sim_name}_{current_time_step}.pickle`` file, which is the simulation checkpointing itself every x \
+  time steps specified by the user in ``chkpt_every``. If the simulation completes with no issue, there should still be a ``.pickle`` \
+  file no matter what. This is there in case you want to run the simulation for additional time steps or look at the walkers.
 
 All of these files will output in the user-specified ``output_folder``. For the purposes of this overview, we will be
 using the prepackaged simulation data that comes with ``PyVibDMC``.  For the sample data, each ``sim_name`` is

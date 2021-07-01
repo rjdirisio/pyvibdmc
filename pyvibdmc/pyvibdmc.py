@@ -225,6 +225,22 @@ class DMC_Sim:
         else:
             self._mass_change_steps = []
 
+    def _init_restart(self, add_ts):
+        """ Reset internal DMC parameters based on additional time steps one wants to run for"""
+        self.num_timesteps = self.num_timesteps + add_ts
+        self._branch_step = np.arange(0, self.num_timesteps + self.branch_every, self.branch_every)
+        self._chkpt_step = np.arange(self.chkpt_every, self.num_timesteps + self.chkpt_every, self.chkpt_every)
+        self._wfn_save_step = np.arange(self.equil_steps, self.num_timesteps + self.wfn_every, self.wfn_every)
+        self._desc_wt_save_step = self._wfn_save_step + self.desc_wt_time_steps
+        if self._deb_training_every is not None:
+            self.deb_train_save_step = np.arange(0, self.num_timesteps + self._deb_training_every,
+                                                 self._deb_training_every)
+        else:
+            self.deb_train_save_step = []
+        self._log_steps = np.arange(0, self.num_timesteps, self.log_every)
+        self._vref_vs_tau = np.concatenate((self._vref_vs_tau, np.zeros(add_ts)))
+        self._pop_vs_tau = np.concatenate((self._pop_vs_tau, np.zeros(add_ts)))
+
     def _branch(self, walkers_below):
         """
         Helper class that actually does the branching
@@ -243,6 +259,13 @@ class DMC_Sim:
         """Returns the vref array, including zeros from initialization"""
         vref_wvn = Constants.convert(self._vref_vs_tau[:self.cur_timestep], "wavenumbers", to_AU=False)
         return np.column_stack((np.arange(len(vref_wvn)), vref_wvn))
+
+    @property
+    def walkers(self):
+        if self.weighting == 'continuous':
+            return self._walker_coords, self._cont_wts
+        else:
+            return self._walker_coords
 
     def birth_or_death(self):
         """
@@ -392,7 +415,6 @@ class DMC_Sim:
                 self._who_from = np.arange(len(self._walker_coords))
                 self._desc_wt = True
 
-
             # If we are at a point to change mass (debug option, scale mass)
             if prop_step in self._mass_change_steps:
                 self.masses = self.masses * self._factor_per_change[self._mass_counter]
@@ -441,36 +463,43 @@ class DMC_Sim:
                 self._desc_wt = False
                 self.calc_desc_wts()
                 SimArchivist.save_h5(
-                    fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step+1 - self.desc_wt_time_steps}ts.hdf5",
+                    fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step + 1 - self.desc_wt_time_steps}ts.hdf5",
                     keyz=['coords', 'desc_wts'],
                     valz=[self._parent, self._desc_wts])
                 if self._deb_desc_wt_tracker:
                     np.save(
-                        f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step+1 - self.desc_wt_time_steps}ts",
+                        f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts",
                         self._who_from)
 
     def run(self):
         """This function calls propagate and saves simulation results"""
         print("Starting Simulation...")
         dmc_time_start = time.time()
-        self.propagate()
-        # Delete all checkpoints, since this is the end of the run
-        FileManager.delete_older_checkpoints(self.output_folder,
-                                             self.sim_name,
-                                             self.cur_timestep)
-        # Convert vref vs tau to wavenumbers
-        _vref_wvn = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
+        try:
+            self.propagate()
+            # Delete all checkpoints, since this is the end of the run
+            FileManager.delete_older_checkpoints(self.output_folder,
+                                                 self.sim_name,
+                                                 self.cur_timestep)
+        finally:
+            self._logger.final_chkpt()
+            self._logger = None
+            SimArchivist.chkpt(self, self.cur_timestep)
 
-        print("Simulation Complete")
-        print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
-        ts = np.arange(len(_vref_wvn))
+            # Convert vref vs tau to wavenumbers
+            _vref_wvn = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
 
-        # Save siminfo
-        SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
-                             keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
-                             valz=[np.column_stack((ts, _vref_wvn)), np.column_stack((ts, self._pop_vs_tau)),
-                                   self._atm_nums, self.masses])
-        finish = time.time() - dmc_time_start
+            print("Simulation Complete")
+            print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
+            ts = np.arange(len(_vref_wvn))
+
+            # Save siminfo
+            SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
+                                 keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
+                                 valz=[np.column_stack((ts, _vref_wvn)), np.column_stack((ts, self._pop_vs_tau)),
+                                       self._atm_nums, self.masses])
+            finish = time.time() - dmc_time_start
+        self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
         self._logger.finish_sim(finish)
 
     def __deepcopy__(self, memodict={}):
@@ -487,12 +516,15 @@ class DMC_Sim:
         return res
 
 
-def dmc_restart(potential, chkpt_folder, sim_name):
+def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0):
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
-    dmc_sim._prop_steps = np.arange(dmc_sim.cur_timestep, dmc_sim.num_timesteps)
+    # Update simulation parameters based on additional timesteps
+    dmc_sim._init_restart(additional_timesteps)
+    # Re-initialize the potential and the logger, as those are not pickleable
     dmc_sim.potential = potential.getpot
     dmc_sim.potential_info = vars(dmc_sim.potential)
     dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
+    # Delete future checkpoints. This shouldn't do anything at this stage, but just to be safe
     FileManager.delete_future_checkpoints(chkpt_folder, sim_name, dmc_sim.cur_timestep)
     return dmc_sim
 

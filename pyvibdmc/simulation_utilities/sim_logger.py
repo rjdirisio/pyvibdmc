@@ -17,6 +17,9 @@ class SimLogger:
         self.fl.write(f"Simulation took {final_time} seconds.\n\n")
         self.fl.close()
 
+    def final_chkpt(self):
+        self.fl.write("\nFinal checkpoint is written to chkpts folder.\n\n")
+
     def write_ts(self, cur_time_step):
         self.fl.write(f"Time step {cur_time_step}\n")
 

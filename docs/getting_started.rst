@@ -121,6 +121,12 @@ in ``h2o_potential.py``. Once you have run ``make``, you may now run the followi
 Please visit the `API reference <https://pyvibdmc.readthedocs.io/en/latest/autoapi/pyvibdmc/pyvibdmc/index.html#pyvibdmc.pyvibdmc.DMC_Sim>`_
 for all the options you may pass the ``DMC_Sim``.
 
+Once you have run this simulation, you can then analyze the results:
+
+See the `Analyzing DMC Results <https://pyvibdmc.readthedocs.io/en/latest/analysis.html>`_ section.
+
+Restarting a DMC simulation
+-----------------------------------
 If the simulation dies due to external factors, you may restart a particular DMC simulation using the following code::
 
     import pyvibdmc as pv
@@ -144,7 +150,9 @@ If the simulation dies due to external factors, you may restart a particular DMC
                                  sim_name='tutorial_water_3')
         myDMC.run()
 
-One can also extract the ``Vref`` array from a checkpointed simulation to check on the status of the simulation::
+PyVibDMC will find the latest ``.pickle`` file that corresponds to the simulation name.
+One can also extract the ``Vref`` array and the walker coordinates from a checkpointed simulation to check on the status
+of the simulation::
 
     if __name__ == '__main__': #if using multiprocessing on windows / mac, you need to encapsulate using this line
         # need to reinitalize the water_pot
@@ -157,10 +165,20 @@ One can also extract the ``Vref`` array from a checkpointed simulation to check 
                               num_cores=2)
         # myDMC is a DMC_Sim object. Can extract vref by getting vref_vs_tau attribute of it.
         vref = myDMC.vref_vs_tau # An array that is the length of the number of time steps run so far.
+        # walkers_at_chkpt_timestep, cont_wts_at_chkpt_timestep = myDMC.walkers # if continuous weighting
+        walkers_at_chkpt_timestep = myDMC.walkers
 
-Once you have run this simulation, you can then analyze the results:
+If one realizes that the simulation has not run for as long as one needs, you can add additional time steps with the
+``additional_timesteps`` to ``dmc_restart``::
 
-See the `Analyzing DMC Results <https://pyvibdmc.readthedocs.io/en/latest/analysis.html>`_ section.
+    myDMC = pv.dmc_restart(potential=water_pot,
+                             chkpt_folder='tutorial_dmc',
+                             sim_name='tutorial_water_3',
+                            additional_timesteps=1000) #optional parameter that defaults to 0
+    myDMC.run()
+
+At the end of the simulation, there should be a ``.pickle`` file in the ``chkpts`` directory no matter what. This
+is there in case you want to run the simulation for additional time.
 
 Tutorial: 1-D Harmonic Oscillator with OH diatomic parameters
 ---------------------------------------------------------------
