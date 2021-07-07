@@ -69,8 +69,22 @@ class DistIt:
 
         if self.eq_xyz is None and self.method == 'spf':
             raise ValueError("eq_xyz is not set but using spf. Fix!")
-        if self.eq_xyz is not None:
+
+        if self.eq_xyz is not None and self.method == 'spf':
+            # Get eq value's dist mat
             self.eq_xyz = self.xp.asarray([self.eq_xyz, self.eq_xyz])
+            prepped_r_eq = self.atm_atm_dists(self.eq_xyz)
+            if not self.sort_mat:
+                # This is the r_eq for all values if not sorted
+                self.r_eq = prepped_r_eq[0]
+            else:
+                # Sort r_eq like you will the rest of the atoms
+                prepped_r_eq = self.dist_matrix(prepped_r_eq)
+                if self.sorted_atoms is not None:
+                    prepped_r_eq = self.sort_atoms(prepped_r_eq)
+                if self.sorted_groups is not None:
+                    prepped_r_eq = self.sort_groups(prepped_r_eq)
+                self.r_eq = prepped_r_eq[0]
 
     def dist_matrix(self, atm_vec):
         """
@@ -149,15 +163,16 @@ class DistIt:
             self.diag_coulomb = self.xp.diag(skeleton)
             skeleton = skeleton[self.idxs_0, self.idxs_1]
             prepped_vec = self.xp.tile(skeleton, (len(atm_atm_vec), 1)) / atm_atm_vec
-
-        elif self.method == 'spf':
-            r_eq = self.atm_atm_dists(self.eq_xyz)[0]
-            prepped_vec = (atm_atm_vec - r_eq) / atm_atm_vec
-
-        elif self.method == 'distance':
+        else:
             prepped_vec = atm_atm_vec
-
         return prepped_vec
+        # elif self.method == 'spf':
+        #     prepped_vec = (atm_atm_vec - self.r_eq) / atm_atm_vec
+        #
+        # elif self.method == 'distance':
+        #     prepped_vec = atm_atm_vec
+        #
+        # return prepped_vec
 
     def run(self, cds):
         """
@@ -167,11 +182,14 @@ class DistIt:
         cds = self.xp.asarray(cds)
         # all pariwise Atom - atom distances, returned in matrix form
         atm_atm_vec = self.atm_atm_dists(cds)
-        # Put on extra dressing for coulomb and spf
+        # Put on extra dressing for coulomb
         prepped_vec = self.get_prepped_vec(atm_atm_vec)
         # If unsorted and just upper triangle, return prepped_vec
         if not self.sort_mat and not self.full_mat:
-            return prepped_vec
+            if self.method == 'spf':
+                return 1 - self.r_eq / prepped_vec
+            else:
+                return prepped_vec
         # Otherwise, we need to get full matrix for sorting or to return full matrix
         else:
             # prepped_vec is now the full distance matrix
@@ -185,7 +203,12 @@ class DistIt:
                 if self.sorted_groups is not None:
                     prepped_vec = self.sort_groups(prepped_vec)
                 if self.full_mat:
-                    return prepped_vec
+                    if self.method == 'spf':
+                        return 1 - self.r_eq / prepped_vec
+                    else:
+                        return prepped_vec
                 else:
                     prepped_vec = prepped_vec[:, self.idxs_0, self.idxs_1]
+                    if self.method == 'spf':
+                        return 1 - self.r_eq[self.idxs_0, self.idxs_1] / prepped_vec
                     return prepped_vec

@@ -35,6 +35,16 @@ def test_dist():
     dist_mat = transformer.run(cds)
     assert True
 
+def test_spf_unsorted():
+    """Sorted/Unsorted distance matrix descriptor"""
+    from pyvibdmc import DistIt
+    transformer = DistIt(zs=[8, 1, 1] * 3,
+                         method='spf',
+                         eq_xyz=cds[0],
+                         full_mat=False,
+                         )
+    dist_mat_sorted = transformer.run(cds)
+    assert True
 
 def test_spf():
     """Sorted/Unsorted distance matrix descriptor"""
@@ -60,3 +70,73 @@ def test_coulomb():
                          )
     dist_mat_sorted = transformer.run(np.tile(udu, (10, 1, 1)))
     assert True
+
+
+def test_sorting():
+    # Swap water 1 and water 2
+    w1 = [0, 1, 2]
+    w2 = [3, 4, 5]
+    tot_atms = np.arange(len(udu))
+    tot_atms_c = np.copy(tot_atms)
+    tot_atms_c[w1] = w2
+    tot_atms_c[w2] = w1
+    w2w1 = np.copy(udu[tot_atms_c])
+
+    # Swap H1 and H2 on water 1
+    cop = np.copy(udu)
+    cop[[1, 2]] = cop[[2, 1]]
+    w1mod = cop
+
+    # Swap H1 and H2 in water 1 in w2w1
+    cop = np.copy(w2w1)
+    cop[[1, 2]] = cop[[2, 1]]
+    w2w1_w1mod = cop
+
+    # All should have the same sorted spf
+    srt_cds = np.array([udu, w2w1, w1mod, w2w1_w1mod])
+
+    from pyvibdmc import DistIt
+    transformer = DistIt(zs=[8, 1, 1] * 3,
+                         method='spf',
+                         eq_xyz=cds[0],
+                         full_mat=False,
+                         sorted_groups=[[0, 1, 2], [3, 4, 5], [6, 7, 8], ],
+                         sorted_atoms=[[0], [1, 2], [3], [4, 5], [6], [7, 8]]
+                         )
+    dist_mat_sorted = transformer.run(srt_cds)
+    assert np.count_nonzero(np.diff(dist_mat_sorted,axis=0)) == 0
+
+
+def test_sorting_2():
+    # Swap water 1 and water 2
+    w1 = [0, 1, 2]
+    w2 = [3, 4, 5]
+    tot_atms = np.arange(len(uuu))
+    tot_atms_c = np.copy(tot_atms)
+    tot_atms_c[w1] = w2
+    tot_atms_c[w2] = w1
+    w2w1 = np.copy(uuu[tot_atms_c])
+
+    # Swap H1 and H2 on water 1
+    cop = np.copy(uuu)
+    cop[[1, 2]] = cop[[2, 1]]
+    w1mod = cop
+
+    # Swap H1 and H2 in water 1 in w2w1
+    cop = np.copy(w2w1)
+    cop[[1, 2]] = cop[[2, 1]]
+    w2w1_w1mod = cop
+
+    # All should have the same sorted spf
+    srt_cds = np.array([uuu, w2w1, w1mod, w2w1_w1mod])
+
+    from pyvibdmc import DistIt
+    transformer = DistIt(zs=[8, 1, 1] * 3,
+                         method='spf',
+                         eq_xyz=cds[0],
+                         full_mat=False,
+                         sorted_groups=[[0, 1, 2], [3, 4, 5], [6, 7, 8], ],
+                         sorted_atoms=[[0], [1, 2], [3], [4, 5], [6], [7, 8]]
+                         )
+    dist_mat_sorted = transformer.run(srt_cds)
+    assert np.count_nonzero(np.diff(dist_mat_sorted,axis=0)) == 0

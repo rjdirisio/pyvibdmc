@@ -34,7 +34,8 @@ the Coulomb Matrix, the Distance Matrix, and what we call the SPF (Simons–Parr
 
 Sorting these matrices by the norm of their columns makes them permutationally invariant. However, this leads to
 discontinuities in the potential that employs them. For DMC, these discontinuities do not seem to be an issue for the
-overall results of the DMC simulation (see `this paper <https://doi.org/10.1021/acs.jpca.1c03709>_`).
+overall results of the DMC simulation (see `this paper <https://doi.org/10.1021/acs.jpca.1c03709>`_). For
+the SPF matrix, the distance matrix is sorted and then the sorted equilibrium matrix is subtracted from it.
 
 There are many ways to sort the descriptor matrix.  The standard and most straightforward is to sort everything based on
 the norm of each column. To do this, one would do::
