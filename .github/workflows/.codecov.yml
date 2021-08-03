@@ -17,3 +17,6 @@ ignore:
   - "versioneer.py"
   - "**/_version.py"
   - "pyvibdmc/_version.py"
+  - "pyvibdmc/sample_potentials"
+  - "pyvibdmc/sample_sim_data"
+  - "pyvibdmc/tests"
