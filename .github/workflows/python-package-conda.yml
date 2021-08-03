@@ -1,38 +1,63 @@
-name: pytest
+name: CI_pytest
 
-on: [push]
+on:
+  push:
+    branches:
+      - "master"
+      - "main"
+  pull_request:
+    branches:
+      - "master"
+      - "main"
 
 jobs:
-  build-linux:
+  test:
+    name: Test on ${{ matrix.os }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python: [3.7, 3.8]
+        os: [macOS-latest, ubuntu-latest]
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v1
+
+    - name: Additional info about the build
+      shell: bash
+      run: |
+        uname -a
+        df -h
+        ulimit -a
+    # More info on options: https://github.com/conda-incubator/setup-miniconda
+    - uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Add conda to system path
+        environment-file: test_env.yaml
+
+        channels: conda-forge,defaults
+
+        activate-environment: test
+        auto-update-conda: false
+        auto-activate-base: false
+        show-channel-urls: true
+
+    - name: Install package
+
+      # conda setup requires this special shell
+      shell: bash -l {0}
       run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
+        python -m pip install . --no-deps
+        conda list
+    - name: Run tests
+
+      # conda setup requires this special shell
+      shell: bash -l {0}
+
       run: |
-        conda env update --file test_env.yaml --name base
-    - name: Lint with flake8
-      run: |
-        conda install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        conda install pytest
-        pytest -v --cov=pyvibdmc pyvibdmc/tests
-    - uses: codecov/codecov-action@v1
+        pytest -v --cov=pyvibdmc --cov-report=xml --color=yes pyvibdmc/tests/
+    - name: CodeCov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
