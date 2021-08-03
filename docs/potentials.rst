@@ -248,9 +248,9 @@ argument should not be used, as the ``MPI_Potential`` manager simply looks for t
 attribute to figure out how many MPI processes to use.
 
 The more difficult part of the MPI potential manager is setting up the desired MPI environment for the high-performance
-computing environment one may want to work on. In the McCoy group, we have `containers on dockerhub <https://hub.docker.com/orgs/mccoygroup>_`
+computing environment one may want to work on. In the McCoy group, we have `containers on dockerhub <https://hub.docker.com/orgs/mccoygroup>`_
 for McCoy group students to use. The dockerfiles for these containers are hosted on GitHub on the
-`McCoy Group GitHub page <https://github.com/McCoyGroup/mpi-centos-container>_`.
+`McCoy Group GitHub page <https://github.com/McCoyGroup/mpi-centos-container>`_.
 
 Of course, one could compile or the load the the appropriate MPI module installed on the supercomputer of interest,
 and simply load that before using this feature. If using the ``MPI_Potential`` manager, one should run the code

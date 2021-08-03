@@ -165,10 +165,10 @@ class DMC_Sim:
                 self.masses = np.array([Constants.mass(a) for a in self.atoms])
                 self._atm_nums = get_atomic_num(self.atoms)
         # custom masses
-        elif isinstance(self.masses, float) or isinstance(self.masses, int):
+        elif isinstance(self.masses, (int, float)):
             self.masses = np.array([self.masses])
             self._atm_nums = [-1]
-        elif isinstance(self.masses, list):
+        elif isinstance(self.masses, (list, np.ndarray)):
             self.masses = np.array(self.masses)
             self._atm_nums = get_atomic_num(self.atoms)
 
