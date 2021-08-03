@@ -481,6 +481,11 @@ class DMC_Sim:
             FileManager.delete_older_checkpoints(self.output_folder,
                                                  self.sim_name,
                                                  self.cur_timestep)
+        except Exception:
+            import traceback
+            print("ERROR! An error occurred while running the DMC simulation. Dumping a final checkpoint...")
+            print("Ignore Approximate ZPE!!!")
+            traceback.print_exc()
         finally:
             self._logger.final_chkpt()
             self._logger = None
