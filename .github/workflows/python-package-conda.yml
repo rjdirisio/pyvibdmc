@@ -50,9 +50,8 @@ jobs:
         conda list
     - name: Run tests
 
-      # conda setup requires this special shell
-      shell: bash -l {0}
+      shell: bash
 
       run: |
-        pytest -v --cov=pyvibdmc pyvibdmc/tests
+        pytest --cov-report=xml --cov=pyvibdmc pyvibdmc/tests/
     - uses: codecov/codecov-action@v1
