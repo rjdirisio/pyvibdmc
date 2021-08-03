@@ -50,7 +50,7 @@ jobs:
         conda list
     - name: Run tests
 
-      shell: bash
+      shell: bash -l {0}
 
       run: |
         pytest --cov-report=xml --cov=pyvibdmc pyvibdmc/tests/
