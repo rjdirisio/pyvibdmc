@@ -471,6 +471,10 @@ class DMC_Sim:
                         f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts",
                         self._who_from)
 
+            # Explicitly flush log file every 10 time steps, since it gets caught in buffer in HPC systems
+            if prop_step % 10 == 0:
+                self._logger.fl.flush()
+
     def run(self):
         """This function calls propagate and saves simulation results"""
         print("Starting Simulation...")
