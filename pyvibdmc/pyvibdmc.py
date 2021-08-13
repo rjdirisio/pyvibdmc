@@ -225,6 +225,10 @@ class DMC_Sim:
         else:
             self._mass_change_steps = []
 
+        # Check for if population fluctuates too much
+        self._pop_thresh = [self.num_walkers - self.num_walkers*0.5,
+                            self.num_walkers + self.num_walkers*0.5]
+
     def _init_restart(self, add_ts):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
         self.num_timesteps = self.num_timesteps + add_ts
@@ -387,6 +391,12 @@ class DMC_Sim:
          """
         for prop_step in self._prop_steps:
             self.cur_timestep = prop_step
+
+            # Check for massive birth/death event
+            if self.weighting == 'discrete':
+                cur_pop = len(self._walker_coords)
+                if cur_pop < self._pop_thresh[0] or cur_pop > self._pop_thresh[1]:
+                    raise ValueError("Massive walker birth or death event!!!!!!! Dying...")
 
             # Write simulation attributes whether starting or restarting
             if self.cur_timestep == self._prop_steps[0]:
