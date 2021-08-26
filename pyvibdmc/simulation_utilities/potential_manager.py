@@ -55,6 +55,12 @@ class Potential:
         self._potPool = mp.Pool(self.num_cores, initializer=self._init_pot())
         os.chdir(self._curdir)
 
+
+    @property
+    def pool(self):
+        """Returns the potential manager's pool so that it can be used internally with Imp Samp or with the user elsewhere"""
+        return self._potPool
+        
     def getpot(self, cds, timeit=False):
         """
         Uses the potential function we got to call potential
