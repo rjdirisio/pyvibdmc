@@ -81,6 +81,7 @@ class DMC_Sim:
                  log_every=1,
                  cur_timestep=0,
                  cont_wt_thresh=None,
+                 imp_samp=None,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None,
@@ -105,6 +106,7 @@ class DMC_Sim:
         self.log_every = log_every
         self.cur_timestep = cur_timestep
         self.cont_wt_thresh = cont_wt_thresh
+        self.impsamp = imp_samp
         self._deb_training_every = DEBUG_save_training_every
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
@@ -226,8 +228,8 @@ class DMC_Sim:
             self._mass_change_steps = []
 
         # Check for if population fluctuates too much
-        self._pop_thresh = [self.num_walkers - self.num_walkers*0.5,
-                            self.num_walkers + self.num_walkers*0.5]
+        self._pop_thresh = [self.num_walkers - self.num_walkers * 0.5,
+                            self.num_walkers + self.num_walkers * 0.5]
 
     def _init_restart(self, add_ts):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
@@ -347,6 +349,26 @@ class DMC_Sim:
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
         self._walker_coords += disps
 
+    def imp_move_randomly(self):
+        """
+        The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
+        """
+        if self.f_x is None or self.psi_1 is None:
+            self.f_x, self.psi_1 = self.impsamp.drift(self._walker_coords)
+        disps = np.random.normal(0.0,
+                                 self._sigmas,
+                                 size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
+        d = (self._sigmas ** 2 / 2) * self.f_x
+        displaced_cds = self._walker_coords + disps + d
+        f_y, psi_2 = self.impsamp.drift(displaced_cds)
+        met_nums = self.metropolois(self.f_x, f_y, self._walker_coords, self.psi_1, psi_2)
+        randos = np.random.random(size=len(self._walker_coords))
+        accept = np.argwhere(met_nums > randos)
+        self._walker_coords[accept] = displaced_cds[accept]
+        self.psi_1[accept] = psi_2[accept]
+        num_rejctions = len(self._walker_coords) - len(accept) if accept is not None else 0
+        return num_rejctions
+
     def calc_vref(self):  # Use potential of all walkers to calculate self._vref
         """
         Use the energy of all walkers to calculate self._vref with a correction for the fluctuation in the population or weight. Updates Vref
@@ -432,7 +454,10 @@ class DMC_Sim:
                 self._mass_counter += 1
 
             # 1. Move Randomly
-            self.move_randomly()
+            if self.impsamp is None:
+                self.move_randomly()
+            else:
+                self.imp_move_randomly()
 
             # 2. Calculate the Potential Energy
             if prop_step in self._log_steps:
@@ -443,6 +468,11 @@ class DMC_Sim:
                 self._logger.write_pot_time(prop_step, pot_time, maxpot, minpot, avgpot)
             else:
                 self._walker_pots = self.potential(self._walker_coords)
+
+            # If importance sampling, calculate local energy,  which is just adding on local KE
+            if self.impsamp is not None:
+                local_ke = self.impsamp.local_kin(self._walker_coords)
+                self._walker_pots = self._walkers_pots + local_ke
 
             # First time step exception, calc vref early
             if prop_step == self._prop_steps[0]:
