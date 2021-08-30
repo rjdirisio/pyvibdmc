@@ -361,7 +361,7 @@ class DMC_Sim:
         d = (self._sigmas ** 2 / 2) * self.f_x
         displaced_cds = self._walker_coords + disps + d
         f_y, psi_2 = self.impsamp.drift(displaced_cds)
-        met_nums = self.metropolois(self.f_x, f_y, self._walker_coords, self.psi_1, psi_2)
+        met_nums = self.impsamp.metropolois(self.f_x, f_y, self._walker_coords, self.psi_1, psi_2)
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
         self._walker_coords[accept] = displaced_cds[accept]
