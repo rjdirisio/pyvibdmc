@@ -9,6 +9,7 @@ from .simulation_utilities.file_manager import *
 from .simulation_utilities.sim_archive import *
 from .simulation_utilities.Constants import *
 from .simulation_utilities.sim_logger import *
+from .simulation_utilities.imp_samp_manager import *
 
 __all__ = ['DMC_Sim', 'dmc_restart']
 
@@ -106,7 +107,7 @@ class DMC_Sim:
         self.log_every = log_every
         self.cur_timestep = cur_timestep
         self.cont_wt_thresh = cont_wt_thresh
-        self.impsamp = imp_samp
+        self.impsamp_manager = imp_samp
         self._deb_training_every = DEBUG_save_training_every
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
@@ -231,6 +232,15 @@ class DMC_Sim:
         self._pop_thresh = [self.num_walkers - self.num_walkers * 0.5,
                             self.num_walkers + self.num_walkers * 0.5]
 
+        if self.impsamp_manager is not None:
+            self.f_x = None
+            self.psi_1 = None
+            # Useful variables to have for importance sampling
+            self.inv_masses_trip = 1 / np.repeat(self.masses,3)
+            self.sigma_trip = np.repeat(self._sigmas,3)
+            self.impsamp = ImpSamp(self.impsamp_manager)
+
+
     def _init_restart(self, add_ts):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
         self.num_timesteps = self.num_timesteps + add_ts
@@ -354,11 +364,12 @@ class DMC_Sim:
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
         """
         if self.f_x is None or self.psi_1 is None:
+            # f_x is 2 * dpsi/psi, which is more convenient for the metropolis step
             self.f_x, self.psi_1 = self.impsamp.drift(self._walker_coords)
         disps = np.random.normal(0.0,
-                                 self._sigmas,
+                                 self.sigma_trip,
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
-        d = (self._sigmas ** 2 / 2) * self.f_x
+        d = (self.sigma_trip ** 2 / 2) * self.f_x # The actual term added to cartesian coords
         displaced_cds = self._walker_coords + disps + d
         f_y, psi_2 = self.impsamp.drift(displaced_cds)
         met_nums = self.impsamp.metropolois(self.f_x, f_y, self._walker_coords, self.psi_1, psi_2)
@@ -471,7 +482,7 @@ class DMC_Sim:
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
             if self.impsamp is not None:
-                local_ke = self.impsamp.local_kin(self._walker_coords)
+                local_ke = self.impsamp.local_kin(self._walker_coords,self.inv_masses_trip)
                 self._walker_pots = self._walkers_pots + local_ke
 
             # First time step exception, calc vref early
