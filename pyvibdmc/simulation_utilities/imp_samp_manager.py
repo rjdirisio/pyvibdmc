@@ -1,6 +1,6 @@
 import numpy as np
-import scipy as sp
 import os, sys
+import importlib
 from .potential_manager import Potential,Potential_NoMP,NN_Potential
 from itertools import repeat
 
@@ -32,8 +32,8 @@ class ImpSampManager:
         self.use_mpi = use_mpi
         if isinstance(self.pot_manager, Potential):
             self.pool = self.pot_manager.pool
-            k = id(self.pool)
-            l = id(self.pot_manager.pool)
+            # k = id(self.pool)
+            # l = id(self.pot_manager.pool)
             self.num_cores = self.pot_manager.num_cores
             self._reinit_pool()
             # Thinking about assignment self.trial_wfn, self.deriv, ... to either be the MP, noMP or MPI versions
@@ -44,9 +44,19 @@ class ImpSampManager:
             try:
                 from mpi_potential_manager import MPI_Potential
                 print('setting up MPI for manager')
-            except ValueErorr:
+            except SyntaxError:
                 print("Pass in a proper potential manager, dude")
             pass
+
+    def __getstate__(self):
+        self_dict = self.__dict__.copy()
+        del self_dict['pool']
+        del self_dict['pot_manager']
+        return self_dict
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
 
     def _init_wfn_mp(self):
         """Import the python functions of the pool workers on the pool.
@@ -62,7 +72,8 @@ class ImpSampManager:
 
     def _reinit_pool(self):
         empt = [() for _ in range(self.num_cores)]
-        self.pool.starmap(self._init_wfn_mp, empt,chunksize=1)
+        self.pot_manager.pool.starmap(self._init_wfn_mp, empt,chunksize=1)
+        self._init_wfn_mp()
 
     def call_mp_fun(self, cds, fun, kwargz):
         cds = np.array_split(cds, self.pot_manager.num_cores)
@@ -105,11 +116,10 @@ class ImpSamp:
         psi_t = self.trial(cds)
         deriv = self.imp_manager.call_deriv(cds)
         drift_term = deriv / psi_t
-        return 2 * drift_term
+        return 2 * drift_term, psi_t
 
     @staticmethod
-    def metropolis(self,
-                   sigma_trip,
+    def metropolis(sigma_trip,
                    trial_x,
                    trial_y,
                    disp_x,
@@ -118,13 +128,16 @@ class ImpSamp:
                    f_y):
         psi_ratio = (trial_y / trial_x) ** 2
         accep = np.exp(1. / 2. * (f_x + f_y) * (sigma_trip ** 2 / 4. * (f_x - f_y) - (disp_y - disp_x)))
-        accep = np.prod(np.prod(accep, axis=1), axis=1) * psi_ratio
+        if accep.shape[-1] == 1: #one-dimensional problem
+            accep = accep.squeeze() * psi_ratio.squeeze()
+        else:
+            accep = np.prod(np.prod(accep, axis=1), axis=1) * psi_ratio
         return accep
 
-    def local_kin(self,cds,inv_masses_trip):
+    def local_kin(self,cds,inv_masses_trip, psi_t):
         #inv_masses_trip is num_atoms, 3
         #num_walkers, num_atoms, 3 array
         sec_deriv = self.imp_manager.call_sderiv(cds)
         # Check these axes.
-        kinetic = -0.5 * np.sum(np.sum(inv_masses_trip[np.newaxis] * sec_deriv,axis=1),axis=1)
-        pass
+        kinetic = -0.5 * np.sum(np.sum(inv_masses_trip[np.newaxis] * sec_deriv / psi_t, axis=1), axis=1)
+        return kinetic

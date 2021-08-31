@@ -83,6 +83,7 @@ class DMC_Sim:
                  cur_timestep=0,
                  cont_wt_thresh=None,
                  imp_samp=None,
+                 imp_samp_oned=False,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None,
@@ -108,6 +109,7 @@ class DMC_Sim:
         self.cur_timestep = cur_timestep
         self.cont_wt_thresh = cont_wt_thresh
         self.impsamp_manager = imp_samp
+        self.imp1d = imp_samp_oned
         self._deb_training_every = DEBUG_save_training_every
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
@@ -236,10 +238,13 @@ class DMC_Sim:
             self.f_x = None
             self.psi_1 = None
             # Useful variables to have for importance sampling
-            self.inv_masses_trip = 1 / np.repeat(self.masses,3)
-            self.sigma_trip = np.repeat(self._sigmas,3)
+            self.inv_masses_trip = 1 / np.repeat(self.masses, 3)
+            self.sigma_trip = np.repeat(self._sigmas, 3)
             self.impsamp = ImpSamp(self.impsamp_manager)
-
+            if self.imp1d:
+                # No xyz just one mass and one sigma
+                self.sigma_trip = self._sigmas
+                self.inv_masses_trip = 1 / self.masses
 
     def _init_restart(self, add_ts):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
@@ -363,21 +368,29 @@ class DMC_Sim:
         """
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
         """
-        if self.f_x is None or self.psi_1 is None:
+        print(f"TIME STEP {self.cur_timestep}")
+        if (self.f_x is None or self.psi_1 is None) or self.weighting == 'discrete':
             # f_x is 2 * dpsi/psi, which is more convenient for the metropolis step
             self.f_x, self.psi_1 = self.impsamp.drift(self._walker_coords)
         disps = np.random.normal(0.0,
                                  self.sigma_trip,
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
-        d = (self.sigma_trip ** 2 / 2) * self.f_x # The actual term added to cartesian coords
+        d = (self.sigma_trip ** 2 / 2) * self.f_x  # The actual term added to cartesian coords
         displaced_cds = self._walker_coords + disps + d
         f_y, psi_2 = self.impsamp.drift(displaced_cds)
-        met_nums = self.impsamp.metropolois(self.f_x, f_y, self._walker_coords, self.psi_1, psi_2)
+        met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
+                                           trial_x=self.psi_1,
+                                           trial_y=psi_2,
+                                           disp_x=self._walker_coords,
+                                           disp_y=displaced_cds,
+                                           f_x=self.f_x,
+                                           f_y=f_y)
+
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
         self._walker_coords[accept] = displaced_cds[accept]
         self.psi_1[accept] = psi_2[accept]
-        num_rejctions = len(self._walker_coords) - len(accept) if accept is not None else 0
+        num_rejctions = len(self._walker_coords) - len(accept)
         return num_rejctions
 
     def calc_vref(self):  # Use potential of all walkers to calculate self._vref
@@ -468,7 +481,9 @@ class DMC_Sim:
             if self.impsamp is None:
                 self.move_randomly()
             else:
-                self.imp_move_randomly()
+                rejected = self.imp_move_randomly()
+                if prop_step in self._log_steps:
+                    self._logger.write_rejections(rejected, len(self._walker_coords))
 
             # 2. Calculate the Potential Energy
             if prop_step in self._log_steps:
@@ -482,8 +497,8 @@ class DMC_Sim:
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
             if self.impsamp is not None:
-                local_ke = self.impsamp.local_kin(self._walker_coords,self.inv_masses_trip)
-                self._walker_pots = self._walkers_pots + local_ke
+                local_ke = self.impsamp.local_kin(self._walker_coords, self.inv_masses_trip, self.psi_1)
+                self._walker_pots = self._walker_pots + local_ke
 
             # First time step exception, calc vref early
             if prop_step == self._prop_steps[0]:
@@ -570,8 +585,9 @@ class DMC_Sim:
         cls = self.__class__
         res = cls.__new__(cls)
         memodict[id(self)] = res
+        no_gos = ['potential','potential_info','impsamp_manager','impsamp']
         for k, v in self.__dict__.items():
-            if k != 'potential' and k != 'potential_info':
+            if k not in no_gos:
                 setattr(res, k, copy.deepcopy(v, memodict))
         return res
 
