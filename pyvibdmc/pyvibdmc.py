@@ -237,14 +237,18 @@ class DMC_Sim:
         if self.impsamp_manager is not None:
             self.f_x = None
             self.psi_1 = None
+            self.psi_sec_der = None
             # Useful variables to have for importance sampling
-            self.inv_masses_trip = 1 / np.repeat(self.masses, 3)
-            self.sigma_trip = np.repeat(self._sigmas, 3)
-            self.impsamp = ImpSamp(self.impsamp_manager)
+            self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses),3)[np.newaxis,...]
+            self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses),3)[np.newaxis,...]
+            if self.impsamp_manager.all_finite:
+                self.impsamp = ImpSamp(self.impsamp_manager, finite_difference=True)
+            else:
+                self.impsamp = ImpSamp(self.impsamp_manager)
             if self.imp1d:
                 # No xyz just one mass and one sigma
                 self.sigma_trip = self._sigmas
-                self.inv_masses_trip = 1 / self.masses
+                self.inv_masses_trip = (1 / self.masses)[np.newaxis]
 
     def _init_restart(self, add_ts):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
@@ -371,13 +375,16 @@ class DMC_Sim:
         print(f"TIME STEP {self.cur_timestep}")
         if (self.f_x is None or self.psi_1 is None) or self.weighting == 'discrete':
             # f_x is 2 * dpsi/psi, which is more convenient for the metropolis step
-            self.f_x, self.psi_1 = self.impsamp.drift(self._walker_coords)
+            # Either first time step of normal sim or every time step of discrete sim
+            # or every tiume step of finite diff imp amp
+            self.f_x, self.psi_1, self.psi_sec_der = self.impsamp.drift(self._walker_coords)
         disps = np.random.normal(0.0,
-                                 self.sigma_trip,
+                                 self._sigmas,
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
+        # The actual term added to cartesian coords
         d = (self.sigma_trip ** 2 / 2) * self.f_x  # The actual term added to cartesian coords
         displaced_cds = self._walker_coords + disps + d
-        f_y, psi_2 = self.impsamp.drift(displaced_cds)
+        f_y, psi_2, psi_sec_der_disp = self.impsamp.drift(displaced_cds)
         met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
                                            trial_x=self.psi_1,
                                            trial_y=psi_2,
@@ -390,6 +397,11 @@ class DMC_Sim:
         accept = np.argwhere(met_nums > randos)
         self._walker_coords[accept] = displaced_cds[accept]
         self.psi_1[accept] = psi_2[accept]
+
+        if self.psi_sec_der is not None:
+            """If doing finite difference and calculating 1st and 2nd dervs at once, update sec dervs"""
+            self.psi_sec_der[accept] = psi_sec_der_disp[accept]
+
         num_rejctions = len(self._walker_coords) - len(accept)
         return num_rejctions
 
@@ -497,7 +509,10 @@ class DMC_Sim:
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
             if self.impsamp is not None:
-                local_ke = self.impsamp.local_kin(self._walker_coords, self.inv_masses_trip, self.psi_1)
+                local_ke = self.impsamp.local_kin(self._walker_coords,
+                                                  self.inv_masses_trip,
+                                                  self.psi_1,
+                                                  self.psi_sec_der)
                 self._walker_pots = self._walker_pots + local_ke
 
             # First time step exception, calc vref early
@@ -585,7 +600,7 @@ class DMC_Sim:
         cls = self.__class__
         res = cls.__new__(cls)
         memodict[id(self)] = res
-        no_gos = ['potential','potential_info','impsamp_manager','impsamp']
+        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp']
         for k, v in self.__dict__.items():
             if k not in no_gos:
                 setattr(res, k, copy.deepcopy(v, memodict))

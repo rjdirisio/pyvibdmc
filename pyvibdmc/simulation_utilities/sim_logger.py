@@ -77,4 +77,4 @@ class SimLogger:
         self.fl.write("\n")
 
     def write_rejections(self,rejected, total):
-        self.fl.write(f"Metropolis rejected {rejected} of {total} walkers ({(rejected/total)*100:0.2f} %)")
+        self.fl.write(f"Metropolis rejected {rejected} of {total} walkers ({(rejected/total)*100:0.2f} %)\n")

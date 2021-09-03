@@ -20,7 +20,7 @@ def first_derivative(x):
     omega = pv.Constants.convert(3700, 'wavenumbers', to_AU=True)
     alpha = mass * omega
     derv = (alpha / np.pi) ** 0.25 * (-alpha * x) * np.exp(-alpha * x ** 2 / 2)
-    return derv
+    return derv.squeeze()
 
 
 def second_derivative(x):
@@ -28,7 +28,7 @@ def second_derivative(x):
     omega = pv.Constants.convert(3700, 'wavenumbers', to_AU=True)
     alpha = mass * omega
     sderv = (alpha / np.pi) ** 0.25 * (alpha ** 2 * x ** 2 - alpha) * np.exp(-alpha * x ** 2 / 2)
-    return sderv
+    return sderv.squeeze()
 
 
 if __name__ == '__main__':

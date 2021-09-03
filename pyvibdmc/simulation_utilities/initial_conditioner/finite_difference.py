@@ -8,7 +8,7 @@ class MolFiniteDifference:
     weights_der1 = {'3': np.array([-1 / 2, 0, 1 / 2]),
                     '5': np.array([1 / 12, -2 / 3, 0, 2 / 3, -1 / 12])
                     }
-    weights_der2 = {'3': np.array([-1, 2, 1]),
+    weights_der2 = {'3': np.array([1, -2, 1]),
                     '5': np.array([-1 / 12, 4 / 3, -5 / 2, 4 / 3, -1 / 12])
                     }
 
