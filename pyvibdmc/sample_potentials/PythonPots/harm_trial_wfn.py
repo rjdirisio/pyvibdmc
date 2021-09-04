@@ -10,25 +10,28 @@ def harmonic_oscillator(x, mass, omega):
 
 
 def trial_harm(x):
+    """Must return num_walkers array"""
     mass = pv.Constants.reduced_mass('O-H')
     omega = pv.Constants.convert(3700, 'wavenumbers', to_AU=True)
-    return harmonic_oscillator(x, mass, omega)
+    return harmonic_oscillator(x, mass, omega).squeeze()
 
 
 def first_derivative(x):
+    """Must return num_walkers x num_atoms x 3 array, or in this case num_walkers x 1 x 1"""
     mass = pv.Constants.reduced_mass('O-H')
     omega = pv.Constants.convert(3700, 'wavenumbers', to_AU=True)
     alpha = mass * omega
     derv = (alpha / np.pi) ** 0.25 * (-alpha * x) * np.exp(-alpha * x ** 2 / 2)
-    return derv.squeeze()
+    return derv
 
 
 def second_derivative(x):
+    """Must return num_walkers x num_atoms x 3 array, or in this case num_walkers x 1 x 1"""
     mass = pv.Constants.reduced_mass('O-H')
     omega = pv.Constants.convert(3700, 'wavenumbers', to_AU=True)
     alpha = mass * omega
     sderv = (alpha / np.pi) ** 0.25 * (alpha ** 2 * x ** 2 - alpha) * np.exp(-alpha * x ** 2 / 2)
-    return sderv.squeeze()
+    return sderv
 
 
 if __name__ == '__main__':

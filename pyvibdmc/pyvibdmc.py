@@ -10,6 +10,7 @@ from .simulation_utilities.sim_archive import *
 from .simulation_utilities.Constants import *
 from .simulation_utilities.sim_logger import *
 from .simulation_utilities.imp_samp_manager import *
+from .simulation_utilities.imp_samp import *
 
 __all__ = ['DMC_Sim', 'dmc_restart']
 
