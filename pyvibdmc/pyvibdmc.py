@@ -495,7 +495,7 @@ class DMC_Sim:
                 self._mass_counter += 1
 
             # 1. Move Randomly
-            if self.impsamp is None:
+            if self.impsamp_manager is None:
                 self.move_randomly()
             else:
                 rejected = self.imp_move_randomly()
@@ -513,7 +513,7 @@ class DMC_Sim:
                 self._walker_pots = self.potential(self._walker_coords)
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
-            if self.impsamp is not None:
+            if self.impsamp_manager is not None:
                 local_ke = self.impsamp.local_kin(self._walker_coords,
                                                   self.inv_masses_trip,
                                                   self.psi_1,
