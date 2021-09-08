@@ -7,12 +7,12 @@ from itertools import repeat
 from mpi4py import MPI
 from mpi4py.futures import MPICommExecutor
 
-from .potential_manager import Potential, Potential_NoMP, NN_Potential
+from .mpi_potential_manager import MPI_Potential
 from .initial_conditioner.finite_difference import MolFiniteDifference as MolFD
 from .imp_samp import *
 
-
 inited = False
+
 
 class MPI_ImpSampManager:
     """Imports and Wraps around the user-provided trial wfn and (optionally) the first and second derivatives.
@@ -40,7 +40,7 @@ class MPI_ImpSampManager:
         self.pot_manager = pot_manager
         if not isinstance(self.pot_manager, MPI_Potential):
             raise ValueError("You can only use MPI imp sampling with an MPI potential. Sorry.")
-        self.prep_imp(chdir=True) #for main process
+        self.prep_imp(chdir=True)  # for main process
 
     def prep_imp(self, chdir=False):
         if chdir:
@@ -73,26 +73,26 @@ class MPI_ImpSampManager:
             # For main process
             os.chdir(cur_dir)
 
-    def initwrapper(self,cds):
+    def initwrapper(self, cds, fun, kwargz=None):
         global inited
         if not inited:
-            self.prep_imp(chdir=False) #For child processes that are already in the directory
+            self.prep_imp(chdir=False)  # For child processes that are already in the directory
             inited = True
-
-
-    def call_mp_fun(self, cds, fun, kwargz):
-        cds = np.array_split(cds, self.pot_manager.num_cores)
-        if kwargz is not None:
-            res = self.pool.starmap(fun, zip(cds, repeat(kwargz, len(cds))))
-        else:
-            res = self.pool.map(fun, cds)
-
-        res = np.concatenate(res)
-        return res
+        if inited:
+            if kwargz is None:
+                rez = fun(cds)
+            else:
+                rez = fun(cds,kwargz)
+        return rez
 
     def call_trial(self, cds):
         """Get trial wave function using multiprocessing"""
-        trialz = self.call_mp_fun(cds, self.trial_wfn, self.trial_kwargs)
+        split_cds = np.array_split(cds, self.pot_manager.num_mpi)
+        with MPICommExecutor() as executor:
+            trialz = list(executor.map(self.initwrapper,
+                                       split_cds, repeat(self.trial_wfn, len(split_cds)),
+                                       repeat(self.trial_kwargs, len(split_cds))))
+            trialz = np.concatenate(trialz)
         return trialz
 
     def call_trial_no_mp(self, cds):
@@ -105,27 +105,47 @@ class MPI_ImpSampManager:
 
     def call_deriv(self, cds):
         """Call first derivative using multiprocessing"""
-        derivz = self.call_mp_fun(cds, self.deriv, self.deriv_kwargs)
+        split_cds = np.array_split(cds, self.pot_manager.num_mpi)
+        with MPICommExecutor() as executor:
+            derivz = list(executor.map(self.initwrapper,
+                                       split_cds, repeat(self.deriv, len(split_cds)),
+                                       repeat(self.deriv_kwargs, len(split_cds))))
+
+            derivz = np.concatenate(derivz)
         return derivz
 
     def call_sderiv(self, cds):
         """Call second derivative using multiprocessing"""
-        sderivz = self.call_mp_fun(cds, self.sderiv, self.sderiv_kwargs)
+        split_cds = np.array_split(cds, self.pot_manager.num_mpi)
+        with MPICommExecutor() as executor:
+            sderivz = list(executor.map(self.initwrapper,
+                                        split_cds, repeat(self.sderiv, len(split_cds)),
+                                        repeat(self.sderiv_kwargs, len(split_cds))))
+            sderivz = np.concatenate(sderivz)
         return sderivz
 
     def call_derivs(self, cds):
         """For when derivatives are not supplied, call finite difference function.
         This is still parallelized."""
-        cds = np.array_split(cds, self.num_cores)
-        derivz, sderivz = zip(*self.pool.starmap(self.finite_diff, zip(cds, repeat(self.call_trial_no_mp, len(cds)))))
-        derivz = np.concatenate(derivz)
-        sderivz = np.concatenate(sderivz)
-        # These if statements are for someone who supplied only first derv
-        # function or only 2nd derv fuction but not both
-        if self.sderiv is not None:
-            cds = np.concatenate(cds)
-            sderivz = self.call_sderiv(cds)
-        if self.deriv is not None:
-            cds = np.concatenate(cds)
-            derivz = self.call_deriv(cds)
+        split_cds = np.array_split(cds, self.pot_manager.num_mpi)
+        # derivz, sderivz = zip(*self.pool.starmap(self.finite_diff, zip(cds, repeat(self.call_trial_no_mp, len(cds)))))
+        with MPICommExecutor() as executor:
+            derivz,sderivz = zip(*list(executor.map(self.initwrapper,
+                                                     split_cds,
+                                                     repeat(self.finite_diff, len(split_cds)),
+                                                     repeat(self.call_trial_no_mp, len(split_cds))
+                                                     )
+                                        )
+                                  )
+
+            derivz = np.concatenate(derivz)
+            sderivz = np.concatenate(sderivz)
+            # These if statements are for someone who supplied only first derv
+            # function or only 2nd derv fuction but not both
+            if self.sderiv is not None:
+                cds = np.concatenate(cds)
+                sderivz = self.call_sderiv(cds)
+            if self.deriv is not None:
+                cds = np.concatenate(cds)
+                derivz = self.call_deriv(cds)
         return derivz, sderivz

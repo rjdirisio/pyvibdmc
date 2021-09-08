@@ -235,6 +235,10 @@ class DMC_Sim:
         self._pop_thresh = [self.num_walkers - self.num_walkers * 0.5,
                             self.num_walkers + self.num_walkers * 0.5]
 
+        if 'num_mpi' in self.potential_info.keys():
+            """This is an MPI potential. Run it through once to initialize it"""
+            self.potential(self._walker_coords)
+
         if self.impsamp_manager is not None:
             self.f_x = None
             self.psi_1 = None
@@ -544,6 +548,10 @@ class DMC_Sim:
                 self._logger.write_desc_wt(prop_step)
                 self._desc_wt = False
                 self.calc_desc_wts()
+                import os
+                print("~~~~~~~~~~~~~~~~~")
+                print(os.getcwd())
+                print("~~~~~~~~~~~~~~~~~")
                 SimArchivist.save_h5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step + 1 - self.desc_wt_time_steps}ts.hdf5",
                     keyz=['coords', 'desc_wts'],
