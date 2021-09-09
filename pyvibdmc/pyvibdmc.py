@@ -240,6 +240,8 @@ class DMC_Sim:
             self.potential(self._walker_coords)
 
         if self.impsamp_manager is not None:
+            if self.delta_t != 1:
+                raise ValueError("Delta tau cannot be anything but 1 for importance sampling DMC!!!!")
             self.f_x = None
             self.psi_1 = None
             self.psi_sec_der = None
