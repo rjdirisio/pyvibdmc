@@ -90,7 +90,7 @@ energy surface rather than an ab initio one.::
                                  atoms=atms,
                                  potential=partridge_schwenke,
                                  dx=dxx)
-    freqs, normal_modes = harm_h2o.run(harm_h2o)
+    freqs, normal_modes = harm_h2o.run()
     # Turns of scientific notation
     np.set_printoptions(suppress=True)
     print(f"Freqs (cm-1): {freqs}")
@@ -113,8 +113,8 @@ desired ensemble of walkers that we will feed into the DMC.::
                                      technique='harmonic_sampling',
                                      technique_kwargs={'freqs': freqs,
                                                        'normal_modes': normal_modes,
-                                                       'scaling_factor': 1.5},
-                                                       'ensemble': None)
+                                                       'scaling_factor': 1.5,
+                                                       'ensemble': None})
     new_coords = initializer.run()
 
 The ``technique_kwargs`` you see above are all necessary to pass in. The ``scaling_factor`` broadens the 3N-6 dimensional
