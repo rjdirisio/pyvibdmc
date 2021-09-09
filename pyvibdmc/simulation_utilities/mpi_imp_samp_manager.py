@@ -86,7 +86,7 @@ class MPI_ImpSampManager:
         return rez
 
     def call_trial(self, cds):
-        """Get trial wave function using multiprocessing"""
+        """Get trial wave function using MPI"""
         split_cds = np.array_split(cds, self.pot_manager.num_mpi)
         with MPICommExecutor() as executor:
             trialz = list(executor.map(self.initwrapper,
@@ -104,7 +104,7 @@ class MPI_ImpSampManager:
         return trial
 
     def call_deriv(self, cds):
-        """Call first derivative using multiprocessing"""
+        """Call first derivative using MPI"""
         split_cds = np.array_split(cds, self.pot_manager.num_mpi)
         with MPICommExecutor() as executor:
             derivz = list(executor.map(self.initwrapper,
@@ -115,7 +115,7 @@ class MPI_ImpSampManager:
         return derivz
 
     def call_sderiv(self, cds):
-        """Call second derivative using multiprocessing"""
+        """Call second derivative using MPI"""
         split_cds = np.array_split(cds, self.pot_manager.num_mpi)
         with MPICommExecutor() as executor:
             sderivz = list(executor.map(self.initwrapper,
@@ -126,7 +126,7 @@ class MPI_ImpSampManager:
 
     def call_derivs(self, cds):
         """For when derivatives are not supplied, call finite difference function.
-        This is still parallelized."""
+        This is parallelized using MPI."""
         split_cds = np.array_split(cds, self.pot_manager.num_mpi)
         # derivz, sderivz = zip(*self.pool.starmap(self.finite_diff, zip(cds, repeat(self.call_trial_no_mp, len(cds)))))
         with MPICommExecutor() as executor:

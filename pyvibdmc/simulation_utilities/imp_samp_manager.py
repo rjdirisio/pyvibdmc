@@ -7,6 +7,7 @@ from itertools import repeat
 from .potential_manager import Potential, Potential_NoMP, NN_Potential
 from .imp_samp import *
 
+
 class ImpSampManager:
     """Imports and Wraps around the user-provided trial wfn and (optionally) the first and second derivatives.
     Parallelized using multiprocessing, which is considered the default for pyvibdmc."""
@@ -92,11 +93,13 @@ class ImpSampManager:
             os.chdir(cur_dir)
 
     def _reinit_pool(self):
+        """Imports the appropriate modules that are in the potential_manager directory"""
         empt = [() for _ in range(self.num_cores)]
         self._init_wfn_mp(chdir=True)
         self.pot_manager.pool.starmap(self._init_wfn_mp, empt, chunksize=1)
 
     def call_mp_fun(self, cds, fun, kwargz):
+        """Generic function caller for the three different calls in imp sampling"""
         cds = np.array_split(cds, self.pot_manager.num_cores)
         if kwargz is not None:
             res = self.pool.starmap(fun, zip(cds, repeat(kwargz, len(cds))))
@@ -112,7 +115,8 @@ class ImpSampManager:
         return trialz
 
     def call_trial_no_mp(self, cds):
-        """For call_derivs, get trial wave function. Still used in the mp.pool context, just doesn't call pool itself"""
+        """For call_derivs (finite diff), get trial wave function.
+         Still used in the mp.pool context, just doesn't call pool itself"""
         if self.trial_kwargs is None:
             trial = self.trial_wfn(cds)
         else:
@@ -197,36 +201,35 @@ class ImpSampManager_NoMP:
             self.sderiv = getattr(x, self.sderiv_func)
         os.chdir(self._curdir)
 
-
-    def call_imp_func(self,func,cds,func_kwargs=None):
+    def call_imp_func(self, func, cds, func_kwargs=None):
         """Convenience function for trial, deriv, and sderiv so I don't have to have triplicates of code"""
         if self.chdir:
             os.chdir(self.trial_dir)
         if func_kwargs is None:
             ret_val = func(cds)
         else:
-            ret_val = func(cds,func_kwargs)
+            ret_val = func(cds, func_kwargs)
         if self.chdir:
             os.chdir(self._curdir)
         return ret_val
 
     def call_trial(self, cds):
-        """For call_derivs, get trial wave function. Still used in the mp.pool context, just doesn't call pool itself"""
+        """Call trial wave function."""
         trial = self.call_imp_func(self.trial, cds, self.trial_kwargs)
         return trial
 
     def call_deriv(self, cds):
-        """For call_derivs, get trial wave function. Still used in the mp.pool context, just doesn't call pool itself"""
+        """Call first derivatives."""
         derv = self.call_imp_func(self.deriv, cds, self.deriv_kwargs)
         return derv
 
     def call_sderiv(self, cds):
+        """Call second derivative."""
         sderv = self.call_imp_func(self.sderiv, cds, self.sderiv_kwargs)
         return sderv
 
     def call_derivs(self, cds):
-        """For when derivatives are not supplied, call finite difference function.
-        This is still parallelized."""
+        """For when derivatives are not supplied, call finite difference function."""
         derivz, sderivz = self.finite_diff(cds, trial_func=self.call_trial)
         # These if statements are for someone who supplied only first derv
         # function or only 2nd derv fuction but not both

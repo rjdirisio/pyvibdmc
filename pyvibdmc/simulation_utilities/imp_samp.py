@@ -5,7 +5,8 @@ class ImpSamp:
     """Internal class that:
        1. Calculates local energy
        2. Calculates drift terms
-       Also a good place to put finite difference derivatives.
+       3. Calls trial wave function
+       Directly interfaces with the simulation. Also a good place to put finite difference derivatives.
     """
 
     def __init__(self, imp_samp_manager, finite_difference=False):

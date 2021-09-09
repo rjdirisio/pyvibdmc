@@ -25,7 +25,7 @@ derivatives of the wave function with respect to the ``3N`` Cartesian coordinate
 ``num_walkers x num_atoms x 3`` NumPy arrays that correspond to the value of the derivatives of each walker
 in the x,y, and z components of the various atoms in the molecular system. If no first and second derivatives are
 provided, PyVibDMC defaults to computing the derivatives numerically using finite difference. If a first derivative is
-provided but no second derivative, the first derivative is calculated using the function and the second derivative
+provided but no second derivative (or vice versa), the first derivative is calculated using the function and the second derivative
 is calculated using finite difference.
 
 IMPORTANT REQUIREMENTS:
@@ -53,7 +53,7 @@ easily be used with PyVibDMC::
     water_imp = pv.ImpSampManager_NoMP(trial_function,
                          trial_directory, #same as potential_directory if using MP or MPI
                          python_file,
-                         pot_manager,
+                         pot_manager=water_pot,
                          chdir=..., #optional
                          deriv_function=..., #optional
                          s_deriv_function=..., #optional
@@ -71,11 +71,11 @@ easily be used with PyVibDMC::
     water_imp = pv.ImpSampManager(trial_function,
                          trial_directory, #same as potential_directory
                          python_file,
-                         pot_manager,
+                         pot_manager=water_pot,
                          deriv_function=..., #optional string like trial_function
                          s_deriv_function=..., #optional string like trial_function
                          trial_kwargs=..., #May pass a dict with important things to trial function call
-                         deriv_kwargs=..., #May pass a dict with important things to trial function call - only use if deriv_function is set to something
+                         deriv_kwargs=..., #May pass a dict with important things to deriv function call - only use if deriv_function is set to something
                          s_deriv_kwargs=...) # see deriv_kwargs
 
     # pass to DMC_Sim
@@ -85,8 +85,8 @@ easily be used with PyVibDMC::
                                                # Defaults to False.
                         ...)
 
-Examples of a trial wavefunction (and derivatives) can be found in the Partridge Schwenke sample potential [``h2o_trial.py``] or the
-harmonic oscillator sample potential [``harm_trial_wfn.py``].
+Examples of a trial wavefunction (and derivatives) can be found in the Partridge Schwenke sample potential ``h2o_trial.py`` or the
+harmonic oscillator sample potential ``harm_trial_wfn.py``.
 
 The MPI version of the ImpSampManager can be used in the same way as above, except one must use an
 ``MPI_Potential`` object for the potential manager and and ``MPI_ImpSampManager`` object::
