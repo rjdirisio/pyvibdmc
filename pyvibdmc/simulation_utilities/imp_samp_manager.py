@@ -5,7 +5,6 @@ import itertools as itt
 from itertools import repeat
 
 from .potential_manager import Potential, Potential_NoMP, NN_Potential
-from .initial_conditioner.finite_difference import MolFiniteDifference as MolFD
 from .imp_samp import *
 
 class ImpSampManager:
@@ -40,6 +39,8 @@ class ImpSampManager:
             self._reinit_pool()
         elif (isinstance(self.pot_manager, Potential_NoMP) or isinstance(self.pot_manager,
                                                                          NN_Potential)) and self.nomp_pool_cores is not None:
+            """Really only for NN_Potential using multi-core imp samp"""
+            from multiprocessing import Pool
             self.pool = Pool(self.nomp_pool_cores)
             self.num_cores = self.nomp_pool_cores
             self._reinit_pool()

@@ -377,7 +377,6 @@ class DMC_Sim:
         """
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
         """
-        print(f"TIME STEP {self.cur_timestep}")
         if (self.f_x is None or self.psi_1 is None) or self.weighting == 'discrete':
             # f_x is 2 * dpsi/psi, which is more convenient for the metropolis step
             # Either first time step of normal sim or every time step of discrete sim
@@ -548,10 +547,6 @@ class DMC_Sim:
                 self._logger.write_desc_wt(prop_step)
                 self._desc_wt = False
                 self.calc_desc_wts()
-                import os
-                print("~~~~~~~~~~~~~~~~~")
-                print(os.getcwd())
-                print("~~~~~~~~~~~~~~~~~")
                 SimArchivist.save_h5(
                     fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step + 1 - self.desc_wt_time_steps}ts.hdf5",
                     keyz=['coords', 'desc_wts'],

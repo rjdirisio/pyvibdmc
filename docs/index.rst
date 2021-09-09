@@ -16,6 +16,7 @@ Welcome to PyVibDMC's documentation!
    analysis
    molecular_descriptors
    advanced_analysis
+   imp_samp
 
 
 
