@@ -8,7 +8,8 @@ theta_eq = np.deg2rad(104.5080029)
 theta_freq = pv.Constants.convert(1668.4590610594878, 'wavenumbers', to_AU=True)
 inv_mh = 1 / pv.Constants.mass('H')
 inv_mo = 1 / pv.Constants.mass('O')
-
+wvfn = np.load("free_oh_wvfn.npy")
+free_oh_wfn = interpolate.splrep(wvfn[:, 0], wvfn[:, 1], s=0)
 
 def oh_dists(analyzer):
     oh1 = analyzer.bond_length(0, 2)
@@ -29,8 +30,6 @@ def angle(analyzer):
 
 
 def trial_wavefunction(cds):
-    wvfn = np.load("free_oh_wvfn.npy")
-    free_oh_wfn = interpolate.splrep(wvfn[:, 0], wvfn[:, 1], s=0)
     psi = np.zeros((len(cds), 3))
     analyzer = pv.AnalyzeWfn(cds)
     ohs = oh_dists(analyzer)

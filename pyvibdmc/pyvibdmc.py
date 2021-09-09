@@ -497,9 +497,11 @@ class DMC_Sim:
             if self.impsamp_manager is None:
                 self.move_randomly()
             else:
+                start = time.time()
                 rejected = self.imp_move_randomly()
                 if prop_step in self._log_steps:
                     self._logger.write_rejections(rejected, len(self._walker_coords))
+                    self._logger.write_imp_disp_time(time.time()-start)
 
             # 2. Calculate the Potential Energy
             if prop_step in self._log_steps:

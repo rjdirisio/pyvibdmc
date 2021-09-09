@@ -64,6 +64,11 @@ class SimLogger:
         for key, value in potential_info.items():
             if not key.startswith("_"):
                 self.fl.write(f"\t{key}: {value}\n")
+        if 'impsamp_manager' in attribs.keys():
+            self.fl.write("Imp Samp attributes: \n")
+            for key, value in potential_info.items():
+                if not key.startswith("_"):
+                    self.fl.write(f"\t{key}: {value}\n")
         self.fl.write(f"Num Walkers: {attribs['num_walkers']}\n")
         self.fl.write(f"Num Time Steps: {attribs['num_timesteps']}\n")
         self.fl.write(f"Weighting Type: {attribs['weighting']}\n")
@@ -78,3 +83,6 @@ class SimLogger:
 
     def write_rejections(self,rejected, total):
         self.fl.write(f"Metropolis rejected {rejected} of {total} walkers ({(rejected/total)*100:0.2f} %)\n")
+
+    def write_imp_disp_time(self,time):
+        self.fl.write(f"Imp samp displacement took {time} seconds.\n")
