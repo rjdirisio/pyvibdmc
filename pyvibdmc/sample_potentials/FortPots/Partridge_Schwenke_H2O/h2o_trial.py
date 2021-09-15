@@ -11,6 +11,7 @@ inv_mo = 1 / pv.Constants.mass('O')
 wvfn = np.load("free_oh_wvfn.npy")
 free_oh_wfn = interpolate.splrep(wvfn[:, 0], wvfn[:, 1], s=0)
 
+
 def oh_dists(analyzer):
     oh1 = analyzer.bond_length(0, 2)
     oh2 = analyzer.bond_length(1, 2)
@@ -28,11 +29,12 @@ def angle(analyzer):
     alpha = theta_freq / g
     return (alpha / np.pi) ** (1 / 4) * np.exp(-alpha * (hoh - theta_eq) ** 2 / 2)
 
+
 def deriv_angle(analyzer):
     hoh = analyzer.bond_angle(0, 2, 1)
     g = gmat()
     alpha = theta_freq / g
-    x = hoh-theta_eq
+    x = hoh - theta_eq
     return (alpha / np.pi) ** 0.25 * (-alpha * x) * np.exp(-alpha * x ** 2 / 2)
 
 
@@ -40,8 +42,9 @@ def sderiv_angle(analyzer):
     hoh = analyzer.bond_angle(0, 2, 1)
     g = gmat()
     alpha = theta_freq / g
-    x = hoh-theta_eq
+    x = hoh - theta_eq
     return (alpha / np.pi) ** 0.25 * (alpha ** 2 * x ** 2 - alpha) * np.exp(-alpha * x ** 2 / 2)
+
 
 def trial_wavefunction(cds):
     psi = np.zeros((len(cds), 3))
@@ -51,6 +54,7 @@ def trial_wavefunction(cds):
         psi[:, i] = interpolate.splev(ohs[i], free_oh_wfn, der=0)
     psi[:, 2] = angle(analyzer)
     return np.prod(psi, axis=1)
+
 
 def first_deriv(cds):
     """computes dpsi/dr1, dpsi/dr2, dpsi/dtheta"""
@@ -62,6 +66,7 @@ def first_deriv(cds):
     dpsi[:, 2] = deriv_angle(analyzer)
     return dpsi.T
 
+
 def sec_deriv(cds):
     """computes dpsi/dr1, dpsi/dr2, dpsi/dtheta"""
     sdpsi = np.zeros((len(cds), 3))
@@ -72,18 +77,20 @@ def sec_deriv(cds):
     sdpsi[:, 2] = sderiv_angle(analyzer)
     return sdpsi.T
 
+
 def dpsi_dx(cds):
     dpsi_dr = first_deriv(cds)
-    dr_dx = pv.ChainRuleHelper.dr_dx(cds,[[0,2],[1,2]])
-    dth_dx = pv.ChainRuleHelper.dth_dx(cds,[[0, 2, 1]])
-    dint_dx = np.concatenate([dr_dx,dth_dx])
-    dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr,dint_dx)
+    dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
+    dth_dx = pv.ChainRuleHelper.dth_dx(cds, [[0, 2, 1]])
+    dint_dx = np.concatenate([dr_dx, dth_dx])
+    dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr, dint_dx)
     return dp_dx
+
 
 def d2psi_dx2(cds):
     d2psi_dr2 = sec_deriv(cds)
-    d2r_dx2 = pv.ChainRuleHelper.d2r_dx2(cds,[[0,2],[1,2]])
-    d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds,[[0, 2, 1]])
-    d2int_dx2 = np.concatenate([d2r_dx2,d2th_dx2])
-    d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2,d2int_dx2).squeeze()
+    d2r_dx2 = pv.ChainRuleHelper.d2r_dx2(cds, [[0, 2], [1, 2]])
+    d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds, [[0, 2, 1]])
+    d2int_dx2 = np.concatenate([d2r_dx2, d2th_dx2])
+    d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2).squeeze()
     return d2p_dx2

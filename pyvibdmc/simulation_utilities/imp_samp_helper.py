@@ -132,9 +132,9 @@ class ChainRuleHelper:
     def dpsidx(dpsi_dr, dr_dx):
         """Generic function that takes in a series of dpsi/dr matrices and dr/dx matrices and generates the dpsi/dx
          matrix. Assumes direct product wave function fed in appropriately."""
-        dpsi_dr = dpsi_dr[:,:,np.newaxis,np.newaxis,np.newaxis].transpose(1,2,3,4,0)
-        dr_dx = dr_dx.transpose(1,2,3,0)[...,np.newaxis]
-        return np.matmul(dpsi_dr,dr_dx).squeeze()
+        dpsi_dr = dpsi_dr[:, :, np.newaxis, np.newaxis, np.newaxis].transpose(1, 2, 3, 4, 0)
+        dr_dx = dr_dx.transpose(1, 2, 3, 0)[..., np.newaxis]
+        return np.matmul(dpsi_dr, dr_dx).squeeze()
 
     @staticmethod
     def d2psidx2(coords, excite, shift):
