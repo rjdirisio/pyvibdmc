@@ -5,3 +5,4 @@ from .potential_manager import *
 from .initial_conditioner import *
 from .tensorflow_descriptors import *
 from .imp_samp_manager import *
+from .imp_samp_helper import *

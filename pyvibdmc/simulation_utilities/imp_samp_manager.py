@@ -186,7 +186,7 @@ class ImpSampManager_NoMP:
         self.trial = getattr(x, self.trial_fuc)
         if self.deriv_func is None or self.sderiv_func is None:
             self.all_finite = True
-            self.derivs = self.finite_diff
+            self.derivs = ImpSamp.finite_diff
             if self.deriv_func is not None:
                 self.deriv = getattr(x, self.deriv_func)
             else:
@@ -230,13 +230,12 @@ class ImpSampManager_NoMP:
 
     def call_derivs(self, cds):
         """For when derivatives are not supplied, call finite difference function."""
-        derivz, sderivz = self.finite_diff(cds, trial_func=self.call_trial)
+        derivz, sderivz = self.derivs(cds, trial_func=self.call_trial)
         # These if statements are for someone who supplied only first derv
         # function or only 2nd derv fuction but not both
         if self.sderiv is not None:
-            cds = np.concatenate(cds)
             sderivz = self.call_sderiv(cds)
         if self.deriv is not None:
-            cds = np.concatenate(cds)
+            fin_derivz = np.copy(derivz)
             derivz = self.call_deriv(cds)
         return derivz, sderivz
