@@ -53,8 +53,8 @@ class ChainRuleHelper:
             # need alpha_c - alpha_b
             alpha_1 = cds[:, atm_pair[2]] - cds[:, atm_pair[1]]
             # need rab and rcb
-            rab = analyzer.bond_length(1, 0)
-            rcb = analyzer.bond_length(1, 2)
+            rab = analyzer.bond_length(atm_pair[1], atm_pair[0])
+            rcb = analyzer.bond_length(atm_pair[1], atm_pair[2])
             d_ar[num, :, atm_pair[0], :] = alpha_1 / (rab * rcb)[:, np.newaxis] - \
                                            (cos_theta / rab)[:, np.newaxis] * dr_da[0, :, atm_pair[0], :]
             # Next, need alpha_a and alpha_b
@@ -79,8 +79,8 @@ class ChainRuleHelper:
             dr_dc = ChainRuleHelper.dr_dx(cds, [[atm_pair[1], atm_pair[2]]])
             d2r_da2 = ChainRuleHelper.d2r_dx2(cds, [[atm_pair[0], atm_pair[1]]])
             d2r_dc2 = ChainRuleHelper.d2r_dx2(cds, [[atm_pair[1], atm_pair[2]]])
-            rab = analyzer.bond_length(1, 0)
-            rcb = analyzer.bond_length(1, 2)
+            rab = analyzer.bond_length(atm_pair[1], atm_pair[0])
+            rcb = analyzer.bond_length(atm_pair[1], atm_pair[2])
             # First, get sec deriv wrt 1st ext atom
             alpha_1 = cds[:, atm_pair[2] - atm_pair[1]]
             term_1 = (-2 * alpha_1) / (rab ** 2 * rcb)[:, np.newaxis] * dr_da[0, :, atm_pair[0], :]
@@ -132,9 +132,13 @@ class ChainRuleHelper:
     def dpsidx(dpsi_dr, dr_dx):
         """Generic function that takes in a series of dpsi/dr matrices and dr/dx matrices and generates the dpsi/dx
          matrix. Assumes direct product wave function fed in appropriately."""
+        # dpsi_drp = dpsi_dr.transpose(1, 0)[:, np.newaxis, :, np.newaxis]
+        # dr_dxp = dr_dx.transpose(1, 2, 3, 0)
+        # jacob = np.matmul(dr_dxp,dpsi_drp).squeeze()
         dpsi_dr = dpsi_dr[:, :, np.newaxis, np.newaxis, np.newaxis].transpose(1, 2, 3, 4, 0)
         dr_dx = dr_dx.transpose(1, 2, 3, 0)[..., np.newaxis]
-        return np.matmul(dpsi_dr, dr_dx).squeeze()
+        mark = np.matmul(dpsi_dr, dr_dx).squeeze()
+        return mark
 
     @staticmethod
     def d2psidx2(coords, excite, shift):

@@ -53,7 +53,7 @@ def trial_wavefunction(cds):
     for i in range(2):
         psi[:, i] = interpolate.splev(ohs[i], free_oh_wfn, der=0)
     psi[:, 2] = angle(analyzer)
-    return np.prod(psi, axis=1)
+    return psi
 
 
 def first_deriv(cds):
@@ -79,7 +79,9 @@ def sec_deriv(cds):
 
 
 def dpsi_dx(cds):
+    trl = trial_wavefunction(cds)
     dpsi_dr = first_deriv(cds)
+    dpsi_dr = dpsi_dr / trl[np.newaxis, :]
     dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
     dth_dx = pv.ChainRuleHelper.dth_dx(cds, [[0, 2, 1]])
     dint_dx = np.concatenate([dr_dx, dth_dx])

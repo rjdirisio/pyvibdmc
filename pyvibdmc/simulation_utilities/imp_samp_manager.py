@@ -24,7 +24,7 @@ class ImpSampManager:
                  deriv_kwargs=None,
                  s_deriv_kwargs=None):
 
-        self.trial_fuc = trial_function
+        self.trial_func = trial_function
         self.trial_dir = trial_directory
         self.python_file = python_file
         self.deriv_func = deriv_function
@@ -69,7 +69,7 @@ class ImpSampManager:
         sys.path.insert(0, os.getcwd())
         module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
-        self.trial_wfn = getattr(x, self.trial_fuc)
+        self.trial_wfn = getattr(x, self.trial_func)
         if self.deriv_func is None or self.sderiv_func is None:
             # even if you have 1 or the other, do finite difference for everything,
             # bool for pyvibdmc sim code to do both derivs at once.
@@ -238,4 +238,5 @@ class ImpSampManager_NoMP:
         if self.deriv is not None:
             fin_derivz = np.copy(derivz)
             derivz = self.call_deriv(cds)
+            duh = derivz / fin_derivz
         return derivz, sderivz

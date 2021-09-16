@@ -1,6 +1,7 @@
 from .imp_samp_manager import *
 import numpy as np
 
+
 class ImpSamp:
     """Internal class that:
        1. Calculates local energy
@@ -14,19 +15,25 @@ class ImpSamp:
         self.findiff = finite_difference
 
     def trial(self, cds):
+        """Internally returns the direct product wfn"""
         trial_wfn = self.imp_manager.call_trial(cds)
-        return trial_wfn
+        if len(trial_wfn.shape) > 1:
+            return np.prod(trial_wfn, axis=1)
+        else:
+            """Should only be for 1D problems"""
+            return trial_wfn
 
     def drift(self, cds):
         """Internally returns 2*(dpsi/psi), since it's more convenient in the workflow"""
         # num_walkers, num_atoms, 3 array
         psi_t = self.trial(cds)
         if self.findiff:
-            deriv, sderiv = self.imp_manager.call_derivs(cds)
+            deriv, sderiv = self.imp_manager.call_derivs(cds) / psi_t[:, np.newaxis, np.newaxis]
         else:
             deriv = self.imp_manager.call_deriv(cds)
             sderiv = None
-        drift_term = deriv / psi_t[:, np.newaxis, np.newaxis]
+        # drift_term = deriv / psi_t[:, np.newaxis, np.newaxis]
+        drift_term = deriv
         return 2 * drift_term, psi_t, sderiv
 
     @staticmethod
