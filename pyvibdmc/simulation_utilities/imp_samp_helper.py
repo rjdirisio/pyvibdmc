@@ -3,6 +3,23 @@ from ..analysis import AnalyzeWfn
 
 
 class ChainRuleHelper:
+    def __init__(self):
+        self.dpsi_dr = None
+        self.dr_dx = None
+
+    def dpsidx(self, dpsi_dr, dr_dx):
+        """Generic function that takes in a series of dpsi/dr matrices and dr/dx matrices and generates the dpsi/dx
+         matrix. Assumes direct product wave function fed in appropriately."""
+        self.dpsi_dr = dpsi_dr
+        self.dr_dx = dr_dx
+        dpsi_dr = dpsi_dr[:, :, np.newaxis, np.newaxis, np.newaxis].transpose(1, 2, 3, 4, 0)
+        dr_dx = dr_dx.transpose(1, 2, 3, 0)[..., np.newaxis]
+        mark = np.matmul(dpsi_dr, dr_dx).squeeze()
+        return mark
+
+    def d2psidx2(self, coords, excite, shift):
+        raise NotImplementedError("Plz w8 m8")
+
     @staticmethod
     def dr_dx(cds, atm_bonds):
         """
@@ -122,24 +139,10 @@ class ChainRuleHelper:
         dcos_ar = ChainRuleHelper.d2cth_dx2(cds, atm_bonds)
         d_ar = np.zeros((len(atm_bonds),) + cds.shape)  # the first derivative array
         for num, atm_pair in enumerate(atm_bonds):
-            # A bunch of things that are used throughout the calculation
             cos_theta = np.cos(analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
             d2th_dcth2 = -cos_theta / ((1 - cos_theta ** 2) ** 1.5)
             d_ar[num] = d2th_dcth2[:, np.newaxis, np.newaxis] * dcos_ar[num]
         return d_ar
 
-    @staticmethod
-    def dpsidx(dpsi_dr, dr_dx):
-        """Generic function that takes in a series of dpsi/dr matrices and dr/dx matrices and generates the dpsi/dx
-         matrix. Assumes direct product wave function fed in appropriately."""
-        # dpsi_drp = dpsi_dr.transpose(1, 0)[:, np.newaxis, :, np.newaxis]
-        # dr_dxp = dr_dx.transpose(1, 2, 3, 0)
-        # jacob = np.matmul(dr_dxp,dpsi_drp).squeeze()
-        dpsi_dr = dpsi_dr[:, :, np.newaxis, np.newaxis, np.newaxis].transpose(1, 2, 3, 4, 0)
-        dr_dx = dr_dx.transpose(1, 2, 3, 0)[..., np.newaxis]
-        mark = np.matmul(dpsi_dr, dr_dx).squeeze()
-        return mark
 
-    @staticmethod
-    def d2psidx2(coords, excite, shift):
-        raise NotImplementedError("Plz w8 m8")
+

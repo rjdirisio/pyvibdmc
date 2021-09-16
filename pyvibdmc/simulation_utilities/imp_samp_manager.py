@@ -231,12 +231,15 @@ class ImpSampManager_NoMP:
     def call_derivs(self, cds):
         """For when derivatives are not supplied, call finite difference function."""
         derivz, sderivz = self.derivs(cds, trial_func=self.call_trial)
+        fin_derivz = np.copy(derivz)
+
         # These if statements are for someone who supplied only first derv
         # function or only 2nd derv fuction but not both
         if self.sderiv is not None:
             sderivz = self.call_sderiv(cds)
         if self.deriv is not None:
-            fin_derivz = np.copy(derivz)
+            #derivz here is already divided by psi, as mandated by external derivatives.
             derivz = self.call_deriv(cds)
-            duh = derivz / fin_derivz
+            # If overwriting derivatives, then pre-multiply by psi, as it is divided by psi in the drift call.
+            derivz = derivz * np.prod(self.call_trial(cds),axis=1)[:, np.newaxis, np.newaxis]
         return derivz, sderivz

@@ -79,13 +79,16 @@ def sec_deriv(cds):
 
 
 def dpsi_dx(cds):
+    """trial_wavefunction returns a num_walkers x 3 array"""
     trl = trial_wavefunction(cds)
     dpsi_dr = first_deriv(cds)
-    dpsi_dr = dpsi_dr / trl[np.newaxis, :]
+    dpsi_dr_psi = dpsi_dr / trl.T
     dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
     dth_dx = pv.ChainRuleHelper.dth_dx(cds, [[0, 2, 1]])
     dint_dx = np.concatenate([dr_dx, dth_dx])
-    dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr, dint_dx)
+    # np.save("dpsi_dr_psi",dpsi_dr_psi[:,1000])
+    # np.save("dint_dx",dint_dx[:,1000])
+    dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr_psi, dint_dx)
     return dp_dx
 
 
@@ -96,3 +99,9 @@ def d2psi_dx2(cds):
     d2int_dx2 = np.concatenate([d2r_dx2, d2th_dx2])
     d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2).squeeze()
     return d2p_dx2
+
+
+def deriv_sderiv(cds):
+    crap = dpsi_dx(cds)
+    crap2 = d2psi_dx2(cds,crap)
+    return crap, crap2

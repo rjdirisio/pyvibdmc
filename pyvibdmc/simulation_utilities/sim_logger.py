@@ -40,9 +40,9 @@ class SimLogger:
         avgpot = Constants.convert(avgpot, 'wavenumbers', to_AU=False)
         self.fl.write(f"Potential call time at time step {cur_time_step}:\n")
         self.fl.write(f"\t{pot_time} seconds\n")
-        self.fl.write(f"\tAverage energy of ensemble: {avgpot} wavenumbers (without vref correction)\n")
-        self.fl.write(f"\tHighest energy walker: {maxpot} wavenumbers\n")
-        self.fl.write(f"\tLowest energy walker: {minpot} wavenumbers\n")
+        self.fl.write(f"\tAverage energy of ensemble: {avgpot} cm-1 (without vref correction)\n")
+        self.fl.write(f"\tHighest energy walker: {maxpot} cm-1\n")
+        self.fl.write(f"\tLowest energy walker: {minpot} cm-1\n")
 
     def write_branching(self, cur_time_step, weighting, birthdeath_branch):
         if weighting == 'discrete':

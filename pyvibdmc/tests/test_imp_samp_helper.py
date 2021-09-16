@@ -7,7 +7,7 @@ import numpy as np
 def test_imp_samp_derivs():
     water_coord = np.array([[1.81005599, 0., 0.],
                             [-0.45344658, 1.75233806, 0.],
-                            [0., 0., 0.]])
+                            [0., 0., 0.]]) * 1.01
     water_coord = np.tile(water_coord, (1000, 1, 1))
     xx = pv.ChainRuleHelper.dr_dx(water_coord, [[0, 2], [1, 2]])
     x = pv.ChainRuleHelper.d2r_dx2(water_coord, [[0, 2], [1, 2]])
@@ -16,7 +16,7 @@ def test_imp_samp_derivs():
     a = pv.ChainRuleHelper.dth_dx(water_coord, [[0, 1, 2]])
     b = pv.ChainRuleHelper.d2th_dx2(water_coord, [[0, 1, 2]])
     dpsi_dr = print('doo this')
-    dr_dx = np.array([xx, a])
+    dr_dx = np.concatenate([xx, a])
     print('hi')
 
 
@@ -43,7 +43,13 @@ def test_dpsi_dx():
     start_cds[:, 0, 0] += stretch
     start_cds = pv.MolRotator.rotate_geoms(th1,start_cds)
     start_cds = pv.MolRotator.rotate_geoms(th2,start_cds)
-    np.save("start_cds.npy",start_cds)
+    # np.save("start_cds.npy",start_cds)
+    #
+    # water_coord = np.array([[1.81005599, 0., 0.],
+    #                         [-0.45344658, 1.75233806, 0.],
+    #                         [0., 0., 0.]]) * 1.01
+    # water_coord = np.expand_dims(water_coord,0)
+    # start_cds = np.tile(water_coord,(2001,1,1))
     impo = pv.ImpSampManager_NoMP(trial_function='trial_wavefunction',
                                   trial_directory=potDir,
                                   python_file='h2o_trial.py',
