@@ -30,36 +30,36 @@ def test_dpsi_dx():
     harm_pot = pv.Potential(potential_function=potFunc,
                             python_file=pyFile,
                             potential_directory=potDir,
-                            num_cores=2)
+                            num_cores=8)
 
-    water_coord = np.array([[1.81005599, 0., 0.],
-                            [-0.45344658, 1.75233806, 0.],
-                            [0., 0., 0.]]) * 1.01
-    water_coord -= 1
-    th1 = pv.MolRotator.gen_rot_mats(np.repeat(np.deg2rad(75),2001),0)
-    th2 = pv.MolRotator.gen_rot_mats(np.repeat(np.deg2rad(30),2001),1)
-    start_cds = np.tile(water_coord, (2001, 1, 1))  # Make it (1 x num_atoms x 3)
-    stretch = np.linspace(-0.5, 0.5, num=2001)
-    start_cds[:, 0, 0] += stretch
-    start_cds = pv.MolRotator.rotate_geoms(th1,start_cds)
-    start_cds = pv.MolRotator.rotate_geoms(th2,start_cds)
-    # np.save("start_cds.npy",start_cds)
-    #
     # water_coord = np.array([[1.81005599, 0., 0.],
     #                         [-0.45344658, 1.75233806, 0.],
     #                         [0., 0., 0.]]) * 1.01
-    # water_coord = np.expand_dims(water_coord,0)
-    # start_cds = np.tile(water_coord,(2001,1,1))
+    # water_coord -= 1
+    # th1 = pv.MolRotator.gen_rot_mats(np.repeat(np.deg2rad(75),2001),0)
+    # th2 = pv.MolRotator.gen_rot_mats(np.repeat(np.deg2rad(30),2001),1)
+    # start_cds = np.tile(water_coord, (2001, 1, 1))  # Make it (1 x num_atoms x 3)
+    # stretch = np.linspace(-0.5, 0.5, num=2001)
+    # start_cds[:, 0, 0] += stretch
+    # start_cds = pv.MolRotator.rotate_geoms(th1,start_cds)
+    # start_cds = pv.MolRotator.rotate_geoms(th2,start_cds)
+    # np.save("start_cds.npy",start_cds)
+    #
+    water_coord = np.array([[1.81005599, 0., 0.],
+                            [-0.45344658, 1.75233806, 0.],
+                            [0., 0., 0.]]) * 1.01
+    water_coord = np.expand_dims(water_coord,0)
+    start_cds = np.tile(water_coord,(2001,1,1))
     impo = pv.ImpSampManager_NoMP(trial_function='trial_wavefunction',
                                   trial_directory=potDir,
                                   python_file='h2o_trial.py',
                                   deriv_function='dpsi_dx')
 
-    myDMC = pv.DMC_Sim(sim_name="water_impsamp_test",
+    myDMC = pv.DMC_Sim(sim_name="water_impsamp_test_ana",
                        output_folder=sim_ex_dir,
                        weighting='discrete',
                        num_walkers=2001,
-                       num_timesteps=1000,
+                       num_timesteps=2000,
                        equil_steps=5,
                        chkpt_every=10,
                        wfn_every=10,

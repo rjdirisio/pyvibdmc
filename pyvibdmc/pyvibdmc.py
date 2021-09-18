@@ -402,11 +402,9 @@ class DMC_Sim:
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
         self._walker_coords[accept] = displaced_cds[accept]
+        self.f_x[accept] = f_y[accept]
         self.psi_1[accept] = psi_2[accept]
-
-        if self.psi_sec_der is not None:
-            """If doing finite difference and calculating 1st and 2nd dervs at once, update sec dervs"""
-            self.psi_sec_der[accept] = psi_sec_der_disp[accept]
+        self.psi_sec_der[accept] = psi_sec_der_disp[accept]
 
         num_rejctions = len(self._walker_coords) - len(accept)
         return num_rejctions
@@ -517,10 +515,7 @@ class DMC_Sim:
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
             if self.impsamp_manager is not None:
-                local_ke = self.impsamp.local_kin(self._walker_coords,
-                                                  self.inv_masses_trip,
-                                                  self.psi_1,
-                                                  self.psi_sec_der)
+                local_ke = self.impsamp.local_kin(self.inv_masses_trip, self.psi_sec_der)
                 self._walker_pots = self._walker_pots + local_ke
 
             # First time step exception, calc vref early

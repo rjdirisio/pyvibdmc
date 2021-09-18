@@ -24,20 +24,12 @@ class ImpSamp:
             return trial_wfn
 
     def drift(self, cds):
-        """Internally returns 2*(dpsi/psi), since it's more convenient in the workflow"""
+        """Internally returns 2*(dpsi/psi), since it's more convenient in the workflow.
+        Also returns second derivatives divided by psi"""
         # num_walkers, num_atoms, 3 array
         psi_t = self.trial(cds)
-        if self.findiff:
-            deriv, sderiv = self.imp_manager.call_derivs(cds)
-            # Pre-divide by psi, as user is supposed to divide by psi if they provide derivatives.
-            deriv = deriv / psi_t[:, np.newaxis, np.newaxis]
-            sderiv = sderiv / psi_t[:, np.newaxis, np.newaxis]
-        else:
-            deriv = self.imp_manager.call_deriv(cds)
-            sderiv = None
-        # drift_term = deriv / psi_t[:, np.newaxis, np.newaxis]
-        drift_term = deriv
-        return 2 * drift_term, psi_t, sderiv
+        deriv, sderiv = self.imp_manager.call_derivs(cds)
+        return 2 * deriv, psi_t, sderiv
 
     @staticmethod
     def metropolis(sigma_trip,
@@ -55,11 +47,9 @@ class ImpSamp:
             accep = np.prod(np.prod(accep, axis=1), axis=1) * psi_ratio
         return accep
 
-    def local_kin(self, cds, inv_masses_trip, psi_t, sec_deriv=None):
-        if sec_deriv is None:
-            sec_deriv = self.imp_manager.call_sderiv(cds)
+    @staticmethod
+    def local_kin(inv_masses_trip, sec_deriv):
         # No division by psi as fin diff did it earlier and user provides sec derivs already divided by psi.
-        # kinetic = -0.5 * np.sum(np.sum(inv_masses_trip * sec_deriv / psi_t[:, np.newaxis, np.newaxis], axis=1), axis=1)
         kinetic = -0.5 * np.sum(np.sum(inv_masses_trip * sec_deriv, axis=1), axis=1)
         return kinetic
 
@@ -84,6 +74,7 @@ class ImpSamp:
         if len(tmp_trial.shape) > 1:
             prod = True
         else:
+            """Only 1D wfns should be 1D arrays at this point"""
             prod = False
         tmp_psi = ImpSamp.get_tmp_psi(cds, trial_func, tmp_psi, 1, prod)
         for atom_label in range(num_atoms):
@@ -97,4 +88,4 @@ class ImpSamp:
                 first[:, atom_label, xyz] = (tmp_psi[:, 2] - tmp_psi[:, 0]) / (2 * dx)
                 # Proper second derivative
                 sec[:, atom_label, xyz] = ((tmp_psi[:, 0] - 2. * tmp_psi[:, 1] + tmp_psi[:, 2]) / dx ** 2)
-        return first, sec
+        return first, sec, tmp_psi[:,1]

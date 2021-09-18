@@ -19,19 +19,14 @@ class ImpSampManager:
                  pot_manager,
                  new_pool_num_cores=None,
                  deriv_function=None,
-                 s_deriv_function=None,
                  trial_kwargs=None,
-                 deriv_kwargs=None,
-                 s_deriv_kwargs=None):
-
+                 deriv_kwargs=None):
         self.trial_func = trial_function
         self.trial_dir = trial_directory
         self.python_file = python_file
         self.deriv_func = deriv_function
-        self.sderiv_func = s_deriv_function
         self.trial_kwargs = trial_kwargs
         self.deriv_kwargs = deriv_kwargs
-        self.sderiv_kwargs = s_deriv_kwargs
         self.pot_manager = pot_manager
         self.nomp_pool_cores = new_pool_num_cores  # Only when one wants to do multiprocessing importance sampling with noMP potential (like NN-DMC)
         if isinstance(self.pot_manager, Potential):
@@ -70,24 +65,13 @@ class ImpSampManager:
         module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
         self.trial_wfn = getattr(x, self.trial_func)
-        if self.deriv_func is None or self.sderiv_func is None:
-            # even if you have 1 or the other, do finite difference for everything,
+        if self.deriv_func is None:
             # bool for pyvibdmc sim code to do both derivs at once.
             self.all_finite = True
-            self.finite_diff = ImpSamp.finite_diff
-            self.derivs = self.finite_diff
-            if self.deriv_func is not None:
-                self.deriv = getattr(x, self.deriv_func)
-            else:
-                self.deriv = None
-            if self.sderiv_func is not None:
-                self.sderiv = getattr(x, self.sderiv_func)
-            else:
-                self.sderiv = None
+            self.derivs = ImpSamp.finite_diff
         else:  # Supplied derivatives, just import them
             self.all_finite = False
-            self.deriv = getattr(x, self.deriv_func)
-            self.sderiv = getattr(x, self.sderiv_func)
+            self.derivs = getattr(x, self.deriv_func)
         if chdir:
             # For main process
             os.chdir(cur_dir)
@@ -98,21 +82,15 @@ class ImpSampManager:
         self._init_wfn_mp(chdir=True)
         self.pot_manager.pool.starmap(self._init_wfn_mp, empt, chunksize=1)
 
-    def call_mp_fun(self, cds, fun, kwargz):
-        """Generic function caller for the three different calls in imp sampling"""
-        cds = np.array_split(cds, self.pot_manager.num_cores)
-        if kwargz is not None:
-            res = self.pool.starmap(fun, zip(cds, repeat(kwargz, len(cds))))
-        else:
-            res = self.pool.map(fun, cds)
-
-        res = np.concatenate(res)
-        return res
-
     def call_trial(self, cds):
         """Get trial wave function using multiprocessing"""
-        trialz = self.call_mp_fun(cds, self.trial_wfn, self.trial_kwargs)
-        return trialz
+        cds = np.array_split(cds, self.pot_manager.num_cores)
+        if self.trial_kwargs is not None:
+            res = self.pool.starmap(self.trial_wfn, zip(cds, repeat(self.trial_kwargs, len(cds))))
+        else:
+            res = self.pool.map(self.trial_wfn, cds)
+        res = np.concatenate(res)
+        return res
 
     def call_trial_no_mp(self, cds):
         """For call_derivs (finite diff), get trial wave function.
@@ -123,31 +101,30 @@ class ImpSampManager:
             trial = self.trial_wfn(cds, self.trial_kwargs)
         return trial
 
-    def call_deriv(self, cds):
-        """Call first derivative using multiprocessing"""
-        derivz = self.call_mp_fun(cds, self.deriv, self.deriv_kwargs)
-        return derivz
-
-    def call_sderiv(self, cds):
-        """Call second derivative using multiprocessing"""
-        sderivz = self.call_mp_fun(cds, self.sderiv, self.sderiv_kwargs)
-        return sderivz
-
     def call_derivs(self, cds):
         """For when derivatives are not supplied, call finite difference function.
         This is still parallelized."""
         cds = np.array_split(cds, self.num_cores)
-        derivz, sderivz = zip(*self.pool.starmap(self.finite_diff, zip(cds, repeat(self.call_trial_no_mp, len(cds)))))
-        derivz = np.concatenate(derivz)
-        sderivz = np.concatenate(sderivz)
-        # These if statements are for someone who supplied only first derv
-        # function or only 2nd derv fuction but not both
-        if self.sderiv is not None:
-            cds = np.concatenate(cds)
-            sderivz = self.call_sderiv(cds)
-        if self.deriv is not None:
-            cds = np.concatenate(cds)
-            derivz = self.call_deriv(cds)
+        if self.all_finite:
+            # Divide by trial wfn if finite difference
+            derivz, sderivz, trial_wfn = zip(*self.pool.starmap(self.derivs,
+                                                                zip(cds, repeat(self.call_trial_no_mp, len(cds)))))
+            derivz = np.concatenate(derivz) / np.concatenate(trial_wfn)[:, np.newaxis, np.newaxis]
+            sderivz = np.concatenate(sderivz) / np.concatenate(trial_wfn)[:, np.newaxis, np.newaxis]
+        else:
+            if self.deriv_kwargs is None:
+                derivz, sderivz = zip(*self.pool.map(self.derivs, cds))
+            else:
+                derivz, sderivz = zip(*self.pool.starmap(self.derivs, zip(cds, repeat(self.deriv_kwargs, len(cds)))))
+            derivz = np.concatenate(derivz)
+            sderivz = np.concatenate(sderivz)
+            ##Testing
+            fderivz, fsderivz, trial_wfn = ImpSamp.finite_diff(np.concatenate(cds), trial_func=self.call_trial_no_mp)
+            fderivz = fderivz / trial_wfn[:, np.newaxis, np.newaxis]
+            fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
+            print('deriv:', np.amax(fderivz-derivz))
+            print('sderiv:', np.amax(fsderivz-sderivz))
+
         return derivz, sderivz
 
 
@@ -161,44 +138,30 @@ class ImpSampManager_NoMP:
                  python_file,
                  chdir=False,
                  deriv_function=None,
-                 s_deriv_function=None,
                  trial_kwargs=None,
-                 deriv_kwargs=None,
-                 s_deriv_kwargs=None):
+                 deriv_kwargs=None, ):
         self.trial_fuc = trial_function
         self.trial_dir = trial_directory
         self.python_file = python_file
         self.deriv_func = deriv_function
-        self.sderiv_func = s_deriv_function
         self.trial_kwargs = trial_kwargs
         self.deriv_kwargs = deriv_kwargs
-        self.sderiv_kwargs = s_deriv_kwargs
         self.chdir = chdir
         self._import_modz()
 
     def _import_modz(self):
-
         self._curdir = os.getcwd()
         os.chdir(self.trial_dir)
         sys.path.insert(0, os.getcwd())
         module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
         self.trial = getattr(x, self.trial_fuc)
-        if self.deriv_func is None or self.sderiv_func is None:
+        if self.deriv_func is None:
             self.all_finite = True
             self.derivs = ImpSamp.finite_diff
-            if self.deriv_func is not None:
-                self.deriv = getattr(x, self.deriv_func)
-            else:
-                self.deriv = None
-            if self.sderiv_func is not None:
-                self.sderiv = getattr(x, self.sderiv_func)
-            else:
-                self.sderiv = None
         else:  # Supplied derivatives, just import them
             self.all_finite = False
-            self.deriv = getattr(x, self.deriv_func)
-            self.sderiv = getattr(x, self.sderiv_func)
+            self.derivs = getattr(x, self.deriv_func)
         os.chdir(self._curdir)
 
     def call_imp_func(self, func, cds, func_kwargs=None):
@@ -218,28 +181,24 @@ class ImpSampManager_NoMP:
         trial = self.call_imp_func(self.trial, cds, self.trial_kwargs)
         return trial
 
-    def call_deriv(self, cds):
-        """Call first derivatives."""
-        derv = self.call_imp_func(self.deriv, cds, self.deriv_kwargs)
-        return derv
-
-    def call_sderiv(self, cds):
-        """Call second derivative."""
-        sderv = self.call_imp_func(self.sderiv, cds, self.sderiv_kwargs)
-        return sderv
-
     def call_derivs(self, cds):
-        """For when derivatives are not supplied, call finite difference function."""
-        derivz, sderivz = self.derivs(cds, trial_func=self.call_trial)
-        fin_derivz = np.copy(derivz)
-
-        # These if statements are for someone who supplied only first derv
-        # function or only 2nd derv fuction but not both
-        if self.sderiv is not None:
-            sderivz = self.call_sderiv(cds)
-        if self.deriv is not None:
-            #derivz here is already divided by psi, as mandated by external derivatives.
-            derivz = self.call_deriv(cds)
-            # If overwriting derivatives, then pre-multiply by psi, as it is divided by psi in the drift call.
-            derivz = derivz * np.prod(self.call_trial(cds),axis=1)[:, np.newaxis, np.newaxis]
+        """For when derivatives are not supplied, call finite difference function.
+        Returns derivatives divided by psi already"""
+        if self.all_finite:
+            derivz, sderivz, trial_wfn = self.derivs(cds, trial_func=self.call_trial)
+            derivz = derivz / trial_wfn[:, np.newaxis, np.newaxis]
+            sderivz = sderivz / trial_wfn[:, np.newaxis, np.newaxis]
+        else:
+            derivz, sderivz = self.call_imp_func(self.derivs, cds, self.deriv_kwargs)
+            ###Testing
+            fderivz, fsderivz, trial_wfn = ImpSamp.finite_diff(cds, trial_func=self.call_trial)
+            fderivz = fderivz / trial_wfn[:, np.newaxis, np.newaxis]
+            fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
+            diff = fsderivz - sderivz
+            max_d = np.amax(diff)
+            the_spot = np.where(diff == max_d)
+            baddie = cds[the_spot[0]]
+            # baddie2 = cds[the_spot[0]]
+            print(max_d)
+            ###/Testing
         return derivz, sderivz
