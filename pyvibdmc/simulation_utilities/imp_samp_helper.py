@@ -27,7 +27,7 @@ class ChainRuleHelper:
         d2r_dx2p = d2r_dx2.transpose(1, 2, 3, 0)
         term_2 = np.matmul(d2r_dx2p, dpsi_drp).squeeze()
         # Finally, this last sum done in a numpy black magic way
-        term_3 = np.matmul(dr_dxp * np.roll(dr_dxp, -1, axis=-1),
+        term_3 = 2 * np.matmul(dr_dxp * np.roll(dr_dxp, -1, axis=-1),
                            dpsi_drp * np.roll(dpsi_drp, -1, axis=2)).squeeze()
         return term_1 + term_2 + term_3
 

@@ -122,8 +122,8 @@ class ImpSampManager:
             fderivz, fsderivz, trial_wfn = ImpSamp.finite_diff(np.concatenate(cds), trial_func=self.call_trial_no_mp)
             fderivz = fderivz / trial_wfn[:, np.newaxis, np.newaxis]
             fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
-            print('deriv:', np.average(fderivz-derivz))
-            print('sderiv:', np.average(fsderivz-sderivz))
+            # print('deriv:', np.average(fderivz-derivz))
+            # print('sderiv:', np.average(fsderivz-sderivz))
 
         return derivz, sderivz
 
@@ -196,7 +196,7 @@ class ImpSampManager_NoMP:
             fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
             max_d = np.average(fderivz - derivz)
             max_sd = np.average(fsderivz - sderivz)
-            print(f"Avg Psi: {max_d}")
-            print(f"Avg 2Psi: {max_sd}")
+            # print(f"Avg Psi: {max_d}")
+            # print(f"Avg 2Psi: {max_sd}")
             ###/Testing
         return derivz, sderivz
