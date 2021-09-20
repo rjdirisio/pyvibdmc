@@ -33,6 +33,11 @@ def second_derivative(x):
     sderv = (alpha / np.pi) ** 0.25 * (alpha ** 2 * x ** 2 - alpha) * np.exp(-alpha * x ** 2 / 2)
     return sderv
 
+def derivative(x):
+    trl = trial_harm(x)
+    derv = first_derivative(x)
+    sderv = second_derivative(x)
+    return derv / trl[:,np.newaxis,np.newaxis], sderv / trl[:,np.newaxis,np.newaxis]
 
 if __name__ == '__main__':
     x = np.linspace(-1, 1, 100)
