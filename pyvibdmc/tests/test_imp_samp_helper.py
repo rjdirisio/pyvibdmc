@@ -48,7 +48,7 @@ def test_dpsi_dx():
                             [-0.45344658, 1.75233806, 0.],
                             [0., 0., 0.]]) * 1.01
     water_coord = np.expand_dims(water_coord, 0)
-    start_cds = np.tile(water_coord, (200, 1, 1))
+    start_cds = np.tile(water_coord, (2000, 1, 1))
     impo = pv.ImpSampManager(trial_function='trial_wavefunction',
                                   trial_directory=potDir,
                                   python_file='h2o_trial.py',
