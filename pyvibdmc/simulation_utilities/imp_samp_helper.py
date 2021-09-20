@@ -13,7 +13,7 @@ class ChainRuleHelper:
          matrix. Assumes direct product wave function fed in appropriately."""
         dpsi_drp = dpsi_dr.transpose(1, 0)[:, np.newaxis, :, np.newaxis]
         dr_dxp = dr_dx.transpose(1, 2, 3, 0)
-        jacob = np.matmul(dr_dxp,dpsi_drp).squeeze()
+        jacob = np.matmul(dr_dxp, dpsi_drp).squeeze()
         return jacob
 
     @staticmethod
@@ -21,14 +21,14 @@ class ChainRuleHelper:
         # jacob's "part 2"
         d2psi_dr2p = d2psi_dr2.transpose(1, 0)[:, np.newaxis, :, np.newaxis]
         dr_dxp = dr_dx.transpose(1, 2, 3, 0)
-        term_1 = np.matmul(dr_dxp**2, d2psi_dr2p).squeeze()
+        term_1 = np.matmul(dr_dxp ** 2, d2psi_dr2p).squeeze()
         # jacob's "part 1"
         dpsi_drp = dpsi_dr.transpose(1, 0)[:, np.newaxis, :, np.newaxis]
         d2r_dx2p = d2r_dx2.transpose(1, 2, 3, 0)
         term_2 = np.matmul(d2r_dx2p, dpsi_drp).squeeze()
-        #Finally, this last sum done in a numpy black magic way
-        term_3 = np.matmul(dr_dxp * np.roll(dr_dxp,1,axis=-1),
-                           dpsi_drp*np.roll(dpsi_drp,1,axis=2)).squeeze()
+        # Finally, this last sum done in a numpy black magic way
+        term_3 = np.matmul(dr_dxp * np.roll(dr_dxp, 1, axis=-1),
+                           dpsi_drp * np.roll(dpsi_drp, 1, axis=2)).squeeze()
         return term_1 + term_2 + term_3
 
     @staticmethod
@@ -113,27 +113,28 @@ class ChainRuleHelper:
             rab = analyzer.bond_length(atm_pair[1], atm_pair[0])
             rcb = analyzer.bond_length(atm_pair[1], atm_pair[2])
             # First, get sec deriv wrt 1st ext atom
-            alpha_1 = cds[:, atm_pair[2]] - cds[:,atm_pair[1]]
+            alpha_1 = cds[:, atm_pair[2]] - cds[:, atm_pair[1]]
             term_1 = (-2 * alpha_1) / (rab ** 2 * rcb)[:, np.newaxis] * dr_da[0, :, atm_pair[0], :]
-            term_2 = (cos_theta / rab ** 2)[:, np.newaxis] * dr_da[0, :, atm_pair[0], :] ** 2
+            term_2 = (2 * cos_theta / rab ** 2)[:, np.newaxis] * dr_da[0, :, atm_pair[0], :] ** 2
             term_3 = (-1 * cos_theta / rab)[:, np.newaxis] * d2r_da2[0, :, atm_pair[0], :]
             d_ar[num, :, atm_pair[0], :] = term_1 + term_2 + term_3
             # Do same thing for other external atom
             alpha_2 = cds[:, atm_pair[0]] - cds[:, atm_pair[1]]
             term_1 = (-2 * alpha_2) / (rab * rcb ** 2)[:, np.newaxis] * dr_dc[0, :, atm_pair[2], :]
-            term_2 = (cos_theta / rcb ** 2)[:, np.newaxis] * dr_dc[0, :, atm_pair[2], :] ** 2
+            term_2 = (2 * cos_theta / rcb ** 2)[:, np.newaxis] * dr_dc[0, :, atm_pair[2], :] ** 2
             term_3 = (-1 * cos_theta / rcb)[:, np.newaxis] * d2r_dc2[0, :, atm_pair[2], :]
             d_ar[num, :, atm_pair[2], :] = term_1 + term_2 + term_3
             # Do the atm at vertex
             alpha_3 = 2 * cds[:, atm_pair[1]] - cds[:, atm_pair[0]] - cds[:, atm_pair[2]]
             term_1 = 2 / (rab * rcb)[:, np.newaxis]
-            term_2 = (-2 * alpha_3 / (rab ** 2 * rcb)[:, np.newaxis]) * dr_da[0, :, atm_pair[1]]
-            term_3 = (-2 * alpha_3 / (rab * rcb ** 2)[:, np.newaxis]) * dr_dc[0, :, atm_pair[1]]
-            term_4 = (cos_theta / rab ** 2)[:, np.newaxis] * dr_da[0, :, atm_pair[1]]
-            term_5 = (cos_theta / rcb ** 2)[:, np.newaxis] * dr_dc[0, :, atm_pair[1]]
-            term_6 = (-1 * cos_theta / rab)[:, np.newaxis] * d2r_da2[0, :, atm_pair[1]]
-            term_7 = (-1 * cos_theta / rcb)[:, np.newaxis] * d2r_dc2[0, :, atm_pair[1]]
-            d_ar[num, :, atm_pair[1], :] = term_1 + term_2 + term_3 + term_4 + term_5 + term_6 + term_7
+            term_2 = (-1 * cos_theta / rab)[:, np.newaxis] * d2r_da2[0, :, atm_pair[1]]
+            term_3 = (-1 * cos_theta / rcb)[:, np.newaxis] * d2r_dc2[0, :, atm_pair[1]]
+            term_4 = (2 * cos_theta / rab ** 2)[:, np.newaxis] * dr_da[0, :, atm_pair[1]] ** 2
+            term_5 = (2 * cos_theta / rcb ** 2)[:, np.newaxis] * dr_dc[0, :, atm_pair[1]] ** 2
+            term_6 = (-2 * alpha_3 / (rab ** 2 * rcb)[:, np.newaxis]) * dr_da[0, :, atm_pair[1]]
+            term_7 = (-2 * alpha_3 / (rab * rcb ** 2)[:, np.newaxis]) * dr_dc[0, :, atm_pair[1]]
+            term_8 = (2 * cos_theta / (rab * rcb))[:, np.newaxis] * dr_da[0, :, atm_pair[1]] * dr_dc[0, :, atm_pair[1]]
+            d_ar[num, :, atm_pair[1], :] = term_1 + term_2 + term_3 + term_4 + term_5 + term_6 + term_7 + term_8
         return d_ar
 
     @staticmethod
@@ -156,12 +157,11 @@ class ChainRuleHelper:
             cos_theta = np.cos(analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
             # Calculate dth/dcth, and dcth/dx
             dth_dcth = -1 / np.sqrt(1 - cos_theta ** 2)
-            dcth_dx = ChainRuleHelper.dcth_dx(cds,[atm_pair])[0]
+            dcth_dx = ChainRuleHelper.dcth_dx(cds, [atm_pair])[0]
             # Calculate d2th_dcos(th)
-            d2th_dcth2 = -1*cos_theta / ((1 - cos_theta ** 2) ** 1.5)
-            term_1 = dcth_dx**2 * d2th_dcth2[:, np.newaxis, np.newaxis]
+            d2th_dcth2 = -1 * cos_theta / ((1 - cos_theta ** 2) ** 1.5)
+            term_1 = dcth_dx ** 2 * d2th_dcth2[:, np.newaxis, np.newaxis]
             term_2 = dcos_ar[num] * dth_dcth[:, np.newaxis, np.newaxis]
             # d_ar[num] = d2th_dcth2[:, np.newaxis, np.newaxis] * dcos_ar[num]
             d_ar[num] = term_1 + term_2
         return d_ar
-

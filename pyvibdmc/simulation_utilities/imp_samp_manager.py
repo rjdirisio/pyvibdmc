@@ -194,11 +194,9 @@ class ImpSampManager_NoMP:
             fderivz, fsderivz, trial_wfn = ImpSamp.finite_diff(cds, trial_func=self.call_trial)
             fderivz = fderivz / trial_wfn[:, np.newaxis, np.newaxis]
             fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
-            diff = fsderivz - sderivz
-            max_d = np.amax(diff)
-            the_spot = np.where(diff == max_d)
-            baddie = cds[the_spot[0]]
-            # baddie2 = cds[the_spot[0]]
-            print(max_d)
+            max_d = np.average(fderivz - derivz)
+            max_sd = np.average(fsderivz - sderivz)
+            print(f"Avg Psi: {max_d}")
+            print(f"Avg 2Psi: {max_sd}")
             ###/Testing
         return derivz, sderivz

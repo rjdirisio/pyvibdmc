@@ -77,13 +77,25 @@ def sec_deriv(cds):
     sdpsi[:, 2] = sderiv_angle(analyzer)
     return sdpsi.T
 
+def angie(cds):
+    analyzer = pv.AnalyzeWfn(cds)
+    return analyzer.bond_angle(0,2,1)
+
+def cangie(cds):
+    analyzer = pv.AnalyzeWfn(cds)
+    return np.cos(analyzer.bond_angle(0,2,1))
+
+def bondie(cds):
+    analyzer = pv.AnalyzeWfn(cds)
+    return analyzer.bond_length(0,2)
+
+def bondie2(cds):
+    analyzer = pv.AnalyzeWfn(cds)
+    return analyzer.bond_length(1,2)
+
 
 def dpsi_dx(cds):
     """Retruns the first and second derivative"""
-    import sys
-    sys.path.insert(0, '/home/netid.washington.edu/rjdiri/')
-    from Numputils import AnalyticDerivs
-
     trl = trial_wavefunction(cds)
     dpsi_dr = first_deriv(cds) / trl.T
     dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
@@ -93,20 +105,15 @@ def dpsi_dx(cds):
     d2psi_dr2 = sec_deriv(cds) / trl.T
     d2r_dx2 = pv.ChainRuleHelper.d2r_dx2(cds, [[0, 2], [1, 2]], dr_dx)
     d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds, [[0, 2, 1]])
+    # d2cth_dx2 = pv.ChainRuleHelper.d2cth_dx2(cds, [[0, 2, 1]])
     d2int_dx2 = np.concatenate([d2r_dx2, d2th_dx2])
     d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
-    np.save('baddies.npy', cds)
-    # mark_d2r_dx2 = AnalyticDerivs.dist_deriv(cds[1000], 1, 2, order=2)[2]
-    # ryan_d2r_dx2 = d2r_dx2[1, 1000]
-    # mark_dth_dx = AnalyticDerivs.angle_deriv(cds[1000], 2, 0, 1, order=1)[1]
-    mark_d2th_dx2 = AnalyticDerivs.angle_deriv(cds[1000],2,0,1,order=2)[2]
-    # mark_d2th_dx2_fuck = mark_d2th_dx2[2]
-    # idxs = [[0, 0, 0, 0], [0, 0, 1, 1], [0, 0, 2, 2],
-    #         [1, 1, 0, 0], [1, 1, 1, 1], [1, 1, 2, 2],
-    #         [2, 2, 0, 0], [2, 2, 1, 1], [2, 2, 2, 2]]
-    jacob_d2th_dx2 = np.array([[[-1.45132037e-01, 1.45132037e-01, -7.72976572e-01],
-                                [-1.16415322e-10, -4.36557457e-10, -7.74250461e-02],
-                                [-1.45132038e-01, 1.45132037e-01, -7.74250513e-02]]])[0]
-    jacob_d2th_dx2[[0, 2, 1]] = jacob_d2th_dx2[[2, 0, 1]]
-    ryan_d2th_dx2 = d2th_dx2[0, 1000]
+    findiff_th = pv.ImpSamp.finite_diff(cds, trial_func=angie)[1]
+    findiff_dth_dx = findiff_th[1]
+    findiff_d2th_dx2 = findiff_th[0]
+    # findiff_d2cth_dx2 = pv.ImpSamp.finite_diff(cds,trial_func=cangie)
+    # findiff1_d2r_dx2 = pv.ImpSamp.finite_diff(cds,trial_func=bondie)
+    # findiff2_d2r_dx2 = pv.ImpSamp.finite_diff(cds,trial_func=bondie2)
+    print(f"dth/dx avg: {np.average(dth_dx[0]-findiff_dth_dx[0])}")
+    print(f"d2th/dx avg: {np.average(d2th_dx2[0]-findiff_d2th_dx2[0])}")
     return dp_dx, d2p_dx2
