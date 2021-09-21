@@ -75,7 +75,7 @@ class DMC_Sim:
                  wfn_every=1000,
                  desc_wt_steps=100,
                  atoms=[],
-                 delta_t=5,
+                 delta_t=1,
                  potential=None,
                  masses=None,
                  start_structures=None,
@@ -272,6 +272,10 @@ class DMC_Sim:
         self._log_steps = np.arange(0, self.num_timesteps, self.log_every)
         self._vref_vs_tau = np.concatenate((self._vref_vs_tau, np.zeros(add_ts)))
         self._pop_vs_tau = np.concatenate((self._pop_vs_tau, np.zeros(add_ts)))
+        if not hasattr(self,'impsamp_manager'):
+            """This is only for old pickle files that do not have imp samp attributes"""
+            self.impsamp_manager = None
+            self.imp1d = False
 
     def _branch(self, walkers_below):
         """
@@ -571,6 +575,7 @@ class DMC_Sim:
         print("Starting Simulation...")
         dmc_time_start = time.time()
         try:
+            throw_error = False
             self.propagate()
             # Delete all checkpoints, since this is the end of the run
             FileManager.delete_older_checkpoints(self.output_folder,
@@ -581,6 +586,7 @@ class DMC_Sim:
             print("ERROR! An error occurred while running the DMC simulation. Dumping a final checkpoint...")
             print("Ignore Approximate ZPE!!!")
             traceback.print_exc()
+            throw_error = True
         finally:
             self._logger.final_chkpt()
             self._logger = None
@@ -601,6 +607,8 @@ class DMC_Sim:
             finish = time.time() - dmc_time_start
         self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
         self._logger.finish_sim(finish)
+        if throw_error:
+            raise Exception
 
     def __deepcopy__(self, memodict={}):
         """
