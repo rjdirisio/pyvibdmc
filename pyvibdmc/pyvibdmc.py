@@ -246,8 +246,8 @@ class DMC_Sim:
             self.psi_1 = None
             self.psi_sec_der = None
             # Useful variables to have for importance sampling
-            self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses),3)[np.newaxis,...]
-            self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses),3)[np.newaxis,...]
+            self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses), 3)[np.newaxis, ...]
+            self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses), 3)[np.newaxis, ...]
             if self.impsamp_manager.all_finite:
                 self.impsamp = ImpSamp(self.impsamp_manager, finite_difference=True)
             else:
@@ -501,7 +501,7 @@ class DMC_Sim:
                 rejected = self.imp_move_randomly()
                 if prop_step in self._log_steps:
                     self._logger.write_rejections(rejected, len(self._walker_coords))
-                    self._logger.write_imp_disp_time(time.time()-start)
+                    self._logger.write_imp_disp_time(time.time() - start)
 
             # 2. Calculate the Potential Energy
             if prop_step in self._log_steps:
@@ -513,10 +513,23 @@ class DMC_Sim:
             else:
                 self._walker_pots = self.potential(self._walker_coords)
 
+            # Save training data if it's being collected
+            if prop_step in self.deb_train_save_step:
+                print(f'{self._walker_coords.shape} walkers collected')
+                SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
+                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
+
             # If importance sampling, calculate local energy,  which is just adding on local KE
             if self.impsamp_manager is not None:
                 local_ke = self.impsamp.local_kin(self.inv_masses_trip, self.psi_sec_der)
                 self._walker_pots = self._walker_pots + local_ke
+                self._logger.write_local(np.average(self._walker_pots))
+
+            # Uncomment if you want to collect the local energy as well as the potential energy for training data
+            # if prop_step in self.deb_train_save_step:
+            #     print(f'{self._walker_coords.shape} walkers collected')
+            #     SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_local_training_{prop_step}ts.hdf5",
+            #                          keyz=['coords', 'local'], valz=[self._walker_coords, self._walker_pots])
 
             # First time step exception, calc vref early
             if prop_step == self._prop_steps[0]:
@@ -534,12 +547,6 @@ class DMC_Sim:
             # 4. Update Vref.
             self.calc_vref()
             self.update_sim_arrays(prop_step)
-
-            # Save training data if it's being collected
-            if prop_step in self.deb_train_save_step:
-                print(f'{self._walker_coords.shape} walkers collected')
-                SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
-                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 
             # If desc_wt_time weighting is over, save the wfn and weights
             if prop_step + 1 in self._desc_wt_save_step:

@@ -44,6 +44,10 @@ class SimLogger:
         self.fl.write(f"\tHighest energy walker: {maxpot} cm-1\n")
         self.fl.write(f"\tLowest energy walker: {minpot} cm-1\n")
 
+    def write_local(self, local_energy):
+        avg_l = Constants.convert(local_energy, 'wavenumbers', to_AU=False)
+        self.fl.write(f"\tAverage local energy of ensemble: {avg_l} cm-1 \n")
+
     def write_branching(self, cur_time_step, weighting, birthdeath_branch):
         if weighting == 'discrete':
             self.fl.write(f"Birth/Death at time step {cur_time_step}:\n")
@@ -81,8 +85,8 @@ class SimLogger:
         self.fl.write(f"Collect Wave Functions Every {attribs['wfn_every']} Time Steps After Equilibration\n")
         self.fl.write("\n")
 
-    def write_rejections(self,rejected, total):
-        self.fl.write(f"Metropolis rejected {rejected} of {total} walkers ({(rejected/total)*100:0.2f} %)\n")
+    def write_rejections(self, rejected, total):
+        self.fl.write(f"Metropolis rejected {rejected} of {total} walkers ({(rejected / total) * 100:0.2f} %)\n")
 
-    def write_imp_disp_time(self,time):
+    def write_imp_disp_time(self, time):
         self.fl.write(f"Imp samp displacement took {time} seconds.\n")
