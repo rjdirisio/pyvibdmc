@@ -105,15 +105,6 @@ def dpsi_dx(cds):
     d2psi_dr2 = sec_deriv(cds) / trl.T
     d2r_dx2 = pv.ChainRuleHelper.d2r_dx2(cds, [[0, 2], [1, 2]], dr_dx)
     d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds, [[0, 2, 1]])
-    # d2cth_dx2 = pv.ChainRuleHelper.d2cth_dx2(cds, [[0, 2, 1]])
     d2int_dx2 = np.concatenate([d2r_dx2, d2th_dx2])
     d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
-    findiff_th = pv.ImpSamp.finite_diff(cds, trial_func=angie)[1]
-    findiff_dth_dx = findiff_th[1]
-    findiff_d2th_dx2 = findiff_th[0]
-    # findiff_d2cth_dx2 = pv.ImpSamp.finite_diff(cds,trial_func=cangie)
-    # findiff1_d2r_dx2 = pv.ImpSamp.finite_diff(cds,trial_func=bondie)
-    # findiff2_d2r_dx2 = pv.ImpSamp.finite_diff(cds,trial_func=bondie2)
-    print(f"dth/dx avg: {np.average(dth_dx[0]-findiff_dth_dx[0])}")
-    print(f"d2th/dx avg: {np.average(d2th_dx2[0]-findiff_d2th_dx2[0])}")
     return dp_dx, d2p_dx2

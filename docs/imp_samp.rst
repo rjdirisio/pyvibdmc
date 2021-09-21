@@ -16,23 +16,27 @@ Using Guiding functions in PyVibDMC
 ----------------------------------------------
 The guiding function interface is quite similar to the potential energy interface for PyVibDMC. The user *must* provide
 a Python function that takes in the ``num_walkers x num_atoms x 3`` walker array and evaluate the value of the trial
-wave function for each walker. The value of the trial wave function should be returned as a
-NumPy array of size ``num_walkers``.  The user may also pass along ``trial_kwargs`` in the form of a dictionary, much
-like what can be done for `the potential energy interface <https://pyvibdmc.readthedocs.io/en/latest/potentials.html#passing-more-than-just-the-coordinates-to-the-potential-manager>`_.
+wave function for each walker. The code is restricted to use direct product wave functions. This decision was made
+due to giving the user the ability to divide by the components of Psi if they provide derivatives.
 
-Optionally, the user may also provide two other Python functions that calculate the first and second
-derivatives of the wave function with respect to the ``3N`` Cartesian coordinates. The functions should return
-``num_walkers x num_atoms x 3`` NumPy arrays that correspond to the value of the derivatives of each walker
-in the x,y, and z components of the various atoms in the molecular system. If no first and second derivatives are
-provided, PyVibDMC defaults to computing the derivatives numerically using finite difference. If a first derivative is
-provided but no second derivative (or vice versa), the first derivative is calculated using the function and the second derivative
-is calculated using finite difference.
+The value of the trial wave function should be returned as a NumPy array of size ``num_walkers x num_modes``.
+The direct product is performed internally. The user may also pass along ``trial_kwargs`` in the form of a dictionary,
+much like what can be done for
+`the potential energy interface <https://pyvibdmc.readthedocs.io/en/latest/potentials.html#passing-more-than-just-the-coordinates-to-the-potential-manager>`_.
+
+Optionally, the user may also provide one other Python function that calculate the first and second
+derivatives of the wave function with respect to the ``3N`` Cartesian coordinates. The function should return
+two ``num_walkers x num_atoms x 3`` NumPy arrays that correspond to the value of the derivatives of each walker
+in the x,y, and z components of the various atoms in the molecular system **divided by the trial wave function**.
+
+If no first and second derivatives are provided, PyVibDMC defaults to computing the derivatives numerically using finite
+difference.
 
 IMPORTANT REQUIREMENTS:
 
 * The potential manager is responsible for setting up the parallelization in the importance sampling. If one is using multiprocessing in the potential manager, the importance sampling will be parallelized using multiprocessing, MPI for MPI, and single-core for single-core.
 
-  * The one exception to this rule is when using a NN_Potential. One can pass the ``new_pool_num_cores`` argument in order to use ImpSampManager if using Potential_NoMP or NN_Potential.
+  * The one exception to this rule is when using a NN_Potential. One can pass the ``new_pool_num_cores`` argument in order to use ImpSampManager, which uses multiprocessing, if using Potential_NoMP or NN_Potential.
 
 * The Python file that holds the function that calculates the trial wave function (and optionally the derivatives) MUST be in the same directory as the Python file that calls the potential energy surface. This is a restrictive measure that was put in to make calls cleaner inside PyVibDMC, as sometimes the current working directory matters when one loads in data files on-the-fly and things of the like.
 
@@ -106,4 +110,46 @@ The MPI version of the ImpSampManager can be used in the same way as above, exce
 Chain rule helper
 ----------------------------------------------
 
-Coming soon...
+The McCoy group typically uses trial wave functions that are products of 1D wave functions. The wave functions
+are typically functions of internal coordinates, bond lengths and bond angles in particular. Since the derivatives required
+by importance sampling are with respect to Cartesian coordinates, it can be a non-trivial task to calculate the proper
+derivatives. PyVibDMC has a ``ChainRuleHelper`` that can be used to help calculate Cartesian derivatives if one is
+using internal coordinates for the trial wave function.  A concrete example is the water monomer. All of the
+following code can be found in the tutorial ``Partridge_Schwenke_H2O`` directory::
+
+    import pyvibdmc as pv
+    import numpy as np
+    # This is an example of user-side code that uses the ChainRuleHelper.
+
+    def sec_deriv(cds):
+        ... # Calculates the second derivative of psi with respect to r and theta at each of the coordinates.
+            #  num_modes x num_walkers array
+    def first_deriv(cds):
+        ... # Calculates the first derivative of psi with respect to r and theta at each of the coordinates.
+            # returns num_modes x num_walkers array
+    def trial_wavefunction(cds):
+        ... # calculates the trial wave function at each of the coords, returns a num_walkers x num_modes array.
+
+    def dpsi_dx(cds):
+        """Retruns the first and second derivative of psi with respect to Cartesians, divided by the trial wave function
+        The atom ordering for this water monomer is HHO."""
+        trl = trial_wavefunction(cds) # returns num_walkers x num_modes
+        # Dpsi/dx, first calculate dpsi/dr
+        dpsi_dr = first_deriv(cds) / trl.T # dpsi/dr / psi
+        # Then, calculate the dr/dx and dtheta/dx values
+        dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
+        dth_dx = pv.ChainRuleHelper.dth_dx(cds, [[0, 2, 1]])
+        dint_dx = np.concatenate([dr_dx, dth_dx])
+        # Pass them to the ChainRuleHelper
+        dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr, dint_dx) #dpsi/dx takes in dpsi/dr / psi and dr/dx.
+        # Do the same thing for the second derivative
+        d2psi_dr2 = sec_deriv(cds) / trl.T
+        d2r_dx2 = pv.ChainRuleHelper.d2r_dx2(cds, [[0, 2], [1, 2]], dr_dx)
+        d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds, [[0, 2, 1]])
+        d2int_dx2 = np.concatenate([d2r_dx2, d2th_dx2])
+        d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
+        # dp_dx and d2p_dx2 are both num_walkers x num_atoms x 3 arrays.
+        return dp_dx, d2p_dx2
+
+Note that when the ``ChainRuleHelper`` calculates ``dpsidx`` and ``d2psidx2``, it assumes that the derivatives with respect
+to Psi are divided through by the trial wave function. All else is done internally.
