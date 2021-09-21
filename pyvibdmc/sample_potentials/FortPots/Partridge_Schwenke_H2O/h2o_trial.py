@@ -46,14 +46,17 @@ def sderiv_angle(analyzer):
     return (alpha / np.pi) ** 0.25 * (alpha ** 2 * x ** 2 - alpha) * np.exp(-alpha * x ** 2 / 2)
 
 
-def trial_wavefunction(cds):
+def trial_wavefunction(cds, ret_pdt=True):
     psi = np.zeros((len(cds), 3))
     analyzer = pv.AnalyzeWfn(cds)
     ohs = oh_dists(analyzer)
     for i in range(2):
         psi[:, i] = interpolate.splev(ohs[i], free_oh_wfn, der=0)
     psi[:, 2] = angle(analyzer)
-    return psi
+    if ret_pdt:
+        return np.prod(psi, axis=1)
+    else:
+        return psi
 
 
 def first_deriv(cds):
@@ -77,26 +80,10 @@ def sec_deriv(cds):
     sdpsi[:, 2] = sderiv_angle(analyzer)
     return sdpsi.T
 
-def angie(cds):
-    analyzer = pv.AnalyzeWfn(cds)
-    return analyzer.bond_angle(0,2,1)
-
-def cangie(cds):
-    analyzer = pv.AnalyzeWfn(cds)
-    return np.cos(analyzer.bond_angle(0,2,1))
-
-def bondie(cds):
-    analyzer = pv.AnalyzeWfn(cds)
-    return analyzer.bond_length(0,2)
-
-def bondie2(cds):
-    analyzer = pv.AnalyzeWfn(cds)
-    return analyzer.bond_length(1,2)
-
 
 def dpsi_dx(cds):
     """Retruns the first and second derivative"""
-    trl = trial_wavefunction(cds)
+    trl = trial_wavefunction(cds, ret_pdt=False)
     dpsi_dr = first_deriv(cds) / trl.T
     dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
     dth_dx = pv.ChainRuleHelper.dth_dx(cds, [[0, 2, 1]])

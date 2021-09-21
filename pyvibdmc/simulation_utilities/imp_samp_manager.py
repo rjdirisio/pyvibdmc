@@ -119,9 +119,9 @@ class ImpSampManager:
             derivz = np.concatenate(derivz)
             sderivz = np.concatenate(sderivz)
             ##Testing
-            fderivz, fsderivz, trial_wfn = ImpSamp.finite_diff(np.concatenate(cds), trial_func=self.call_trial_no_mp)
-            fderivz = fderivz / trial_wfn[:, np.newaxis, np.newaxis]
-            fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
+            # fderivz, fsderivz, trial_wfn = ImpSamp.finite_diff(np.concatenate(cds), trial_func=self.call_trial_no_mp)
+            # fderivz = fderivz / trial_wfn[:, np.newaxis, np.newaxis]
+            # fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
             # print('deriv:', np.average(fderivz-derivz))
             # print('sderiv:', np.average(fsderivz-sderivz))
 

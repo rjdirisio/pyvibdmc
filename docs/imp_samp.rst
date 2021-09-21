@@ -16,11 +16,10 @@ Using Guiding functions in PyVibDMC
 ----------------------------------------------
 The guiding function interface is quite similar to the potential energy interface for PyVibDMC. The user *must* provide
 a Python function that takes in the ``num_walkers x num_atoms x 3`` walker array and evaluate the value of the trial
-wave function for each walker. The code is restricted to use direct product wave functions. This decision was made
-due to giving the user the ability to divide by the components of Psi if they provide derivatives.
+wave function for each walker. The code is restricted to use direct product wave functions.
 
-The value of the trial wave function should be returned as a NumPy array of size ``num_walkers x num_modes``.
-The direct product is performed internally. The user may also pass along ``trial_kwargs`` in the form of a dictionary,
+The value of the trial wave function should be returned as a NumPy array of size ``num_walkers``.
+The user may also pass along ``trial_kwargs`` in the form of a dictionary,
 much like what can be done for
 `the potential energy interface <https://pyvibdmc.readthedocs.io/en/latest/potentials.html#passing-more-than-just-the-coordinates-to-the-potential-manager>`_.
 
@@ -124,16 +123,25 @@ following code can be found in the tutorial ``Partridge_Schwenke_H2O`` directory
     def sec_deriv(cds):
         ... # Calculates the second derivative of psi with respect to r and theta at each of the coordinates.
             #  num_modes x num_walkers array
+
     def first_deriv(cds):
         ... # Calculates the first derivative of psi with respect to r and theta at each of the coordinates.
             # returns num_modes x num_walkers array
-    def trial_wavefunction(cds):
-        ... # calculates the trial wave function at each of the coords, returns a num_walkers x num_modes array.
+
+    def trial_wavefunction(cds, ret_pdt=True):
+        """Calculates the trial wave function at each of the coordinates. ret_pdt will be true for
+        pyvibdmc, but can be set to false so that we can construct derivatives down in dpsi_dx()."""
+        ...
+        if ret_pdt:
+            return np.prod(psi...) # returns a num_walkers array. Used by default by PyVibDMC.
+        else:
+            return psi # returns a num_walkers x num_modes array.
+
 
     def dpsi_dx(cds):
         """Retruns the first and second derivative of psi with respect to Cartesians, divided by the trial wave function
         The atom ordering for this water monomer is HHO."""
-        trl = trial_wavefunction(cds) # returns num_walkers x num_modes
+        trl = trial_wavefunction(cds, ret_pdt = True) # returns num_walkers x num_modes
         # Dpsi/dx, first calculate dpsi/dr
         dpsi_dr = first_deriv(cds) / trl.T # dpsi/dr / psi
         # Then, calculate the dr/dx and dtheta/dx values

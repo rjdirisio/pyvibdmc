@@ -17,18 +17,13 @@ class ImpSamp:
     def trial(self, cds):
         """Internally returns the direct product wfn"""
         trial_wfn = self.imp_manager.call_trial(cds)
-        if len(trial_wfn.shape) > 1:
-            return np.prod(trial_wfn, axis=1)
-        else:
-            """Should only be for 1D problems"""
-            return trial_wfn
+        return trial_wfn
 
     def drift(self, cds):
         """Internally returns 2*(dpsi/psi), since it's more convenient in the workflow.
         Also returns second derivatives divided by psi"""
-        # num_walkers, num_atoms, 3 array
         psi_t = self.trial(cds)
-        deriv, sderiv = self.imp_manager.call_derivs(cds)
+        deriv, sderiv = self.imp_manager.call_derivs(cds) # num_walkers, num_atoms, 3 array
         return 2 * deriv, psi_t, sderiv
 
     @staticmethod
@@ -45,6 +40,8 @@ class ImpSamp:
             accep = accep.squeeze() * psi_ratio.squeeze()
         else:
             accep = np.prod(np.prod(accep, axis=1), axis=1) * psi_ratio
+        flipped = np.where(trial_x * trial_y <= 0)[0]
+        accep[flipped] = 0.0
         return accep
 
     @staticmethod
@@ -52,14 +49,6 @@ class ImpSamp:
         # No division by psi as fin diff did it earlier and user provides sec derivs already divided by psi.
         kinetic = -0.5 * np.sum(np.sum(inv_masses_trip * sec_deriv, axis=1), axis=1)
         return kinetic
-
-    @staticmethod
-    def get_tmp_psi(cds, trial_func, tmp_psi, tmp_psi_idx, prod):
-        if prod:
-            tmp_psi[:, tmp_psi_idx] = np.prod(trial_func(cds), axis=1)
-        else:
-            tmp_psi[:, tmp_psi_idx] = trial_func(cds)
-        return tmp_psi
 
     @staticmethod
     def finite_diff(cds, trial_func):
@@ -70,22 +59,16 @@ class ImpSamp:
         first = np.zeros(cds.shape)
         sec = np.zeros(cds.shape)
         tmp_psi = np.zeros((len(cds), 3))
-        tmp_trial = trial_func(cds)
-        if len(tmp_trial.shape) > 1:
-            prod = True
-        else:
-            """Only 1D wfns should be 1D arrays at this point"""
-            prod = False
-        tmp_psi = ImpSamp.get_tmp_psi(cds, trial_func, tmp_psi, 1, prod)
+        tmp_psi[:, 1] = trial_func(cds)
         for atom_label in range(num_atoms):
             for xyz in range(num_dimz):
                 cds[:, atom_label, xyz] -= dx
-                tmp_psi = ImpSamp.get_tmp_psi(cds, trial_func, tmp_psi, 0, prod)
+                tmp_psi[:, 0] = trial_func(cds)
                 cds[:, atom_label, xyz] += 2. * dx
-                tmp_psi = ImpSamp.get_tmp_psi(cds, trial_func, tmp_psi, 2, prod)
+                tmp_psi[:, 2] = trial_func(cds)
                 cds[:, atom_label, xyz] -= dx
-                # Proper first derivative, which will be divided by 2 later
+                # Pure first derivative, which will be divided by 2 later
                 first[:, atom_label, xyz] = (tmp_psi[:, 2] - tmp_psi[:, 0]) / (2 * dx)
-                # Proper second derivative
+                # Pure second derivative
                 sec[:, atom_label, xyz] = ((tmp_psi[:, 0] - 2. * tmp_psi[:, 1] + tmp_psi[:, 2]) / dx ** 2)
-        return first, sec, tmp_psi[:,1]
+        return first, sec, tmp_psi[:, 1]
