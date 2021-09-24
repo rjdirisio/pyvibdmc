@@ -59,10 +59,9 @@ easily be used with PyVibDMC::
                          pot_manager=water_pot,
                          chdir=..., #optional
                          deriv_function=..., #optional
-                         s_deriv_function=..., #optional
                          trial_kwargs=..., #May pass a dict with important things to trial function call
                          deriv_kwargs=..., #May pass a dict with important things to trial function call - only use if deriv_function is set to something
-                         s_deriv_kwargs=...) # see deriv_kwargs
+                         )
     """
 
     # Using multiprocessing for potential and imp samp
@@ -76,11 +75,9 @@ easily be used with PyVibDMC::
                          python_file,
                          pot_manager=water_pot,
                          deriv_function=..., #optional string like trial_function
-                         s_deriv_function=..., #optional string like trial_function
                          trial_kwargs=..., #May pass a dict with important things to trial function call
                          deriv_kwargs=..., #May pass a dict with important things to deriv function call - only use if deriv_function is set to something
-                         s_deriv_kwargs=...) # see deriv_kwargs
-
+                         )
     # pass to DMC_Sim
     my_sim = pv.DMC_sim(...,
                         imp_samp=water_imp,
@@ -101,7 +98,7 @@ The MPI version of the ImpSampManager can be used in the same way as above, exce
     # Must import this way in order to access the MPI modules.
     mpi_pot = MPI_Potential(...)
     mpi_imp = MPI_ImpSampManager(...)
-    my+sim = pv.DMC_Sim(...,
+    my_sim = pv.DMC_Sim(...,
                         imp_samp=mpi_imp,
                         ...)
 

@@ -240,6 +240,7 @@ class DMC_Sim:
             self.potential(self._walker_coords)
 
         if self.impsamp_manager is not None:
+            self.imp_info = vars(self.impsamp_manager)
             if self.delta_t != 1:
                 raise ValueError("Delta tau cannot be anything but 1 for importance sampling DMC!!!!")
             self.f_x = None
@@ -248,16 +249,13 @@ class DMC_Sim:
             # Useful variables to have for importance sampling
             self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses), 3)[np.newaxis, ...]
-            if self.impsamp_manager.all_finite:
-                self.impsamp = ImpSamp(self.impsamp_manager, finite_difference=True)
-            else:
-                self.impsamp = ImpSamp(self.impsamp_manager)
+            self.impsamp = ImpSamp(self.impsamp_manager)
             if self.imp1d:
                 # No xyz just one mass and one sigma
                 self.sigma_trip = self._sigmas
                 self.inv_masses_trip = (1 / self.masses)[np.newaxis]
 
-    def _init_restart(self, add_ts):
+    def _init_restart(self, add_ts, impsamp):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
         self.num_timesteps = self.num_timesteps + add_ts
         self._branch_step = np.arange(0, self.num_timesteps + self.branch_every, self.branch_every)
@@ -272,10 +270,19 @@ class DMC_Sim:
         self._log_steps = np.arange(0, self.num_timesteps, self.log_every)
         self._vref_vs_tau = np.concatenate((self._vref_vs_tau, np.zeros(add_ts)))
         self._pop_vs_tau = np.concatenate((self._pop_vs_tau, np.zeros(add_ts)))
-        if not hasattr(self,'impsamp_manager'):
-            """This is only for old pickle files that do not have imp samp attributes"""
-            self.impsamp_manager = None
+        if impsamp is not None:
+            self.impsamp_manager = impsamp
             self.imp1d = False
+            self.imp_info = vars(self.impsamp_manager)
+            if self.delta_t != 1:
+                raise ValueError("Delta tau cannot be anything but 1 for importance sampling DMC!!!!")
+            self.f_x = None
+            self.psi_1 = None
+            self.psi_sec_der = None
+            # Useful variables to have for importance sampling
+            self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses), 3)[np.newaxis, ...]
+            self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses), 3)[np.newaxis, ...]
+            self.impsamp = ImpSamp(self.impsamp_manager)
 
     def _branch(self, walkers_below):
         """
@@ -618,17 +625,18 @@ class DMC_Sim:
         cls = self.__class__
         res = cls.__new__(cls)
         memodict[id(self)] = res
-        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp']
+        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp', 'imp_info']
         for k, v in self.__dict__.items():
             if k not in no_gos:
                 setattr(res, k, copy.deepcopy(v, memodict))
         return res
 
 
-def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0):
+def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsamp=None):
+    """TODO: Need to add in impsamp infrastructure here for restarting..."""
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     # Update simulation parameters based on additional timesteps
-    dmc_sim._init_restart(additional_timesteps)
+    dmc_sim._init_restart(additional_timesteps,impsamp)
     # Re-initialize the potential and the logger, as those are not pickleable
     dmc_sim.potential = potential.getpot
     dmc_sim.potential_info = vars(dmc_sim.potential)

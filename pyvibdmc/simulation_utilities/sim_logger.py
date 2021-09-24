@@ -65,12 +65,13 @@ class SimLogger:
         self.fl.write(f"Simulation {attribs['sim_name']} starting at step {attribs['cur_timestep']}\n")
         self.fl.write(f"Potential attributes: \n")
         potential_info = attribs['potential_info']
+        imp_info = attribs['imp_info']
         for key, value in potential_info.items():
             if not key.startswith("_"):
                 self.fl.write(f"\t{key}: {value}\n")
         if 'impsamp_manager' in attribs.keys():
             self.fl.write("Imp Samp attributes: \n")
-            for key, value in potential_info.items():
+            for key, value in imp_info.items():
                 if not key.startswith("_"):
                     self.fl.write(f"\t{key}: {value}\n")
         self.fl.write(f"Num Walkers: {attribs['num_walkers']}\n")

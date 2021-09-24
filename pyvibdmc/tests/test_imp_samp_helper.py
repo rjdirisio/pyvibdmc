@@ -30,7 +30,7 @@ def test_imp_samp_derivs():
 #     harm_pot = pv.Potential(potential_function=potFunc,
 #                             python_file=pyFile,
 #                             potential_directory=potDir,
-#                             num_cores=8)
+#                             num_cores=2)
 #
 #     water_coord = np.array([[1.81005599, 0., 0.],
 #                             [-0.45344658, 1.75233806, 0.],

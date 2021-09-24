@@ -47,7 +47,7 @@ class MPI_ImpSampManager:
         module = self.python_file.split(".")[0]
         x = importlib.import_module(module)
         self.trial_wfn = getattr(x, self.trial_fuc)
-        if self.deriv_func:
+        if self.deriv_func is None:
             # bool for pyvibdmc sim code to do both derivs at once.
             self.all_finite = True
             self.derivs = ImpSamp.finite_diff

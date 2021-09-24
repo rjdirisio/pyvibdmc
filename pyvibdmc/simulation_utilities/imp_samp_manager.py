@@ -124,7 +124,7 @@ class ImpSampManager:
             # fsderivz = fsderivz / trial_wfn[:, np.newaxis, np.newaxis]
             # print('deriv:', np.average(fderivz-derivz))
             # print('sderiv:', np.average(fsderivz-sderivz))
-
+            # print('hi')
         return derivz, sderivz
 
 

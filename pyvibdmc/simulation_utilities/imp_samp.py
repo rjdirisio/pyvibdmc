@@ -10,9 +10,8 @@ class ImpSamp:
        Directly interfaces with the simulation. Also a good place to put finite difference derivatives.
     """
 
-    def __init__(self, imp_samp_manager, finite_difference=False):
+    def __init__(self, imp_samp_manager):
         self.imp_manager = imp_samp_manager
-        self.findiff = finite_difference
 
     def trial(self, cds):
         """Internally returns the direct product wfn"""
