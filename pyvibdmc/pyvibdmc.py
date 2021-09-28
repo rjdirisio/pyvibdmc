@@ -283,6 +283,8 @@ class DMC_Sim:
             self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.impsamp = ImpSamp(self.impsamp_manager)
+        else:
+            self.impsamp_manager = None
 
     def _branch(self, walkers_below):
         """
