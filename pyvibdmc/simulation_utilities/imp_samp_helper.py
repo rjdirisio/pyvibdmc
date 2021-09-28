@@ -3,9 +3,6 @@ from ..analysis import AnalyzeWfn
 
 
 class ChainRuleHelper:
-    def __init__(self):
-        self.dpsi_dr = None
-        self.dr_dx = None
 
     @staticmethod
     def dpsidx(dpsi_dr, dr_dx):
