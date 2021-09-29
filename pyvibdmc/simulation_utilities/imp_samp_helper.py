@@ -107,7 +107,7 @@ class ChainRuleHelper:
 
     @staticmethod
     def d2cth_dx2(cds,
-                  atm_pair,
+                  atm_pair=[0,2,1],
                   dr_da=None,
                   dr_dc=None,
                   d2r_da2=None,
@@ -142,8 +142,8 @@ class ChainRuleHelper:
         d_ar[:, atm_pair[0], :] = term_1 + term_2 + term_3
         # Do same thing for other external atom
         alpha_2 = cds[:, atm_pair[0]] - cds[:, atm_pair[1]]
-        term_1 = (-2 * alpha_2) / (rab * rcb ** 2)[:, np.newaxis] * dr_da[:, atm_pair[2], :]
-        term_2 = (2 * cos_theta / rcb ** 2)[:, np.newaxis] * dr_da[:, atm_pair[2], :] ** 2
+        term_1 = (-2 * alpha_2) / (rab * rcb ** 2)[:, np.newaxis] * dr_dc[:, atm_pair[2], :]
+        term_2 = (2 * cos_theta / rcb ** 2)[:, np.newaxis] * dr_dc[:, atm_pair[2], :] ** 2
         term_3 = (-1 * cos_theta / rcb)[:, np.newaxis] * d2r_dc2[:, atm_pair[2], :]
         d_ar[:, atm_pair[2], :] = term_1 + term_2 + term_3
         # Do the atm at vertex
@@ -152,10 +152,10 @@ class ChainRuleHelper:
         term_2 = (-1 * cos_theta / rab)[:, np.newaxis] * d2r_da2[:, atm_pair[1]]
         term_3 = (-1 * cos_theta / rcb)[:, np.newaxis] * d2r_dc2[:, atm_pair[1]]
         term_4 = (2 * cos_theta / rab ** 2)[:, np.newaxis] * dr_da[:, atm_pair[1]] ** 2
-        term_5 = (2 * cos_theta / rcb ** 2)[:, np.newaxis] * dr_da[:, atm_pair[1]] ** 2
+        term_5 = (2 * cos_theta / rcb ** 2)[:, np.newaxis] * dr_dc[:, atm_pair[1]] ** 2
         term_6 = (-2 * alpha_3 / (rab ** 2 * rcb)[:, np.newaxis]) * dr_da[:, atm_pair[1]]
-        term_7 = (-2 * alpha_3 / (rab * rcb ** 2)[:, np.newaxis]) * dr_da[:, atm_pair[1]]
-        term_8 = (2 * cos_theta / (rab * rcb))[:, np.newaxis] * dr_da[:, atm_pair[1]] * dr_da[:, atm_pair[1]]
+        term_7 = (-2 * alpha_3 / (rab * rcb ** 2)[:, np.newaxis]) * dr_dc[:, atm_pair[1]]
+        term_8 = (2 * cos_theta / (rab * rcb))[:, np.newaxis] * dr_da[:, atm_pair[1]] * dr_dc[:, atm_pair[1]]
         d_ar[:, atm_pair[1], :] = term_1 + term_2 + term_3 + term_4 + term_5 + term_6 + term_7 + term_8
         return d_ar
 
@@ -180,7 +180,7 @@ class ChainRuleHelper:
 
     @staticmethod
     def d2th_dx2(cds,
-                 atm_pair,
+                 atm_pair=[0,2,1],
                  dcth_dx=None,
                  dr_da=None,
                  dr_dc=None,

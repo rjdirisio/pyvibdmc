@@ -11,6 +11,15 @@ inv_mo = 1 / pv.Constants.mass('O')
 wvfn = np.load("free_oh_wvfn.npy")
 free_oh_wfn = interpolate.splrep(wvfn[:, 0], wvfn[:, 1], s=0)
 
+def get_angle(cds):
+    analyzer = pv.AnalyzeWfn(cds)
+    hoh = analyzer.bond_angle(0, 2, 1)
+    return hoh
+
+def get_cos_angle(cds):
+    analyzer = pv.AnalyzeWfn(cds)
+    hoh = analyzer.bond_angle(0, 2, 1)
+    return np.cos(hoh)
 
 def oh_dists(analyzer):
     oh1 = analyzer.bond_length(0, 2)
@@ -87,7 +96,7 @@ def dpsi_dx(cds):
     trl = trial_wavefunction(cds, ret_pdt=False)
     dpsi_dr = first_deriv(cds) / trl
     d2psi_dr2 = sec_deriv(cds) / trl
-    ohs = [[0, 2], [1, 2]]
+    ohs = [[0, 2], [2, 1]]
     hoh = [0, 2, 1]
 
     # Chain rule derivatives
@@ -107,7 +116,7 @@ def dpsi_dx(cds):
                                            dr_da=dr_dxs[0],
                                            dr_dc=dr_dxs[1],
                                            d2r_da2=d2r_dx2s[0],
-                                           d2r_dc2=d2r_dx2s[0])
+                                           d2r_dc2=d2r_dx2s[1])
     # Calculate dpsi/dx / psi
     dint_dx = np.concatenate((dr_dxs, np.expand_dims(dth_dx,0)))
     dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr, dint_dx)
