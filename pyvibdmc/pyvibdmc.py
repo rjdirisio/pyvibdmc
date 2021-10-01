@@ -88,6 +88,7 @@ class DMC_Sim:
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None,
+                 DEBUG_save_before_bod=False,
                  DEBUG_mass_change=None
                  ):
         self.atoms = atoms
@@ -112,6 +113,7 @@ class DMC_Sim:
         self.impsamp_manager = imp_samp
         self.imp1d = imp_samp_oned
         self._deb_training_every = DEBUG_save_training_every
+        self._deb_save_before_bod = DEBUG_save_before_bod
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
         self._deb_mass_change = DEBUG_mass_change
@@ -526,10 +528,11 @@ class DMC_Sim:
             else:
                 self._walker_pots = self.potential(self._walker_coords)
 
-            # Save training data if it's being collected
+            # Save training data if it's being collected & collect before bod
             if prop_step in self.deb_train_save_step:
-                print(f'{self._walker_coords.shape} walkers collected')
-                SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
+                if self._deb_save_before_bod:
+                    print(f'{self._walker_coords.shape} walkers collected')
+                    SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
                                      keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
@@ -556,6 +559,13 @@ class DMC_Sim:
             else:
                 if self.weighting == 'continuous':  # update weights but no branching
                     self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
+
+            # Save training data if it's being collected & collect after bod 
+            if prop_step in self.deb_train_save_step:
+                if not self._deb_save_before_bod:
+                    print(f'{self._walker_coords.shape} walkers collected')
+                    SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
+                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 
             # 4. Update Vref.
             self.calc_vref()
