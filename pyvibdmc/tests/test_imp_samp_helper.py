@@ -12,27 +12,28 @@ def test_imp_samp_derivs():
 
     ohs = [[0,2],[1,2]]
     hoh = [0,2,1]
-    dr_dxs = [pv.ChainRuleHelper.dr_dx(water_coord, oh) for oh in ohs]
-    d2r_dx2s = [pv.ChainRuleHelper.d2r_dx2(water_coord, oh) for oh in ohs]
-    d2r_dx2s = [pv.ChainRuleHelper.d2r_dx2(water_coord, oh,dr_dx=dr_dxs[num]) for num, oh in enumerate(ohs)]
-    dcth_dx = pv.ChainRuleHelper.dcth_dx(water_coord, hoh)
-    dcth_dx = pv.ChainRuleHelper.dcth_dx(water_coord, hoh,
-                                         dr_da=dr_dxs[0],
-                                         dr_dc=dr_dxs[1])
+    crh = pv.ChainRuleHelper(water_coord,np)
+    dr_dxs = [crh.dr_dx(oh) for oh in ohs]
+    d2r_dx2s = [crh.d2r_dx2(oh) for oh in ohs]
+    d2r_dx2s = [crh.d2r_dx2(oh,dr_dx=dr_dxs[num]) for num, oh in enumerate(ohs)]
+    dcth_dx = crh.dcth_dx(hoh)
+    dcth_dx = crh.dcth_dx(hoh,
+                          dr_da=dr_dxs[0],
+                          dr_dc=dr_dxs[1])
+    
+    dth_dx = crh.dth_dx(hoh)
+    dth_dx = crh.dth_dx(hoh,
+                        dcth_dx=dcth_dx,
+                        dr_da=dr_dxs[0],
+                        dr_dc=dr_dxs[1])
 
-    dth_dx = pv.ChainRuleHelper.dth_dx(water_coord,hoh)
-    dth_dx = pv.ChainRuleHelper.dth_dx(water_coord,hoh,
-                                       dcth_dx=dcth_dx,
-                                       dr_da=dr_dxs[0],
-                                       dr_dc=dr_dxs[1])
-
-    d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(water_coord,hoh)
-    d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(water_coord,hoh,
-                                           dcth_dx=dcth_dx,
-                                           dr_da=dr_dxs[0],
-                                           dr_dc=dr_dxs[1],
-                                           d2r_da2=d2r_dx2s[0],
-                                           d2r_dc2=d2r_dx2s[0])
+    d2th_dx2 = crh.d2th_dx2(hoh)
+    d2th_dx2 = crh.d2th_dx2(hoh,
+                            dcth_dx=dcth_dx,
+                            dr_da=dr_dxs[0],
+                            dr_dc=dr_dxs[1],
+                            d2r_da2=d2r_dx2s[0],
+                            d2r_dc2=d2r_dx2s[0])
     print('hi')
     assert True
 

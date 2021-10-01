@@ -5,10 +5,236 @@ Potential attributes:
 	potential_directory: /home/netid.washington.edu/rjdiri/pyvibdmc/pyvibdmc/tests/../sample_potentials/PythonPots/
 	num_cores: 2
 	pot_kwargs: None
+Num Walkers: 5000
+Num Time Steps: 1000
+Weighting Type: discrete
+Branch every 1 Time Step(s)
+Delta Tau: 5 a.u.
+Start Structure Array Shape: (1, 1, 1)
+Masses of Each Atom: [86412.83919388]
+Equilibration Steps Before Collecting Wave Functions: 200
+Checkpoint Every 100 time steps
+Collect Wave Functions Every 500 Time Steps After Equilibration
+
+Time step 0
+Potential call time at time step 0:
+	0.006516695022583008 seconds
+	Average energy of ensemble: 3.0672430716605388 cm-1 (without vref correction)
+	Highest energy walker: 42.00336593179676 cm-1
+	Lowest energy walker: 2.954006804042474e-08 cm-1
+Birth/Death at time step 0:
+	Walker Births: 0
+	Walker Deaths: 0
+	Number of Walkers: 5000
+Time step 50
+Potential call time at time step 50:
+	0.0009632110595703125 seconds
+	Average energy of ensemble: 144.5753867866788 cm-1 (without vref correction)
+	Highest energy walker: 2346.0869825334107 cm-1
+	Lowest energy walker: 6.022910453872894e-06 cm-1
+Birth/Death at time step 50:
+	Walker Births: 5
+	Walker Deaths: 5
+	Number of Walkers: 5001
+Time step 100
+Checkpointing, time step 100
+Potential call time at time step 100:
+	0.0010421276092529297 seconds
+	Average energy of ensemble: 230.7920029179443 cm-1 (without vref correction)
+	Highest energy walker: 2699.9530413639322 cm-1
+	Lowest energy walker: 3.121226843641826e-05 cm-1
+Birth/Death at time step 100:
+	Walker Births: 8
+	Walker Deaths: 6
+	Number of Walkers: 4993
+Time step 150
+Potential call time at time step 150:
+	0.001026153564453125 seconds
+	Average energy of ensemble: 338.9915417852632 cm-1 (without vref correction)
+	Highest energy walker: 4607.344616972215 cm-1
+	Lowest energy walker: 1.9175454296859404e-05 cm-1
+Birth/Death at time step 150:
+	Walker Births: 19
+	Walker Deaths: 23
+	Number of Walkers: 4996
+Time step 200
+Checkpointing, time step 200
+Starting descendant weighting, time step 200
+Will save wave function from time step 200
+Potential call time at time step 200:
+	0.0010552406311035156 seconds
+	Average energy of ensemble: 376.94872566962823 cm-1 (without vref correction)
+	Highest energy walker: 5831.383325751428 cm-1
+	Lowest energy walker: 4.68442338709038e-07 cm-1
+Birth/Death at time step 200:
+	Walker Births: 25
+	Walker Deaths: 25
+	Number of Walkers: 5006
+Time step 250
+Potential call time at time step 250:
+	0.0010762214660644531 seconds
+	Average energy of ensemble: 524.5018684492604 cm-1 (without vref correction)
+	Highest energy walker: 8585.859528252198 cm-1
+	Lowest energy walker: 1.5681615914945488e-05 cm-1
+Birth/Death at time step 250:
+	Walker Births: 25
+	Walker Deaths: 24
+	Number of Walkers: 5008
+Time step 300
+Checkpointing, time step 300
+Potential call time at time step 300:
+	0.0010571479797363281 seconds
+	Average energy of ensemble: 540.9405801893492 cm-1 (without vref correction)
+	Highest energy walker: 7725.647292210436 cm-1
+	Lowest energy walker: 1.935461458605747e-05 cm-1
+Birth/Death at time step 300:
+	Walker Births: 26
+	Walker Deaths: 38
+	Number of Walkers: 4989
+Time step 350
+Potential call time at time step 350:
+	0.0010313987731933594 seconds
+	Average energy of ensemble: 736.2688997551251 cm-1 (without vref correction)
+	Highest energy walker: 8869.160130213857 cm-1
+	Lowest energy walker: 0.00228106148132115 cm-1
+Birth/Death at time step 350:
+	Walker Births: 42
+	Walker Deaths: 43
+	Number of Walkers: 5000
+Time step 400
+Checkpointing, time step 400
+Potential call time at time step 400:
+	0.0010766983032226562 seconds
+	Average energy of ensemble: 792.1891071275875 cm-1 (without vref correction)
+	Highest energy walker: 9015.201738474627 cm-1
+	Lowest energy walker: 5.8538116887594074e-05 cm-1
+Birth/Death at time step 400:
+	Walker Births: 49
+	Walker Deaths: 36
+	Number of Walkers: 4992
+Time step 450
+Potential call time at time step 450:
+	0.0009641647338867188 seconds
+	Average energy of ensemble: 1044.5510729563202 cm-1 (without vref correction)
+	Highest energy walker: 14386.738800375246 cm-1
+	Lowest energy walker: 3.1807884745493033e-07 cm-1
+Birth/Death at time step 450:
+	Walker Births: 59
+	Walker Deaths: 49
+	Number of Walkers: 5014
+Time step 500
+Checkpointing, time step 500
+Potential call time at time step 500:
+	0.0010344982147216797 seconds
+	Average energy of ensemble: 1117.0336566924584 cm-1 (without vref correction)
+	Highest energy walker: 15185.287418140391 cm-1
+	Lowest energy walker: 6.044956163799898e-07 cm-1
+Birth/Death at time step 500:
+	Walker Births: 60
+	Walker Deaths: 76
+	Number of Walkers: 4988
+Time step 550
+Potential call time at time step 550:
+	0.0010266304016113281 seconds
+	Average energy of ensemble: 1549.724180000783 cm-1 (without vref correction)
+	Highest energy walker: 25875.700459502026 cm-1
+	Lowest energy walker: 1.1740978620549102e-06 cm-1
+Birth/Death at time step 550:
+	Walker Births: 109
+	Walker Deaths: 82
+	Number of Walkers: 4997
+Time step 600
+Checkpointing, time step 600
+Potential call time at time step 600:
+	0.00099945068359375 seconds
+	Average energy of ensemble: 1623.043653100051 cm-1 (without vref correction)
+	Highest energy walker: 30746.019264251496 cm-1
+	Lowest energy walker: 0.00043235034183204874 cm-1
+Birth/Death at time step 600:
+	Walker Births: 80
+	Walker Deaths: 102
+	Number of Walkers: 4979
+Time step 650
+Potential call time at time step 650:
+	0.0009355545043945312 seconds
+	Average energy of ensemble: 2303.44584081456 cm-1 (without vref correction)
+	Highest energy walker: 36563.44835200871 cm-1
+	Lowest energy walker: 0.001984003658019918 cm-1
+Birth/Death at time step 650:
+	Walker Births: 123
+	Walker Deaths: 111
+	Number of Walkers: 4992
+Finished descendant weighting at end of time step 698
+Saving wave function with descendant weights
+Time step 700
+Checkpointing, time step 700
+Starting descendant weighting, time step 700
+Will save wave function from time step 700
+Potential call time at time step 700:
+	0.0010638236999511719 seconds
+	Average energy of ensemble: 2409.378411219733 cm-1 (without vref correction)
+	Highest energy walker: 35505.6179245631 cm-1
+	Lowest energy walker: 1.9381356677030135e-05 cm-1
+Birth/Death at time step 700:
+	Walker Births: 116
+	Walker Deaths: 131
+	Number of Walkers: 4976
+Time step 750
+Potential call time at time step 750:
+	0.001039266586303711 seconds
+	Average energy of ensemble: 3161.871597094604 cm-1 (without vref correction)
+	Highest energy walker: 41224.575859998695 cm-1
+	Lowest energy walker: 0.0005860474634652801 cm-1
+Birth/Death at time step 750:
+	Walker Births: 161
+	Walker Deaths: 158
+	Number of Walkers: 4948
+Time step 800
+Checkpointing, time step 800
+Potential call time at time step 800:
+	0.0009865760803222656 seconds
+	Average energy of ensemble: 3583.233348144365 cm-1 (without vref correction)
+	Highest energy walker: 63809.74896502366 cm-1
+	Lowest energy walker: 0.0003542871252919667 cm-1
+Birth/Death at time step 800:
+	Walker Births: 155
+	Walker Deaths: 200
+	Number of Walkers: 4910
+Time step 850
+Potential call time at time step 850:
+	0.0009548664093017578 seconds
+	Average energy of ensemble: 4676.38813095062 cm-1 (without vref correction)
+	Highest energy walker: 81251.27626186702 cm-1
+	Lowest energy walker: 0.0008353737972358398 cm-1
+Birth/Death at time step 850:
+	Walker Births: 218
+	Walker Deaths: 229
+	Number of Walkers: 4922
+Time step 900
+Checkpointing, time step 900
+Potential call time at time step 900:
+	0.0008609294891357422 seconds
+	Average energy of ensemble: 5284.643620522599 cm-1 (without vref correction)
+	Highest energy walker: 70123.35545363216 cm-1
+	Lowest energy walker: 0.0035923700697311966 cm-1
+Birth/Death at time step 900:
+	Walker Births: 213
+	Walker Deaths: 275
+	Number of Walkers: 4814
+Time step 950
+Potential call time at time step 950:
+	0.0007596015930175781 seconds
+	Average energy of ensemble: 6883.849087584397 cm-1 (without vref correction)
+	Highest energy walker: 117074.11491581619 cm-1
+	Lowest energy walker: 0.0001422869279262524 cm-1
+Birth/Death at time step 950:
+	Walker Births: 301
+	Walker Deaths: 321
+	Number of Walkers: 4829
 
 Final checkpoint is written to chkpts folder.
 
 Simulation has finished.
 
-Simulation took 0.005811929702758789 seconds.
+Simulation took 2.744227647781372 seconds.
 
