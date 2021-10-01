@@ -1,0 +1,14 @@
+Simulation harm_osc_test starting at step 0
+Potential attributes: 
+	potential_function: oh_stretch_harm
+	python_file: harmonicOscillator1D.py
+	potential_directory: /home/netid.washington.edu/rjdiri/pyvibdmc/pyvibdmc/tests/../sample_potentials/PythonPots/
+	num_cores: 2
+	pot_kwargs: None
+
+Final checkpoint is written to chkpts folder.
+
+Simulation has finished.
+
+Simulation took 0.005606174468994141 seconds.
+
