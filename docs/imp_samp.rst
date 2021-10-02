@@ -134,26 +134,43 @@ following code can be found in the tutorial ``Partridge_Schwenke_H2O`` directory
         else:
             return psi # returns a num_walkers x num_modes array.
 
-
     def dpsi_dx(cds):
-        """Retruns the first and second derivative of psi with respect to Cartesians, divided by the trial wave function
-        The atom ordering for this water monomer is HHO."""
-        trl = trial_wavefunction(cds, ret_pdt = True) # returns num_walkers x num_modes
-        # Dpsi/dx, first calculate dpsi/dr
-        dpsi_dr = first_deriv(cds) / trl.T # dpsi/dr / psi
-        # Then, calculate the dr/dx and dtheta/dx values
-        dr_dx = pv.ChainRuleHelper.dr_dx(cds, [[0, 2], [1, 2]])
-        dth_dx = pv.ChainRuleHelper.dth_dx(cds, [[0, 2, 1]])
-        dint_dx = np.concatenate([dr_dx, dth_dx])
-        # Pass them to the ChainRuleHelper
-        dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr, dint_dx) #dpsi/dx takes in dpsi/dr / psi and dr/dx.
-        # Do the same thing for the second derivative
-        d2psi_dr2 = sec_deriv(cds) / trl.T
-        d2r_dx2 = pv.ChainRuleHelper.d2r_dx2(cds, [[0, 2], [1, 2]], dr_dx)
-        d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds, [[0, 2, 1]])
-        d2int_dx2 = np.concatenate([d2r_dx2, d2th_dx2])
-        d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
-        # dp_dx and d2p_dx2 are both num_walkers x num_atoms x 3 arrays.
+        """Retruns the first and second derivative"""
+        # First, calculate trial wave function (num_walkers x num_modes)
+        trl = trial_wavefunction(cds, ret_pdt=False)
+        dpsi_dr = first_deriv(cds) / trl
+        d2psi_dr2 = sec_deriv(cds) / trl
+        ohs = [[0, 2], [2, 1]]
+        hoh = [0, 2, 1]
+
+        # Chain rule derivatives
+        # pass in numpy module, can also use cupy to get GPU accelerations
+        crh = pv.ChainRuleHelper(cds, np)
+
+        dr_dxs = np.stack([crh.dr_dx(oh) for oh in ohs])
+        d2r_dx2s = np.stack([crh.d2r_dx2(oh, dr_dx=dr_dxs[num]) for num, oh in enumerate(ohs)])
+
+        dcth_dx = crh.dcth_dx(hoh,
+                              dr_da=dr_dxs[0],
+                              dr_dc=dr_dxs[1])
+        dth_dx = crh.dth_dx(hoh,
+                            dcth_dx=dcth_dx,
+                            dr_da=dr_dxs[0],
+                            dr_dc=dr_dxs[1])
+
+        d2th_dx2 = crh.d2th_dx2(hoh,
+                                dcth_dx=dcth_dx,
+                                dr_da=dr_dxs[0],
+                                dr_dc=dr_dxs[1],
+                                d2r_da2=d2r_dx2s[0],
+                                d2r_dc2=d2r_dx2s[1])
+        # Calculate dpsi/dx / psi
+        dint_dx = np.concatenate((dr_dxs, xp.expand_dims(dth_dx, 0)))
+        dp_dx = crh.dpsidx(dpsi_dr, dint_dx)
+
+        # Calculate d2psi/dx2 / psi
+        d2int_dx2 = np.concatenate((d2r_dx2s, xp.expand_dims(d2th_dx2, 0)))
+        d2p_dx2 = crh.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
         return dp_dx, d2p_dx2
 
 Note that when the ``ChainRuleHelper`` calculates ``dpsidx`` and ``d2psidx2``, it assumes that the derivatives with respect

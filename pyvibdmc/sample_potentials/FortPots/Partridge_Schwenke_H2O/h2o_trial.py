@@ -9,7 +9,17 @@ theta_freq = pv.Constants.convert(1668.4590610594878, 'wavenumbers', to_AU=True)
 inv_mh = 1 / pv.Constants.mass('H')
 inv_mo = 1 / pv.Constants.mass('O')
 wvfn = np.load("free_oh_wvfn.npy")
+#grd = wvfn[:,0]
 free_oh_wfn = interpolate.splrep(wvfn[:, 0], wvfn[:, 1], s=0)
+
+#dense_grd = np.linspace(grd.min(),grd.max(), num = 5000)
+#print(dense_grd[1]-dense_grd[0])
+#wfnn = interpolate.splev(dense_grd, free_oh_wfn, der=1)
+#der = interpolate.splev(dense_grd, free_oh_wfn, der=1)
+#sder = interpolate.splev(dense_grd, free_oh_wfn, der=1)
+#big_bops = np.stack((dense_grd,wfnn,der,sder))
+#print(big_bops.shape)
+#np.save("free_oh_wvfn_dense.npy",big_bops)
 
 def get_angle(cds):
     analyzer = pv.AnalyzeWfn(cds)
@@ -100,28 +110,30 @@ def dpsi_dx(cds):
     hoh = [0, 2, 1]
 
     # Chain rule derivatives
-    dr_dxs = np.stack([pv.ChainRuleHelper.dr_dx(cds, oh) for oh in ohs])
-    d2r_dx2s = np.stack([pv.ChainRuleHelper.d2r_dx2(cds, oh, dr_dx=dr_dxs[num]) for num, oh in enumerate(ohs)])
+    crh = pv.ChainRuleHelper(cds, np)
 
-    dcth_dx = pv.ChainRuleHelper.dcth_dx(cds, hoh,
-                                         dr_da=dr_dxs[0],
-                                         dr_dc=dr_dxs[1])
-    dth_dx = pv.ChainRuleHelper.dth_dx(cds, hoh,
-                                       dcth_dx=dcth_dx,
-                                       dr_da=dr_dxs[0],
-                                       dr_dc=dr_dxs[1])
+    dr_dxs = np.stack([crh.dr_dx(oh) for oh in ohs])
+    d2r_dx2s = np.stack([crh.d2r_dx2(oh, dr_dx=dr_dxs[num]) for num, oh in enumerate(ohs)])
 
-    d2th_dx2 = pv.ChainRuleHelper.d2th_dx2(cds, hoh,
-                                           dcth_dx=dcth_dx,
-                                           dr_da=dr_dxs[0],
-                                           dr_dc=dr_dxs[1],
-                                           d2r_da2=d2r_dx2s[0],
-                                           d2r_dc2=d2r_dx2s[1])
+    dcth_dx = crh.dcth_dx(hoh,
+                          dr_da=dr_dxs[0],
+                          dr_dc=dr_dxs[1])
+    dth_dx = crh.dth_dx(hoh,
+                        dcth_dx=dcth_dx,
+                        dr_da=dr_dxs[0],
+                        dr_dc=dr_dxs[1])
+
+    d2th_dx2 = crh.d2th_dx2(hoh,
+                            dcth_dx=dcth_dx,
+                            dr_da=dr_dxs[0],
+                            dr_dc=dr_dxs[1],
+                            d2r_da2=d2r_dx2s[0],
+                            d2r_dc2=d2r_dx2s[1])
     # Calculate dpsi/dx / psi
-    dint_dx = np.concatenate((dr_dxs, np.expand_dims(dth_dx,0)))
-    dp_dx = pv.ChainRuleHelper.dpsidx(dpsi_dr, dint_dx)
+    dint_dx = np.concatenate((dr_dxs, np.expand_dims(dth_dx, 0)))
+    dp_dx = crh.dpsidx(dpsi_dr, dint_dx)
 
     # Calculate d2psi/dx2 / psi
-    d2int_dx2 = np.concatenate((d2r_dx2s, np.expand_dims(d2th_dx2,0)))
-    d2p_dx2 = pv.ChainRuleHelper.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
+    d2int_dx2 = np.concatenate((d2r_dx2s, np.expand_dims(d2th_dx2, 0)))
+    d2p_dx2 = crh.d2psidx2(d2psi_dr2, d2int_dx2, dpsi_dr, dint_dx)
     return dp_dx, d2p_dx2
