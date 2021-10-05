@@ -304,7 +304,8 @@ class DMC_Sim:
     @property
     def vref_vs_tau(self):
         """Returns the vref array, including zeros from initialization"""
-        vref_wvn = Constants.convert(self._vref_vs_tau[:self.cur_timestep], "wavenumbers", to_AU=False)
+        # vref_wvn = Constants.convert(self._vref_vs_tau[:self.cur_timestep], "wavenumbers", to_AU=False)
+        vref_wvn = self._vref_vs_tau[:self.cur_timestep]
         return np.column_stack((np.arange(len(vref_wvn)), vref_wvn))
 
     @property
@@ -621,7 +622,7 @@ class DMC_Sim:
             # Save siminfo
             SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
                                  keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
-                                 valz=[np.column_stack((ts, _vref_wvn)), np.column_stack((ts, self._pop_vs_tau)),
+                                 valz=[np.column_stack((ts, self._vref_vs_tau)), np.column_stack((ts, self._pop_vs_tau)),
                                        self._atm_nums, self.masses])
             finish = time.time() - dmc_time_start
         self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")

@@ -12,7 +12,7 @@ to file::
     import pyvibdmc as pv
     import numpy as np
 
-    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5', ret_ang=True)
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
     pv.XYZNPY.write_xyz(coords=cds, fname='water_geoms.xyz', atm_strings=['H','H','O']) #writes the wave functions to file
@@ -21,7 +21,7 @@ Once you have the .xyz file, you may then open it in your molecular visualizatio
 even sorting your top 100 walkers by their descendant weight and writing those to file as well::
 
     ...
-    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment), ret_ang=True)
     idx = np.flip(np.argsort(dws)) # sorted array index from highest to lowest descendant weight
     written_cds = cds[idx[:100]]  # index over coordinates, grabbing top 100 from idx[:100]
     pv.XYZNPY.write_xyz(coords=written_cds, fname='top_water_geoms.xyz', atm_strings=['H','H','O']) #writes the wave functions to file
@@ -54,7 +54,7 @@ To access these arrays manually, you can use similar code from ``extract_sim_inf
     import h5py
 
     with h5py.File(fname, 'r') as f:
-        vref_vs_tau = f['vref_vs_tau'][:] # (num_timesteps,2) numpy array (time step, energies)
+        vref_vs_tau = f['vref_vs_tau'][:] # (num_timesteps,2) numpy array (time step, energies). In Bohr
         pop_vs_tau = f['pop_vs_tau'][:] # (num_timesteps,2) numpy array (time step, population)
         atom_nums = f['atomic_nums'][:] # list of ints
         atom_masses = f['atomic_masses'][:] #list of floats
@@ -66,7 +66,7 @@ accessed in the same way::
     import h5py
 
     with h5py.File(fname, 'r') as f:
-        cds = f['coords'][:] # (n,m,3) numpy array
+        cds = f['coords'][:] # (n,m,3) numpy array. In Bohr
         dwts = f['desc_weights'][:] # (n) numpy array
 
 However, ``PyVibDMC`` has ways to extract these arrays so that the user does not even need to know how to manipulate .hdf5
@@ -77,7 +77,7 @@ files::
     import numpy as np
 
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
-    vref_vs_tau =  tutorial_sim.get_vref()
+    vref_vs_tau =  tutorial_sim.get_vref() #in bohr by default. Takes ret_cm kwarg
     pop_vs_tau =  tutorial_sim.get_pop()
     atom_nums  = tutorial_sim.get_atomic_nums()
     atom_masses = tutorial_sim.get_atom_masses()

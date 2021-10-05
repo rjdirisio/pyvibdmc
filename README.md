@@ -61,4 +61,4 @@ Copyright (c) 2020, Ryan DiRisio
 Project based on the 
 [Computational Molecular Science Python Cookiecutter](https://github.com/molssi/cookiecutter-cms) version 1.3.
 
-Thank you to the entire McCoy group for helping me talk through this code, with special acknowledgements to Mark Boyer and my advisor Anne McCoy
+Thank you to the entire McCoy group for helping me talk through this code, with special acknowledgements to Fenris Lu (beta tester), Mark Boyer (coding conversations), and my advisor, Anne McCoy.

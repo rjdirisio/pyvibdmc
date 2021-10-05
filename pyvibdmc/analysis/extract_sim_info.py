@@ -34,24 +34,28 @@ class SimInfo:
             self.atom_masses = f['atomic_masses'][:]
 
     @staticmethod
-    def get_wfn(wfn_fl):
+    def get_wfn(wfn_fl, ret_ang=False):
         """
         Given a .hdf5 file, return wave function and descendant weights associated with that wave function.
 
         :param wfn_fl: A resultant .hdf5 file from a PyVibDMC simulation
+        :param ret_ang: boolean indicating returning the coordinates in angtstroms. Bohr is the default.
         :return: Coordinates array in angstroms (nxmx3), descendant weights array (n).
         """
         with h5py.File(wfn_fl, 'r') as f:
             cds = f['coords'][:]
-            cds = Constants.convert(cds, 'angstroms', to_AU=False)
+            if ret_ang:
+                # Fenris said it was dumb to convert, let the user decide what to do
+                cds = Constants.convert(cds, 'angstroms', to_AU=False)
             dw = f['desc_wts'][:]
         return cds, dw
 
-    def get_wfns(self, time_step_list):
+    def get_wfns(self, time_step_list, ret_ang=False):
         """
         Extract the wave function (walker set) and descendant weights given a time step number or numbers
         :param time_step_list: a list of ints that correspond to the time steps you want the wfn from given the simulation you are working with
         :type time_step_list: int or list
+        :param ret_ang: boolean indicating returning the coordinates in angtstroms. Bohr is the default.
         :return:
         """
         time_step_list = [time_step_list] if isinstance(time_step_list, int) else time_step_list
@@ -59,16 +63,19 @@ class SimInfo:
         tot_cds = []
         tot_dw = []
         for fl in fl_list:
-            cds, dw = self.get_wfn(fl)
+            cds, dw = self.get_wfn(fl, ret_ang)
             tot_cds.append(cds)
             tot_dw.append(dw)
         tot_cds = np.concatenate(tot_cds)
         tot_dw = np.concatenate(tot_dw)
         return tot_cds, tot_dw
 
-    def get_vref(self):
+    def get_vref(self, ret_cm=False):
         """Returns vref_vs_tau array"""
-        return self.vref_vs_tau
+        if ret_cm:
+            return Constants.convert(self.vref_vs_tau, 'wavenumbers', to_AU=False)
+        else:
+            return self.vref_vs_tau
 
     def get_pop(self):
         """Returns population array, either ensemble size or sum of weights"""
@@ -82,23 +89,32 @@ class SimInfo:
         """Returns masses used in the simulation in atomic units (mass electron)"""
         return self.atom_masses
 
-    def get_zpe(self, onwards=1000):
+    def get_zpe(self, onwards=1000, ret_cm=False):
         """onwards is an int that tells us where to start averaging (python indexing
         starts at 0)"""
-        return np.average(self.vref_vs_tau[onwards:, 1])
+        if ret_cm:
+            return Constants.convert(np.average(self.vref_vs_tau[onwards:, 1]), 'wavenumbers', to_AU=False)
+        else:
+            return np.average(self.vref_vs_tau[onwards:, 1])
 
-    def window_avg(self, blocks=5):
+    def window_avg(self, blocks=5, ret_cm=False):
         """Splits vref into blocks, calculates zpe in each of those blocks"""
         chunks = np.array_split(self.vref_vs_tau, blocks)
         avgs = np.average(chunks, axis=1)
-        return avgs
+        if ret_cm:
+            return Constants.convert(avgs, 'wavenumbers', to_AU=False)
+        else:
+            return avgs
 
     @staticmethod
-    def get_training(training_file):
+    def get_training(training_file, ret_ang=False, ret_cm=False):
         """If using deb_training_every argument, read the files with this. Returns walkers in angstr and engs in cm-1"""
         with h5py.File(training_file, 'r') as f:
             cds = f['coords'][:]
-            cds = Constants.convert(cds, 'angstroms', to_AU=False)
+            # Fenris said it was dumb to convert, let the user decide what to do with Bohr and Hartree
+            if ret_ang:
+                cds = Constants.convert(cds, 'angstroms', to_AU=False)
             pots = f['pots'][:]
-            pots = Constants.convert(pots, 'wavenumbers', to_AU=False)
+            if ret_cm:
+                pots = Constants.convert(pots, 'wavenumbers', to_AU=False)
         return cds, pots

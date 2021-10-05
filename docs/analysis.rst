@@ -34,7 +34,7 @@ using the prepackaged simulation data that comes with ``PyVibDMC``.  For the sam
 ``tutorial_water_{i}``, where ``i`` is an integer between 0 and 4, and the ``output_folder`` is ``sample_sim_data`` for
 all 5 simulations.
 
-**Note: PyVibDMC takes in coordinates and potential energy values in atomic units.  However, it returns geometries  for analysis in Angstroms, and energies in wavenumbers!**
+**Note: PyVibDMC takes in and outputs coordinates and potential energy values in atomic units by default!**
 
 **Note: We recommend that you specify simulation output to go outside the PyVibDMC package.**
 
@@ -55,7 +55,8 @@ Plotting Vref::
     # from pyvibdmc import SimInfo, Plotter
     # then you don't need a `pv.` in front of stuff
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
-    pv.Plotter.plt_vref_vs_tau(vref_vs_tau=tutorial_sim.get_vref(),
+    # ret_cm=True, otherwise vref will be in bohr
+    pv.Plotter.plt_vref_vs_tau(vref_vs_tau=tutorial_sim.get_vref(ret_cm=True),
 	                    save_name=f'test_vref.png')
 
 .. figure:: figures/test_vref.png
@@ -68,7 +69,12 @@ To calculate the zero-point energy based on a single DMC simulation, one would d
 
    time_step_onwards = 2000
    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
+
    zpe = tutorial_sim.get_zpe(onwards=time_step_onwards)
+   print(f"zpe in cm-1: {pv.Constants.convert(zpe,'wavenumbers',to_AU=False}")
+   # or
+   zpe = tutorial_sim.get_zpe(onwards=time_step_onwards, ret_cm=True)
+   print(f"zpe in cm-1: {zpe")
 
 The ``onwards`` argument to ``get_zpe`` is specifying at which time step should I begin averaging ``Vref``.  The ``PyVibDMC`` code
 will then calculate the average from ``onwards`` until the end of the simulation.  There is no one good number for this.
@@ -136,6 +142,10 @@ Here is the code that will perform that projection, as well as plot it::
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    cds = pv.Constants.convert(cds,'angstroms',to_AU=False) # Conversion of cds to angstroms
+    # or
+    # cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment),ret_ang=True)
+
     savefigpth = '' # save in current directory
 
     # STEP 2: Calculate the bond angle for each of your walkers
@@ -180,6 +190,7 @@ do that::
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
     cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    cds = pv.Constants.convert(cds,'angstroms',to_AU=False) # Conversion of cds to angstroms
     analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
 
     num_atoms = cds.shape[1] #remember, (n,m,3) array, so this is m
@@ -217,7 +228,7 @@ The calculation of, say, the expectation value of the displacement of one OH str
 
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
-    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment), ret_ang=True)
     savefigpth = '' # save in current directory
 
     analyzer = pv.AnalyzeWfn(cds)  # initialize wavefunction analyzer object
@@ -246,7 +257,7 @@ In order to project the probability amplitude onto the bond length, which is the
 
     tutorial_sim = pv.SimInfo('./harm_osc_test_sim_info.hdf5')
     increment = 1000
-    cds, dws = tutorial_sim.get_wfns(np.arange(1500, 10000+increment, increment)) #gets back cds in angstroms
+    cds, dws = tutorial_sim.get_wfns(np.arange(1500, 10000+increment, increment), ret_ang=True) #gets back cds in angstroms
     savefigpth = '' # save in current directory
 
     bond_length = np.squeeze(cds) #numpy array (N,1,1) --> (N)
