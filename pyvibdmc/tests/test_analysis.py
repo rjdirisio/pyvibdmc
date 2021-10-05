@@ -11,7 +11,7 @@ savefigpth = 'pyvibdmc/tests/'
 
 # Test writing and reading xyz coords from file
 def test_write_xyz_file():
-    cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
+    cds, dws = test_sim.get_wfns([2500, 3500],ret_ang=True)  # get two wave functions just for testing
     atm_str_list = ["H", "H", "O"]
     pv.XYZNPY.write_xyz(coords=cds, fname=f'{savefigpth}water_cds.xyz', atm_strings=atm_str_list,
                         cmt='from dmc simulation')
@@ -28,7 +28,7 @@ def test_get_all_siminfo():
 
 # Basic SimInfoStuff
 def test_sim_data_zpe():
-    zpe = test_sim.get_zpe(onwards=100)
+    zpe = test_sim.get_zpe(onwards=100, ret_cm=True)
 
 
 def test_zpe_std():
@@ -36,14 +36,14 @@ def test_zpe_std():
     for sim_num in range(5):
         test_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
-        this_zpe = test_sim.get_zpe(onwards=100)
+        this_zpe = test_sim.get_zpe(onwards=100, ret_cm=True)
         zpes.append(this_zpe)
     final_zpe = np.average(zpes)
     final_std_dev = np.std(zpes)
 
 
 def test_sim_combine_wfns():
-    combined_wfns, dws = test_sim.get_wfns([2500, 3500])  # the time steps you want to include
+    combined_wfns, dws = test_sim.get_wfns([2500, 3500], ret_ang=True)  # the time steps you want to include
 
 
 # Internal Analyzer Test
@@ -103,7 +103,7 @@ def test_dihedral():
 # Plotting and analyzing tests
 def test_plt_atm_atm_dists():
     import itertools as itt
-    cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
+    cds, dws = test_sim.get_wfns([2500, 3500], ret_ang=True)  # get two wave functions just for testing
     analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
 
     num_atoms = cds.shape[1]
@@ -121,13 +121,13 @@ def test_plt_atm_atm_dists():
 
 
 def test_plt_vref():
-    pv.Plotter.plt_vref_vs_tau(vref_vs_tau=test_sim.get_vref(),
+    pv.Plotter.plt_vref_vs_tau(vref_vs_tau=test_sim.get_vref(ret_cm=True),
                                save_name=f'{savefigpth}test_vref.png')
     assert True
 
 
 def test_plt_water_angle():
-    cds, dws = test_sim.get_wfns([2500, 3500])  # get two wave functions just for testing
+    cds, dws = test_sim.get_wfns([2500, 3500],ret_ang=True)  # get two wave functions just for testing
 
     analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
     hoh_angle = analyzer.bond_angle(atm1=0,
@@ -160,7 +160,7 @@ def test_adv_plt_many_vrefs():
     for sim_num in range(5):
         temp_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
-        this_vref = temp_sim.get_vref()
+        this_vref = temp_sim.get_vref(ret_cm=True)
         ax.plot(this_vref[:, 0], this_vref[:, 1])
     ax.set_xlabel("Time Step")
     ax.set_ylabel(r"Vref ($\rm{cm^{-1}}$)")
@@ -175,7 +175,7 @@ def test_adv_plt_2dhistogram():
     for sim_num in range(5):
         temp_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
-        cds, dw = temp_sim.get_wfns([2500, 3500])
+        cds, dw = temp_sim.get_wfns([2500, 3500],ret_ang=True)
         tot_cds.append(cds)
         tot_dw.append(dw)
     tot_cds = np.concatenate(tot_cds, axis=0)
