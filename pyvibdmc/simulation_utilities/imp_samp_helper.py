@@ -67,6 +67,7 @@ class ChainRuleHelper:
 
     def dcth_dx(self,
                 atm_pair,
+                cos_theta=None,
                 dr_da=None,
                 dr_dc=None):
         """
@@ -80,7 +81,8 @@ class ChainRuleHelper:
             """
 
         d_ar = self.xp.zeros(self.cds.shape)  # the first derivative array
-        cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
+        if cos_theta is None:
+            cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
         if dr_da is None or dr_dc is None:
             dr_da = self.dr_dx([atm_pair[0], atm_pair[1]])
             dr_dc = self.dr_dx([atm_pair[1], atm_pair[2]])
@@ -105,7 +107,8 @@ class ChainRuleHelper:
         return d_ar
 
     def d2cth_dx2(self,
-                  atm_pair=[0, 2, 1],
+                  atm_pair,
+                  cos_theta=None,
                   dr_da=None,
                   dr_dc=None,
                   d2r_da2=None,
@@ -120,8 +123,8 @@ class ChainRuleHelper:
         """
         d_ar = self.xp.zeros(self.cds.shape)  # the first derivative array
         # A bunch of things that are used throughout the calculation
-        cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
-
+        if cos_theta is None:
+            cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
         if dr_da is None or dr_dc is None:
             dr_da = self.dr_dx([atm_pair[0], atm_pair[1]])
             dr_dc = self.dr_dx([atm_pair[1], atm_pair[2]])
@@ -158,6 +161,7 @@ class ChainRuleHelper:
 
     def dth_dx(self,
                atm_pair,
+               cos_theta=None,
                dcth_dx=None,
                dr_da=None,
                dr_dc=None):
@@ -168,13 +172,15 @@ class ChainRuleHelper:
         """
         if dcth_dx is None:
             dcth_dx = self.dcth_dx(atm_pair, dr_da=dr_da, dr_dc=dr_dc)
-        cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
+        if cos_theta is None:
+            cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
         dth_dcth = -1 / self.xp.sqrt(1 - cos_theta ** 2)
         d_ar = dth_dcth[:, self.xp.newaxis, self.xp.newaxis] * dcth_dx
         return d_ar
 
     def d2th_dx2(self,
-                 atm_pair=[0, 2, 1],
+                 atm_pair,
+                 cos_theta=None,
                  dcth_dx=None,
                  dr_da=None,
                  dr_dc=None,
@@ -185,13 +191,13 @@ class ChainRuleHelper:
         :param atm_pair: list that corresponds to indices of the ABC angle, where B is the vertex
         :param dcth_dxs: Derivative of cosine theta wrt x. This is needed for this derivative and the second derivative.
         """
-        dcth_dx = self.d2cth_dx2(atm_pair,
+        d2cth_dx2 = self.d2cth_dx2(atm_pair,
                                  dr_da=dr_da,
                                  dr_dc=dr_dc,
                                  d2r_da2=d2r_da2,
                                  d2r_dc2=d2r_dc2)
-
-        cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
+        if cos_theta is None:
+            cos_theta = self.xp.cos(self.analyzer.bond_angle(atm_pair[0], atm_pair[1], atm_pair[2]))
         # Calculate dth/dcth, and dcth/dx
         dth_dcth = -1 / self.xp.sqrt(1 - cos_theta ** 2)
         if dcth_dx is None:
@@ -199,5 +205,5 @@ class ChainRuleHelper:
         # Calculate d2th_dcos(th)
         d2th_dcth2 = -1 * cos_theta / ((1 - cos_theta ** 2) ** 1.5)
         term_1 = dcth_dx ** 2 * d2th_dcth2[:, self.xp.newaxis, self.xp.newaxis]
-        term_2 = dcth_dx * dth_dcth[:, self.xp.newaxis, self.xp.newaxis]
+        term_2 = d2cth_dx2 * dth_dcth[:, self.xp.newaxis, self.xp.newaxis]
         return term_1 + term_2

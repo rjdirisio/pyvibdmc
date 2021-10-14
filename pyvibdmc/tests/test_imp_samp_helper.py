@@ -37,7 +37,7 @@ def test_imp_samp_derivs():
     print('hi')
     assert True
 
-
+#
 # def test_dpsi_dx():
 #     sim_ex_dir = "imp_samp_results"
 #     # initialize potential
@@ -53,17 +53,17 @@ def test_imp_samp_derivs():
 #                             [-0.45344658, 1.75233806, 0.],
 #                             [0., 0., 0.]]) * 1.01
 #     water_coord = np.expand_dims(water_coord, 0)
-#     start_cds = np.tile(water_coord, (200, 1, 1))
-#     impo = pv.ImpSampManager_NoMP(trial_function='trial_wavefunction',
+#     start_cds = np.tile(water_coord, (2000, 1, 1))
+#     impo = pv.ImpSampManager(trial_function='trial_wavefunction',
 #                                   trial_directory=potDir,
 #                                   python_file='h2o_trial.py',
-#                                   # pot_manager=harm_pot,
+#                                   pot_manager=harm_pot,
 #                                   deriv_function='dpsi_dx')
 #
 #     myDMC = pv.DMC_Sim(sim_name="water_impsamp_test_ana",
 #                        output_folder=sim_ex_dir,
 #                        weighting='discrete',
-#                        num_walkers=200,
+#                        num_walkers=2000,
 #                        num_timesteps=200,
 #                        equil_steps=5,
 #                        chkpt_every=10,
@@ -109,17 +109,17 @@ def test_imp_samp_derivs():
 #                     [-3.61843908, 0.36974668, -0.61083718]])
 #     hex = pv.Constants.convert(hex, 'angstroms', to_AU=True)
 #     water_coord = np.expand_dims(hex, 0)
-#     start_cds = np.tile(water_coord, (200, 1, 1))
-#     impo = pv.ImpSampManager_NoMP(trial_function='trial_wavefunction',
+#     start_cds = np.tile(water_coord, (20000, 1, 1))
+#     impo = pv.ImpSampManager(trial_function='trial_wavefunction',
 #                                   trial_directory=potDir,
 #                                   python_file='call_trial.py',
-#                                   # pot_manager=harm_pot,
+#                                   pot_manager=harm_pot,
 #                                   deriv_function='dpsi_dx')
 #
 #     myDMC = pv.DMC_Sim(sim_name="hex_impsamp_test_ana",
 #                        output_folder=sim_ex_dir,
 #                        weighting='discrete',
-#                        num_walkers=200,
+#                        num_walkers=20000,
 #                        num_timesteps=100,
 #                        equil_steps=5,
 #                        chkpt_every=10,
