@@ -272,6 +272,9 @@ class DMC_Sim:
         self._log_steps = np.arange(0, self.num_timesteps, self.log_every)
         self._vref_vs_tau = np.concatenate((self._vref_vs_tau, np.zeros(add_ts)))
         self._pop_vs_tau = np.concatenate((self._pop_vs_tau, np.zeros(add_ts)))
+
+        self._prop_steps = np.arange(self.cur_timestep, self.num_timesteps)
+
         if impsamp is not None:
             self.impsamp_manager = impsamp
             self.imp1d = False
@@ -495,7 +498,7 @@ class DMC_Sim:
                 SimArchivist.chkpt(self, prop_step)
                 self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
 
-            # If we are at a spot to begin desc_wt_timeendant weighting
+            # If we are at a spot to begin desc_wt_time
             if prop_step in self._wfn_save_step:
                 self._logger.write_wfn_save(prop_step)
                 self._desc_wts = np.zeros(len(self._walker_coords))
