@@ -31,7 +31,7 @@ class Plotter:
         else:
             for vref in vref_vs_tau:
                 plt.plot(vref[:, 0], vref[:, 1])
-        plt.xlabel("Time step")
+        plt.xlabel("Time (a.u.)")
         plt.ylabel(r"$\mathrm{E_{ref}}$ ($\mathrm{cm^{-1}}$)")
         plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()
@@ -54,7 +54,7 @@ class Plotter:
         else:
             for pop in pop_vs_tau:
                 plt.plot(pop[:, 0], pop[:, 1])
-        plt.xlabel("Time step")
+        plt.xlabel("Time (a.u.)")
         plt.ylabel(r"Population, Weights")
         plt.savefig(save_name, bbox_inches='tight', dpi=300)
         plt.close()

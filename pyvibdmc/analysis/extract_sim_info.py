@@ -74,7 +74,6 @@ class SimInfo:
         """Returns vref_vs_tau array"""
         if ret_cm:
             vref_cm = Constants.convert(self.vref_vs_tau[:,1], 'wavenumbers', to_AU=False)
-            
             return np.column_stack((self.vref_vs_tau[:,0],vref_cm))
         else:
             return self.vref_vs_tau

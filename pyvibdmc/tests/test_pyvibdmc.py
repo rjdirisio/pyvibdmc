@@ -169,3 +169,40 @@ def test_mass_increase_dmc():
     pv.Plotter.plt_vref_vs_tau(sim.get_vref())
     pv.Plotter.plt_pop_vs_tau(sim.get_pop())
     assert True
+
+# def test_tutorial_water():
+#     # initialize potential
+#     potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/FortPots/Partridge_Schwenke_H2O/')
+#     rez_dir = os.path.join(os.path.dirname(__file__),
+#                  '../sample_sim_data/')
+#     # purposes
+#     pyFile = 'h2o_potential.py'
+#     potFunc = 'water_pot'
+#     harm_pot = pv.Potential(potential_function=potFunc,
+#                             python_file=pyFile,
+#                             potential_directory=potDir,
+#                             num_cores=8)
+#
+#     water_coord = np.array([[1.81005599, 0., 0.],
+#                             [-0.45344658, 1.75233806, 0.],
+#                             [0., 0., 0.]]) * 1.01
+#     start_coord = np.expand_dims(water_coord, axis=0)  # Make it (1 x num_atoms x 3)
+#
+#     for sim_num in range(5):
+#         myDMC = pv.DMC_Sim(sim_name=f"tutorial_water_{sim_num}",
+#                            output_folder=rez_dir,
+#                            weighting='discrete',
+#                            num_walkers=8000,
+#                            num_timesteps=5000,
+#                            equil_steps=500,
+#                            chkpt_every=100,
+#                            wfn_every=1000,
+#                            desc_wt_steps=100,
+#                            atoms=["H", "H", "O"],
+#                            delta_t=5,
+#                            potential=harm_pot,
+#                            log_every=1,
+#                            start_structures=start_coord,
+#                            )
+#         myDMC.run()
+#     assert True

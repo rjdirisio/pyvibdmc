@@ -244,7 +244,8 @@ class DMC_Sim:
         if self.impsamp_manager is not None:
             self.imp_info = vars(self.impsamp_manager)
             if self.delta_t != 1:
-                raise ValueError("Delta tau cannot be anything but 1 for importance sampling DMC!!!!")
+                print("WARNING! Using DT>1 for Imp Samp. Make sure this is not a mistake!!!!")
+                # raise ValueError("Delta tau cannot be anything but 1 for importance sampling DMC!!!!")
             self.f_x = None
             self.psi_1 = None
             self.psi_sec_der = None
@@ -252,6 +253,8 @@ class DMC_Sim:
             self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.impsamp = ImpSamp(self.impsamp_manager)
+            self.eff_ts = np.zeros(len(self._prop_steps))
+
             if self.imp1d:
                 # No xyz just one mass and one sigma
                 self.sigma_trip = self._sigmas
@@ -318,6 +321,14 @@ class DMC_Sim:
         else:
             return self._walker_coords
 
+    def update_effetive_timestep(self):
+        dt = self.delta_t * self.dt_factor
+        if self.cur_timestep == 0:
+            self.eff_ts[self.cur_timestep] = dt
+        else:
+            self.eff_ts[self.cur_timestep] = self.eff_ts[self.cur_timestep - 1] + dt
+        return dt
+
     def birth_or_death(self):
         """
         Chooses whether or not the walker made a bad enough random walk to be removed from the simulation.
@@ -325,10 +336,14 @@ class DMC_Sim:
         to an update of the weights and a potential branching of a large weight walker to the smallest one
         :return: Updated Continus Weights , the "who from" array for desc_wt_timeendent weighting, walker coords, and pot vals.
          """
+        dt = self.delta_t
+        if self.impsamp_manager is not None:
+            dt = self.update_effetive_timestep()
+
         if self.weighting == 'discrete':
             rand_nums = np.random.random(len(self._walker_coords))
 
-            death_mask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t)) < rand_nums,
+            death_mask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - self._vref) * dt)) < rand_nums,
                                        self._walker_pots < self._vref)
 
             num_deaths = len(self._walker_coords) - np.sum(death_mask)
@@ -339,7 +354,7 @@ class DMC_Sim:
             if self._desc_wt:
                 self._who_from = self._who_from[death_mask]
 
-            exp_term = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - 1
+            exp_term = np.exp(-1. * (self._walker_pots - self._vref) * dt) - 1
             ct = 1
             num_births = 0
             while np.amax(exp_term) > 0.0:
@@ -358,11 +373,11 @@ class DMC_Sim:
                 if self._desc_wt:
                     self._who_from = np.concatenate((self._who_from,
                                                      self._who_from[birth_mask]))
-                exp_term = np.exp(-1. * (self._walker_pots - self._vref) * self.delta_t) - (1 + ct)
+                exp_term = np.exp(-1. * (self._walker_pots - self._vref) * dt) - (1 + ct)
                 ct += 1
             return num_births, num_deaths, len(self._walker_pots)
         else:
-            self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
+            self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * dt)
 
             # branch if weights are too low
             kill_mark = np.where(self._cont_wts < self._thresh_lower)[0]
@@ -420,6 +435,7 @@ class DMC_Sim:
 
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
+        self.dt_factor = len(accept) / len(self._walker_coords)
         self._walker_coords[accept] = displaced_cds[accept]
         self.f_x[accept] = f_y[accept]
         self.psi_1[accept] = psi_2[accept]
@@ -562,7 +578,10 @@ class DMC_Sim:
                     self._logger.write_branching(prop_step, self.weighting, ensemble_changes)
             else:
                 if self.weighting == 'continuous':  # update weights but no branching
-                    self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * self.delta_t)
+                    dt = self.delta_t
+                    if self.impsamp_manager is not None:
+                        dt = self.update_effetive_timestep()
+                    self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * dt)
 
             # Save training data if it's being collected & collect after bod 
             if prop_step in self.deb_train_save_step:
@@ -620,7 +639,11 @@ class DMC_Sim:
 
             print("Simulation Complete")
             print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
-            ts = np.arange(len(_vref_wvn))
+            if self.impsamp_manager is not None:
+                """Replace discrete integers with the effective time step put forth by the metropolis criteria"""
+                ts = self.eff_ts
+            else:
+                ts = np.arange(len(_vref_wvn)) * self.delta_t
 
             # Save siminfo
             SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",

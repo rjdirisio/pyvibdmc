@@ -28,7 +28,7 @@ def test_get_all_siminfo():
 
 # Basic SimInfoStuff
 def test_sim_data_zpe():
-    zpe = test_sim.get_zpe(onwards=100, ret_cm=True)
+    zpe = test_sim.get_zpe(onwards=1000, ret_cm=True)
 
 
 def test_zpe_std():
@@ -103,7 +103,7 @@ def test_dihedral():
 # Plotting and analyzing tests
 def test_plt_atm_atm_dists():
     import itertools as itt
-    cds, dws = test_sim.get_wfns([2500, 3500], ret_ang=True)  # get two wave functions just for testing
+    cds, dws = test_sim.get_wfns(np.arange(1500, 5000, 1000), ret_ang=True)  # get two wave functions just for testing
     analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
 
     num_atoms = cds.shape[1]
@@ -127,7 +127,7 @@ def test_plt_vref():
 
 
 def test_plt_water_angle():
-    cds, dws = test_sim.get_wfns([2500, 3500],ret_ang=True)  # get two wave functions just for testing
+    cds, dws = test_sim.get_wfns(np.arange(1500, 5000, 1000),ret_ang=True)  # get two wave functions just for testing
 
     analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
     hoh_angle = analyzer.bond_angle(atm1=0,
@@ -162,7 +162,7 @@ def test_adv_plt_many_vrefs():
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
         this_vref = temp_sim.get_vref(ret_cm=True)
         ax.plot(this_vref[:, 0], this_vref[:, 1])
-    ax.set_xlabel("Time Step")
+    ax.set_xlabel("Time (a.u.)")
     ax.set_ylabel(r"Vref ($\rm{cm^{-1}}$)")
     fig.savefig(f"{savefigpth}ManyVrefs.png", dpi=300, bbox_inches='tight')
     plt.close()
@@ -175,7 +175,7 @@ def test_adv_plt_2dhistogram():
     for sim_num in range(5):
         temp_sim = pv.SimInfo(
             f'pyvibdmc/sample_sim_data/tutorial_water_{sim_num}_sim_info.hdf5')  # 5 independent DMC sims!
-        cds, dw = temp_sim.get_wfns([2500, 3500],ret_ang=True)
+        cds, dw = temp_sim.get_wfns(np.arange(1500, 5000, 1000),ret_ang=True)
         tot_cds.append(cds)
         tot_dw.append(dw)
     tot_cds = np.concatenate(tot_cds, axis=0)
