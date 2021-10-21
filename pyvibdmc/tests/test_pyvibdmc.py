@@ -81,6 +81,40 @@ def test_run_dmc():
     myDMC.run()
     assert True
 
+def test_run_dmc_dw_tracker():
+    import shutil
+    if os.path.isdir(sim_ex_dir):
+        shutil.rmtree(sim_ex_dir)
+
+    # initialize potential
+    potDir = os.path.join(os.path.dirname(__file__), '../sample_potentials/PythonPots/')  # only necesary for testing
+    # purposes
+    pyFile = 'harmonicOscillator1D.py'
+    potFunc = 'oh_stretch_harm'
+    harm_pot = pv.Potential(potential_function=potFunc,
+                            python_file=pyFile,
+                            potential_directory=potDir,
+                            num_cores=2)
+
+    myDMC = pv.DMC_Sim(sim_name="dw_tracker_sim",
+                       output_folder=sim_ex_dir,
+                       weighting='discrete',
+                       num_walkers=1000,
+                       num_timesteps=1000,
+                       equil_steps=50,
+                       chkpt_every=50,
+                       wfn_every=200,
+                       desc_wt_steps=199,
+                       atoms=["O-H"],
+                       delta_t=5,
+                       potential=harm_pot,
+                       log_every=50,
+                       DEBUG_save_desc_wt_tracker=True,
+                       start_structures=np.zeros((1, 1, 1)),
+                       cur_timestep=0)
+    myDMC.run()
+    assert True
+
 
 def test_run_dmc_cont():
     # initialize potential
@@ -93,7 +127,7 @@ def test_run_dmc_cont():
                             potential_directory=potDir,
                             num_cores=2)
 
-    myDMC = pv.DMC_Sim(sim_name="harm_osc_cont",
+    myDMC = pv.DMC_Sim(sim_name="harm_osc_test",
                        output_folder=sim_ex_dir,
                        weighting='continuous',
                        num_walkers=5000,

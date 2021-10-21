@@ -429,13 +429,13 @@ class DMC_Sim:
         d_y = self.inv_masses_trip * f_y  # The actual term added to cartesian coords
 
         met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
-                                                  trial_x=self.psi_1,
-                                                  trial_y=psi_2,
-                                                  disp_x=self._walker_coords,
-                                                  disp_y=displaced_cds,
-                                                  D_x=d_x,
-                                                  D_y=d_y,
-                                                  dt=self.delta_t)
+                                           trial_x=self.psi_1,
+                                           trial_y=psi_2,
+                                           disp_x=self._walker_coords,
+                                           disp_y=displaced_cds,
+                                           D_x=d_x,
+                                           D_y=d_y,
+                                           dt=self.delta_t)
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
         self.dt_factor = len(accept) / len(self._walker_coords)
@@ -524,6 +524,8 @@ class DMC_Sim:
                 self._parent = np.copy(self._walker_coords)
                 self._who_from = np.arange(len(self._walker_coords))
                 self._desc_wt = True
+                if self._deb_desc_wt_tracker:
+                    desc_wt_history = []
 
             # If we are at a point to change mass (debug option, scale mass)
             if prop_step in self._mass_change_steps:
@@ -597,6 +599,11 @@ class DMC_Sim:
             self.calc_vref()
             self.update_sim_arrays(prop_step)
 
+            if self._desc_wt and self._deb_desc_wt_tracker:
+                self.calc_desc_wts()
+                desc_wt_history.append(self._desc_wts)
+                self._desc_wts = np.zeros(len(self._desc_wts))
+
             # If desc_wt_time weighting is over, save the wfn and weights
             if prop_step + 1 in self._desc_wt_save_step:
                 self._logger.write_desc_wt(prop_step)
@@ -607,9 +614,8 @@ class DMC_Sim:
                     keyz=['coords', 'desc_wts'],
                     valz=[self._parent, self._desc_wts])
                 if self._deb_desc_wt_tracker:
-                    np.save(
-                        f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_time_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts",
-                        self._who_from)
+                    fname=f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts.npy"
+                    np.save(fname, np.array(desc_wt_history))
 
             # Explicitly flush log file every 10 time steps, since it gets caught in buffer in HPC systems
             if prop_step % 10 == 0:
