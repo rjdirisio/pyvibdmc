@@ -19,11 +19,11 @@ class ImpSamp:
         return trial_wfn
 
     def drift(self, cds):
-        """Internally returns 2*(dpsi/psi), since it's more convenient in the workflow.
+        """Internally returns (dpsi/psi), since it's more convenient in the workflow.
         Also returns second derivatives divided by psi"""
         psi_t = self.trial(cds)
-        deriv, sderiv = self.imp_manager.call_derivs(cds) # num_walkers, num_atoms, 3 array
-        return 2 * deriv, psi_t, sderiv
+        deriv, sderiv = self.imp_manager.call_derivs(cds)  # num_walkers, num_atoms, 3 array
+        return deriv, psi_t, sderiv
 
     @staticmethod
     def metropolis(sigma_trip,
@@ -31,10 +31,13 @@ class ImpSamp:
                    trial_y,
                    disp_x,
                    disp_y,
-                   f_x,
-                   f_y):
+                   D_x,
+                   D_y,
+                   dt):
         psi_ratio = (trial_y / trial_x) ** 2
-        accep = np.exp(1. / 2. * (f_x + f_y) * (sigma_trip ** 2 / 4. * (f_x - f_y) - (disp_y - disp_x)))
+        term_1 = np.exp(-1 * (disp_x - disp_y - D_y * dt) ** 2 / (2 * sigma_trip ** 2))
+        term_2 = np.exp(-1 * (disp_y - disp_x - D_x * dt) ** 2 / (2 * sigma_trip ** 2))
+        accep = term_1 / term_2
         if accep.shape[-1] == 1:  # one-dimensional problem
             accep = accep.squeeze() * psi_ratio.squeeze()
         else:

@@ -422,17 +422,20 @@ class DMC_Sim:
                                  self._sigmas,
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
         # The actual term added to cartesian coords
-        d = (self.sigma_trip ** 2 / 2) * self.f_x  # The actual term added to cartesian coords
-        displaced_cds = self._walker_coords + disps + d
-        f_y, psi_2, psi_sec_der_disp = self.impsamp.drift(displaced_cds)
-        met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
-                                           trial_x=self.psi_1,
-                                           trial_y=psi_2,
-                                           disp_x=self._walker_coords,
-                                           disp_y=displaced_cds,
-                                           f_x=self.f_x,
-                                           f_y=f_y)
+        d_x = self.inv_masses_trip * self.f_x  # The actual term added to cartesian coords
+        displaced_cds = self._walker_coords + disps + d_x * self.delta_t
 
+        f_y, psi_2, psi_sec_der_disp = self.impsamp.drift(displaced_cds)
+        d_y = self.inv_masses_trip * f_y  # The actual term added to cartesian coords
+
+        met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
+                                                  trial_x=self.psi_1,
+                                                  trial_y=psi_2,
+                                                  disp_x=self._walker_coords,
+                                                  disp_y=displaced_cds,
+                                                  D_x=d_x,
+                                                  D_y=d_y,
+                                                  dt=self.delta_t)
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
         self.dt_factor = len(accept) / len(self._walker_coords)
@@ -553,7 +556,7 @@ class DMC_Sim:
                 if self._deb_save_before_bod:
                     print(f'{self._walker_coords.shape} walkers collected')
                     SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
-                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
+                                         keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 
             # If importance sampling, calculate local energy,  which is just adding on local KE
             if self.impsamp_manager is not None:
@@ -588,7 +591,7 @@ class DMC_Sim:
                 if not self._deb_save_before_bod:
                     print(f'{self._walker_coords.shape} walkers collected')
                     SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_training_{prop_step}ts.hdf5",
-                                     keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
+                                         keyz=['coords', 'pots'], valz=[self._walker_coords, self._walker_pots])
 
             # 4. Update Vref.
             self.calc_vref()
@@ -648,7 +651,8 @@ class DMC_Sim:
             # Save siminfo
             SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_sim_info.hdf5",
                                  keyz=['vref_vs_tau', 'pop_vs_tau', 'atomic_nums', 'atomic_masses'],
-                                 valz=[np.column_stack((ts, self._vref_vs_tau)), np.column_stack((ts, self._pop_vs_tau)),
+                                 valz=[np.column_stack((ts, self._vref_vs_tau)),
+                                       np.column_stack((ts, self._pop_vs_tau)),
                                        self._atm_nums, self.masses])
             finish = time.time() - dmc_time_start
         self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
@@ -675,7 +679,7 @@ def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsa
     """TODO: Need to add in impsamp infrastructure here for restarting..."""
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     # Update simulation parameters based on additional timesteps
-    dmc_sim._init_restart(additional_timesteps,impsamp)
+    dmc_sim._init_restart(additional_timesteps, impsamp)
     # Re-initialize the potential and the logger, as those are not pickleable
     dmc_sim.potential = potential.getpot
     dmc_sim.potential_info = vars(dmc_sim.potential)
