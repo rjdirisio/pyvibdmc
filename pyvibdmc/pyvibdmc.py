@@ -302,10 +302,15 @@ class DMC_Sim:
             max_walker = np.argmax(self._cont_wts)
             self._walker_coords[walker] = np.copy(self._walker_coords[max_walker])
             self._walker_pots[walker] = np.copy(self._walker_pots[max_walker])
+
             if self._desc_wt:
                 self._who_from[walker] = self._who_from[max_walker]
             self._cont_wts[max_walker] /= 2.0
             self._cont_wts[walker] = np.copy(self._cont_wts[max_walker])
+            if self.impsamp_manager is not None:
+                self.f_x[walker] = np.copy(self.f_x[max_walker])
+                self.psi_1[walker] = np.copy(self.psi_1[max_walker])
+                self.psi_sec_der[walker] = np.copy(self.psi_sec_der[max_walker])
 
     @property
     def vref_vs_tau(self):
@@ -351,6 +356,10 @@ class DMC_Sim:
             self._walker_coords = self._walker_coords[death_mask]
             self._walker_pots = self._walker_pots[death_mask]
             rand_nums = rand_nums[death_mask]
+            if self.impsamp_manager is not None:
+                self.f_x = self.f_x[death_mask]
+                self.psi_1 = self.psi_1[death_mask]
+                self.psi_sec_der = self.psi_sec_der[death_mask]
             if self._desc_wt:
                 self._who_from = self._who_from[death_mask]
 
@@ -370,6 +379,11 @@ class DMC_Sim:
                                                       self._walker_coords[birth_mask]))
                 self._walker_pots = np.concatenate((self._walker_pots,
                                                     self._walker_pots[birth_mask]))
+                if self.impsamp_manager is not None:
+                    self.f_x = np.concatenate((self.f_x, self.f_x[birth_mask]))
+                    self.psi_1 = np.concatenate((self.psi_1, self.psi_1[birth_mask]))
+                    self.psi_sec_der = np.concatenate((self.psi_sec_der, self.psi_sec_der[birth_mask]))
+
                 if self._desc_wt:
                     self._who_from = np.concatenate((self._who_from,
                                                      self._who_from[birth_mask]))
@@ -413,11 +427,9 @@ class DMC_Sim:
         """
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
         """
-        if (self.f_x is None or self.psi_1 is None) or self.weighting == 'discrete':
-            # f_x is 2 * dpsi/psi, which is more convenient for the metropolis step
-            # Either first time step of normal sim or every time step of discrete sim
-            # or every tiume step of finite diff imp amp
+        if (self.f_x is None or self.psi_1 is None):
             self.f_x, self.psi_1, self.psi_sec_der = self.impsamp.drift(self._walker_coords)
+
         disps = np.random.normal(0.0,
                                  self._sigmas,
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
@@ -614,7 +626,7 @@ class DMC_Sim:
                     keyz=['coords', 'desc_wts'],
                     valz=[self._parent, self._desc_wts])
                 if self._deb_desc_wt_tracker:
-                    fname=f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts.npy"
+                    fname = f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts.npy"
                     np.save(fname, np.array(desc_wt_history))
 
             # Explicitly flush log file every 10 time steps, since it gets caught in buffer in HPC systems

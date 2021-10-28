@@ -139,16 +139,20 @@ def test_run_dmc_large_ts_morse():
 #                             [0., 0., 0.]]) * 1.01
 #     start_coord = np.expand_dims(water_coord, axis=0)  # Make it (1 x num_atoms x 3)
 #
+#     ex_args = {'dists':[[0,2],[2,1]],
+#                'angs':[[0,2,1]]}
 #     impo = pv.ImpSampManager(trial_function='trial_wavefunction',
 #                              trial_directory=potDir,
-#                              python_file='h2o_trial.py',
-#                              pot_manager=harm_pot)
+#                              python_file='call_trl_h2o.py',
+#                              pot_manager=harm_pot,
+#                              deriv_kwargs=ex_args,
+#                              trial_kwargs=ex_args)
 #
 #     myDMC = pv.DMC_Sim(sim_name="water_impsamp_test",
 #                        output_folder=sim_ex_dir,
 #                        weighting='discrete',
 #                        num_walkers=2000,
-#                        num_timesteps=2000,
+#                        num_timesteps=5000,
 #                        equil_steps=5,
 #                        chkpt_every=10,
 #                        wfn_every=10,
