@@ -85,6 +85,7 @@ class DMC_Sim:
                  cont_wt_thresh=None,
                  imp_samp=None,
                  imp_samp_oned=False,
+                 adiabatic_dmc=None,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None,
@@ -112,6 +113,7 @@ class DMC_Sim:
         self.cont_wt_thresh = cont_wt_thresh
         self.impsamp_manager = imp_samp
         self.imp1d = imp_samp_oned
+        self.adiabatic_dmc = adiabatic_dmc
         self._deb_training_every = DEBUG_save_training_every
         self._deb_save_before_bod = DEBUG_save_before_bod
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
@@ -259,6 +261,22 @@ class DMC_Sim:
                 # No xyz just one mass and one sigma
                 self.sigma_trip = self._sigmas
                 self.inv_masses_trip = (1 / self.masses)[np.newaxis]
+
+        if self.adiabatic_dmc is not None:
+            # adia_dict = {'initial_lambda': -200,
+            #              'lambda_change': 0.05,
+            #              'equil_time': 1000,
+            #              'observable_func': func,
+            #              }
+            self.ad_lam = self.adiabatic_dmc['initial_lambda']
+            self.ad_lam_dx = self.adiabatic_dmc['lambda_change']
+            self.ad_eq_time = self.adiabatic_dmc['equil_time']
+            self.ad_obs_func = self.adiabatic_dmc['observable_func']  # user defined
+            a = np.zeros(self.ad_eq_time)
+            b = np.arange(self.ad_lam,
+                          self.ad_lam + (self.ad_lam_dx * (self.num_timesteps - self.ad_eq_time)),
+                          self.ad_lam_dx)
+            self.ad_lam_array = np.concatenate((a,b))
 
     def _init_restart(self, add_ts, impsamp):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
@@ -584,6 +602,13 @@ class DMC_Sim:
             #     SimArchivist.save_h5(fname=f"{self.output_folder}/{self.sim_name}_local_training_{prop_step}ts.hdf5",
             #                          keyz=['coords', 'local'], valz=[self._walker_coords, self._walker_pots])
 
+            # If adiabatic DMC, add on perturbation to the energy for this time step
+            if self.adiabatic_dmc is not None:
+                this_lam = self.ad_lam_array[prop_step]
+                this_w = self.ad_obs_func(self._walker_coords)
+                # Average? Or just each walker?
+                self._walker_pots = self._walker_pots + this_lam * this_w
+
             # First time step exception, calc vref early
             if prop_step == self._prop_steps[0]:
                 self.calc_vref()
@@ -672,7 +697,12 @@ class DMC_Sim:
                                  valz=[np.column_stack((ts, self._vref_vs_tau)),
                                        np.column_stack((ts, self._pop_vs_tau)),
                                        self._atm_nums, self.masses])
+
+            if self.adiabatic_dmc is not None:
+                np.save(f"{self.output_folder}/{self.sim_name}_lambda.npy", self.ad_lam_array)
+
             finish = time.time() - dmc_time_start
+
         self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
         self._logger.finish_sim(finish)
         if throw_error:
@@ -686,7 +716,7 @@ class DMC_Sim:
         cls = self.__class__
         res = cls.__new__(cls)
         memodict[id(self)] = res
-        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp', 'imp_info']
+        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp', 'imp_info','adiabatic_dmc','ad_obs_func']
         for k, v in self.__dict__.items():
             if k not in no_gos:
                 setattr(res, k, copy.deepcopy(v, memodict))

@@ -16,6 +16,12 @@ def oh_stretch_harm(cds):
     omega = Constants.convert(3700., 'wavenumbers', to_AU=True)
     return np.squeeze(0.5 * mass * omega ** 2 * cds ** 2)
 
+def oh_stretch_harm_shifted(cds):
+    """For tutorial. Compulsory numpy array cds input (N,1,1), output a numpy array in hartrees"""
+    mass = Constants.reduced_mass('O-H', to_AU=True)
+    omega = Constants.convert(3700., 'wavenumbers', to_AU=True)
+    return np.squeeze(0.5 * mass * omega ** 2 * (cds-Constants.convert(0.98,'angstroms',to_AU=True)) ** 2)
+
 def oh_stretch_harm_with_arg(cds,extra_args):
     """For tutorial. Compulsory numpy array cds input (N,1,1), output a numpy array in hartrees"""
     mass = extra_args['mass']
