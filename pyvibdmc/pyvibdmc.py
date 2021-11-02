@@ -268,14 +268,14 @@ class DMC_Sim:
             #              'equil_time': 1000,
             #              'observable_func': func,
             #              }
-            self.ad_lam = self.adiabatic_dmc['initial_lambda']
-            self.ad_lam_dx = self.adiabatic_dmc['lambda_change']
-            self.ad_eq_time = self.adiabatic_dmc['equil_time']
+            ad_lam = self.adiabatic_dmc['initial_lambda']
+            ad_lam_dx = self.adiabatic_dmc['lambda_change']
+            ad_eq_time = self.adiabatic_dmc['equil_time']
             self.ad_obs_func = self.adiabatic_dmc['observable_func']  # user defined
-            a = np.zeros(self.ad_eq_time)
-            b = np.arange(self.ad_lam,
-                          self.ad_lam + (self.ad_lam_dx * (self.num_timesteps - self.ad_eq_time)),
-                          self.ad_lam_dx)
+            a = np.zeros(ad_eq_time)
+            b = np.arange(ad_lam,
+                          ad_lam + (ad_lam_dx * (self.num_timesteps - ad_eq_time)),
+                          ad_lam_dx)
             self.ad_lam_array = np.concatenate((a,b))
 
     def _init_restart(self, add_ts, impsamp):
