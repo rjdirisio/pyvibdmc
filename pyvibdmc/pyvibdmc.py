@@ -311,6 +311,7 @@ class DMC_Sim:
             self.impsamp = ImpSamp(self.impsamp_manager)
         else:
             self.impsamp_manager = None
+        self.adiabatic_dmc = None
 
     def _branch(self, walkers_below):
         """
