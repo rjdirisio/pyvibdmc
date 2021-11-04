@@ -127,3 +127,7 @@ tests/*.png
 *.xyz
 #From testing
 pyvibdmc/sample_potentials/FortPots/Partridge_Schwenke_H2O/exSimResults/*
+pyvibdmc/tests/adiabatic_results/*
+pyvibdmc/tests/exSimResults/*
+dw_tracker*
+*lambda.npy
