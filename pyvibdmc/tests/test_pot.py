@@ -91,6 +91,16 @@ def test_nn_pot():
     assert True
 
 
+def test_pot_direct():
+    def dummy_pot(coords):
+        return np.repeat(500,len(coords))
+
+    pot = pv.Potential_Direct(potential_function=dummy_pot)
+    cds = np.random.random((100,10,3))
+    vs = pot.getpot(cds)
+    assert len(vs) == len(cds)
+
+
 def test_mpi_pot():
     from pyvibdmc.simulation_utilities.mpi_potential_manager import MPI_Potential
     cdz = np.random.random((100, 1, 1))
