@@ -29,6 +29,7 @@ def test_initial_conditions_premute():
     permuted_coords = initializer.run()
     assert True
 
+
 # Uncomment once you compile the PS surface
 # def test_harm_analysis():
 #     dxx = 1.e-3
@@ -54,6 +55,54 @@ def test_initial_conditions_premute():
 #     # Turns of scientific notation
 #     np.set_printoptions(suppress=True)
 #     print(f"Freqs (cm-1): {freqs}")
+#
+# def test_harm_dip():
+#     dxx = 1.e-3
+#     tetramer = np.array([[-1.55099190, 1.94067311, 0.14704161],
+#                          [-0.91203521, -2.30896272, 0.14764850],
+#                          [2.46079102, 0.36718848, 0.14815394],
+#                          [0.00253217, 0.00164013, -0.47227522],
+#                          [-1.96589559, 2.46292466, -0.54312627],
+#                          [-2.13630186, 1.99106023, 0.90604777],
+#                          [-1.18003749, -2.92157144, -0.54090532],
+#                          [-0.65410291, -2.84939169, 0.89772271],
+#                          [2.79828182, 0.87002791, 0.89281564],
+#                          [3.12620054, 0.43432898, -0.54032031],
+#                          [-0.31106354, -0.91215572, -0.20184621],
+#                          [0.95094197, 0.18695800, -0.20259538],
+#                          [-0.63272209, 0.72926470, -0.20069859]])
+#     tetramer = pv.Constants.convert(tetramer, 'angstroms', to_AU=True)
+#
+#     # Everything is in  Atomic Units going into generating the Hessian.
+#     pot_dir = '/home/netid.washington.edu/rjdiri/Documents/Potentials/Bowman_prot_pot/'
+#     py_file = 'call_tet.py'
+#     pot_func = 'call_pot'
+#     pot = pv.Potential_NoMP(potential_function=pot_func,
+#                             potential_directory=pot_dir,
+#                             python_file=py_file,
+#                             ch_dir=True)
+#
+#     pot_dir = '/home/netid.washington.edu/rjdiri/Documents/Potentials/bigProtClusterPotentials_pacthed/big1'
+#     py_file = 'call_tet_dip.py'
+#     pot_func = 'call_dipz'
+#     dip = pv.Potential_NoMP(potential_function=pot_func,
+#                             potential_directory=pot_dir,
+#                             python_file = py_file,
+#                             ch_dir=True)
+#
+#     atms = ["O","O","O","O","H","H","H","H","H","H","H","H","H",]
+#
+#     harm_h2o = pv.HarmonicAnalysis(eq_geom=tetramer,
+#                                    atoms=atms,
+#                                    potential=pot,
+#                                    dx=dxx,
+#                                    dipole=dip)
+#     freqs, normal_modes = harm_h2o.run()
+#     dipz = harm_h2o.dipole_derivs()
+#     # Turns of scientific notation
+#     np.set_printoptions(suppress=True)
+#     print(f"Freqs (cm-1): {freqs}")
+#
 #
 #
 # def test_initial_conditions():

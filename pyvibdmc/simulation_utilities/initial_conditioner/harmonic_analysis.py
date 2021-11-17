@@ -16,7 +16,8 @@ class HarmonicAnalysis:
                  masses=None,
                  dx=1.0e-3,
                  points_diag=5,
-                 points_off_diag=3):
+                 points_off_diag=3,
+                 dipole=None):
         """
         A Code that generates the mass weighted hessian matrix (Cartesian coords) and diagonalizes it.
         Uses finite difference to calculate the matrix elements of the hessian.
@@ -29,6 +30,7 @@ class HarmonicAnalysis:
         Should be [3 or 5]
         :param points_off_diag: This int specifies the n-point finite difference for off diagonals. Should be
         [3 or 5])
+        :param dipole: Use a Potential() object to call a dipole surface instead of the potential, use dipole_derivs() function.
         """
         self.eq_geom = eq_geom
         self.atoms = atoms
@@ -38,6 +40,7 @@ class HarmonicAnalysis:
         self.points_diag = points_diag
         self.points_off_diag = points_off_diag
         self.num_elems = 3 * len(self.atoms)
+        self.dipole = dipole
         self._initialize()
 
     def _initialize(self):
@@ -90,6 +93,28 @@ class HarmonicAnalysis:
                                                          der=2
                                                          )
         return hess
+
+    def dipole_derivs(self):
+        num_atoms = len(self.atoms)
+        s = [np.arange(num_atoms), np.arange(3)]
+        atom_info = list(itt.product(*s))
+
+        dip_derivs = np.zeros((self.num_elems, 3))
+        for cart_disp in range(self.num_elems): # iterate over 3N coordinates
+            stencil_cds = MolFD.displace_molecule(eq_geom=self.eq_geom,
+                                                  atm_cd=atom_info[cart_disp],
+                                                  dx=self.dx,
+                                                  num_disps=5
+                                                  )
+            dipz = self.dipole.getpot(stencil_cds) #num_configs x 3
+            for i in range(3):
+                derz = MolFD.differentiate(values=dipz[:,i],
+                                    dx=self.dx,
+                                    num_points=5,
+                                    der=1
+                                    )
+                dip_derivs[cart_disp, i] = derz
+        return dip_derivs
 
     def diagonalize(self, hessian):
         masses_dup = np.repeat(self.masses, 3)
