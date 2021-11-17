@@ -664,18 +664,18 @@ class DMC_Sim:
         print("Starting Simulation...")
         dmc_time_start = time.time()
         try:
-            throw_error = False
+            throw_error = None
             self.propagate()
             # Delete all checkpoints, since this is the end of the run
             FileManager.delete_older_checkpoints(self.output_folder,
                                                  self.sim_name,
                                                  self.cur_timestep)
-        except Exception:
+        except Exception as e:
             import traceback
             print("ERROR! An error occurred while running the DMC simulation. Dumping a final checkpoint...")
             print("Ignore Approximate ZPE!!!")
             traceback.print_exc()
-            throw_error = True
+            throw_error = e
         finally:
             self._logger.final_chkpt()
             self._logger = None
@@ -706,8 +706,8 @@ class DMC_Sim:
 
         self._logger = SimLogger(f"{self.output_folder}/{self.sim_name}_log.txt")
         self._logger.finish_sim(finish)
-        if throw_error:
-            raise Exception
+        if throw_error is not None:
+            raise throw_error
 
     def __deepcopy__(self, memodict={}):
         """
