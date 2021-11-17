@@ -43,6 +43,8 @@ class MPI_Potential:
         call_the_pot is the variable name for the  callpot function.
         cdz are the coordinates.
         """
+        if len(cds.shape) == 2:
+            cds = np.expand_dims(cds, 0)
         global inited, pt
         if not inited:
             pt = self.prep_pot()
@@ -54,13 +56,14 @@ class MPI_Potential:
         return vs
 
     def getpot(self, cds, timeit=False):
-        split_cds = np.array_split(cds, self.num_mpi)
         if timeit:
             start = time.time()
         with MPICommExecutor() as executor:
-            result = list(executor.map(self.initwrapper,
-                                       split_cds))
-            v = np.concatenate(result)
+            result =  executor.map(self.initwrapper,
+                                   cds,
+                                   chunksize=self.num_mpi)
+            v = np.array(list(result))
+            v = np.squeeze(v)
         if timeit:
             elapsed = time.time() - start
             return v, elapsed
