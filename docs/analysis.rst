@@ -118,9 +118,9 @@ respectively, taken from a single DMC simulation::
 
    import numpy as np
    tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
-   # cds, dws = tutorial_sim.get_wfns([2500,3500,4500,5500,6500,7500,8500,9500]) # perfectly valid, but tiresome
+   # cds, dws = tutorial_sim.get_wfns([1500,2500,3500,4500]) # perfectly valid, but tiresome
    increment = 1000
-   cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment)) # for those familiar with numpy
+   cds, dws = tutorial_sim.get_wfns(np.arange(1500,4500+increment,increment)) # for those familiar with numpy
    # cds is now a (n,m,3) numpy array of coordinates, where n is number of walkers * number of wave functions
 
 If you have a specific ``.hdf5`` wave function file you would like to load, you can simply use the
@@ -141,10 +141,10 @@ Here is the code that will perform that projection, as well as plot it::
     # STEP 1: Get wave functions (coordinates and descendant weights)
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
-    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    cds, dws = tutorial_sim.get_wfns(np.arange(1500,4500+increment,increment))
     cds = pv.Constants.convert(cds,'angstroms',to_AU=False) # Conversion of cds to angstroms
     # or
-    # cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment),ret_ang=True)
+    # cds, dws = tutorial_sim.get_wfns(np.arange(1500,4500+increment,increment),ret_ang=True)
 
     savefigpth = '' # save in current directory
 
@@ -189,7 +189,7 @@ do that::
     import itertools as itt
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
-    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment))
+    cds, dws = tutorial_sim.get_wfns(np.arange(1500,4500+increment,increment))
     cds = pv.Constants.convert(cds,'angstroms',to_AU=False) # Conversion of cds to angstroms
     analyzer = pv.AnalyzeWfn(cds)  # initialize analyzer object
 
@@ -228,7 +228,7 @@ The calculation of, say, the expectation value of the displacement of one OH str
 
     tutorial_sim = pv.SimInfo('pyvibdmc/pyvibdmc/sample_sim_data/tutorial_water_0_sim_info.hdf5')
     increment = 1000
-    cds, dws = tutorial_sim.get_wfns(np.arange(2500,9500+increment,increment), ret_ang=True)
+    cds, dws = tutorial_sim.get_wfns(np.arange(1500,4500+increment,increment), ret_ang=True)
     savefigpth = '' # save in current directory
 
     analyzer = pv.AnalyzeWfn(cds)  # initialize wavefunction analyzer object
@@ -257,7 +257,7 @@ In order to project the probability amplitude onto the bond length, which is the
 
     tutorial_sim = pv.SimInfo('./harm_osc_test_sim_info.hdf5')
     increment = 1000
-    cds, dws = tutorial_sim.get_wfns(np.arange(1500, 10000+increment, increment), ret_ang=True) #gets back cds in angstroms
+    cds, dws = tutorial_sim.get_wfns(np.arange(1500, 4500+increment, increment), ret_ang=True) #gets back cds in angstroms
     savefigpth = '' # save in current directory
 
     bond_length = np.squeeze(cds) #numpy array (N,1,1) --> (N)

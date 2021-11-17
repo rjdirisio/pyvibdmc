@@ -215,7 +215,7 @@ mass of an OH diatomic::
                                 )
         #optional num_cores parameter for multiprocessing, should not exceed the number of cores on the CPU
         #your machine has. Can use multiprocessing.cpu_count()
-        harm_DMC = pv.DMC_Sim(sim_name=f"tutorial_HarmOsc_OH_0,
+        harm_DMC = pv.DMC_Sim(sim_name=f"tutorial_HarmOsc_OH_0",
                                   output_folder="tutorial_HarmOsc_dmc",
                                   weighting='discrete', #or 'continuous'. 'continuous' keeps the ensemble size constant.
                                   num_walkers=8000, #number of geometries exploring the potential surface
