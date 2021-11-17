@@ -6,7 +6,7 @@ import importlib
 
 import numpy as np
 
-__all__ = ['Potential', 'Potential_NoMP', 'NN_Potential']
+__all__ = ['Potential', 'Potential_NoMP', 'NN_Potential','Potential_Direct']
 
 
 class Potential:
@@ -181,6 +181,33 @@ class NN_Potential(Potential_NoMP):
             v = self._pot(cds, self.model, self.pot_kwargs)
         else:
             v = self._pot(cds, self.model)
+        if timeit:
+            elapsed = time.time() - start
+            return v, elapsed
+        else:
+            return v
+
+
+class Potential_Direct:
+    """
+    Version of Potential where the actual Python function is passed rather than
+    being imported from an external file. At the request of Mark.
+    """
+    def __init__(self,
+                 potential_function,
+                 pot_kwargs=None):
+        self.potential_function = potential_function
+        self.pot_kwargs = pot_kwargs
+
+    def getpot(self, cds, timeit=False):
+        if timeit:
+            start = time.time()
+
+        if self.pot_kwargs is not None:
+            v = self.potential_function(cds, self.pot_kwargs)
+        else:
+            v = self.potential_function(cds)
+
         if timeit:
             elapsed = time.time() - start
             return v, elapsed
