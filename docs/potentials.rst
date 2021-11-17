@@ -247,6 +247,10 @@ to be done to parallelize the code on the user side, this is all handled interna
 argument should not be used, as the ``MPI_Potential`` manager simply looks for the ``MPI.COMM_WORLD.get_size()``
 attribute to figure out how many MPI processes to use.
 
+PyVibDMC uses the ``mpi4py.futures`` module for MPI parallelization. This module is a relatively new implementation, and does not handle
+memory in the most efficient way. While you should get close to linear scaling with the number of nodes used for calling
+the potential, there may be memory / efficiency issues as you scale to larger numbers of nodes.
+
 The more difficult part of the MPI potential manager is setting up the desired MPI environment for the high-performance
 computing environment one may want to work on. In the McCoy group, we have `containers on dockerhub <https://hub.docker.com/orgs/mccoygroup>`_
 for McCoy group students to use. The dockerfiles for these containers are hosted on GitHub on the
