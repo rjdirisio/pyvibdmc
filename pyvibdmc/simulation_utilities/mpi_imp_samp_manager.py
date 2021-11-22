@@ -23,6 +23,7 @@ class MPI_ImpSampManager:
                  trial_directory,
                  python_file,
                  pot_manager,
+                 pass_timestep=False,
                  deriv_function=None,
                  trial_kwargs=None,
                  deriv_kwargs=None):
@@ -30,12 +31,17 @@ class MPI_ImpSampManager:
         self.trial_fuc = trial_function
         self.trial_dir = trial_directory
         self.python_file = python_file
+        self.pass_timestep = pass_timestep
         self.deriv_func = deriv_function
         self.trial_kwargs = trial_kwargs
         self.deriv_kwargs = deriv_kwargs
         self.pot_manager = pot_manager
         if not isinstance(self.pot_manager, MPI_Potential):
             raise ValueError("You can only use MPI imp sampling with an MPI potential. Sorry.")
+        if self.pass_timestep is not None:
+            self.ct = 0
+            self.trial_kwargs['timestep']=0
+            self.deriv_kwargs['timestep']=0
         self.prep_imp(chdir=True)  # for main process
 
     def prep_imp(self, chdir=False):
@@ -108,4 +114,8 @@ class MPI_ImpSampManager:
                                                          repeat(self.deriv_kwargs, len(split_cds)))))
                 derivz = np.concatenate(derivz)
                 sderivz = np.concatenate(sderivz)
+        if self.pass_timestep:
+            self.ct+=1
+            self.trial_kwargs['timestep'] = self.ct
+            self.deriv_kwargs['timestep'] = self.ct
         return derivz, sderivz

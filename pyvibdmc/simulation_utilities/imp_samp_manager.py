@@ -17,6 +17,7 @@ class ImpSampManager:
                  trial_directory,
                  python_file,
                  pot_manager,
+                 pass_timestep=False,
                  new_pool_num_cores=None,
                  deriv_function=None,
                  trial_kwargs=None,
@@ -28,7 +29,13 @@ class ImpSampManager:
         self.trial_kwargs = trial_kwargs
         self.deriv_kwargs = deriv_kwargs
         self.pot_manager = pot_manager
+        self.pass_timestep = pass_timestep
         self.nomp_pool_cores = new_pool_num_cores  # Only when one wants to do multiprocessing importance sampling with noMP potential (like NN-DMC)
+        if self.pass_timestep is not None:
+            self.ct = 0
+            self.trial_kwargs['timestep']=0
+            self.deriv_kwargs['timestep']=0
+
         if isinstance(self.pot_manager, Potential):
             self.pool = self.pot_manager.pool
             self.num_cores = self.pot_manager.num_cores
@@ -125,6 +132,10 @@ class ImpSampManager:
             # print('deriv:', np.average(fderivz-derivz))
             # print('sderiv:', np.average(fsderivz-sderivz))
             # print('hi')
+        if self.pass_timestep:
+            self.ct+=1
+            self.trial_kwargs['timestep'] = self.ct
+            self.deriv_kwargs['timestep'] = self.ct
         return derivz, sderivz
 
 
@@ -137,16 +148,23 @@ class ImpSampManager_NoMP:
                  trial_directory,
                  python_file,
                  chdir=False,
+                 pass_timestep=False,
                  deriv_function=None,
                  trial_kwargs=None,
                  deriv_kwargs=None, ):
         self.trial_fuc = trial_function
         self.trial_dir = trial_directory
         self.python_file = python_file
+        self.pass_timestep = pass_timestep
         self.deriv_func = deriv_function
         self.trial_kwargs = trial_kwargs
         self.deriv_kwargs = deriv_kwargs
         self.chdir = chdir
+        if self.pass_timestep is not None:
+            self.ct = 0
+            self.trial_kwargs['timestep']=0
+            self.deriv_kwargs['timestep']=0
+
         self._import_modz()
 
     def _import_modz(self):
@@ -199,4 +217,8 @@ class ImpSampManager_NoMP:
             # print(f"Avg Psi: {max_d}")
             # print(f"Avg 2Psi: {max_sd}")
             ###/Testing
+        if self.pass_timestep:
+            self.ct+=1
+            self.trial_kwargs['timestep'] = self.ct
+            self.deriv_kwargs['timestep'] = self.ct
         return derivz, sderivz
