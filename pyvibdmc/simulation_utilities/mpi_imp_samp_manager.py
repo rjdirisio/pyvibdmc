@@ -38,7 +38,7 @@ class MPI_ImpSampManager:
         self.pot_manager = pot_manager
         if not isinstance(self.pot_manager, MPI_Potential):
             raise ValueError("You can only use MPI imp sampling with an MPI potential. Sorry.")
-        if self.pass_timestep is not None:
+        if self.pass_timestep:
             self.ct = 0
             self.trial_kwargs['timestep']=0
             self.deriv_kwargs['timestep']=0

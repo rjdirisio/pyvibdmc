@@ -31,7 +31,7 @@ class ImpSampManager:
         self.pot_manager = pot_manager
         self.pass_timestep = pass_timestep
         self.nomp_pool_cores = new_pool_num_cores  # Only when one wants to do multiprocessing importance sampling with noMP potential (like NN-DMC)
-        if self.pass_timestep is not None:
+        if self.pass_timestep:
             self.ct = 0
             self.trial_kwargs['timestep']=0
             self.deriv_kwargs['timestep']=0
@@ -160,7 +160,7 @@ class ImpSampManager_NoMP:
         self.trial_kwargs = trial_kwargs
         self.deriv_kwargs = deriv_kwargs
         self.chdir = chdir
-        if self.pass_timestep is not None:
+        if self.pass_timestep:
             self.ct = 0
             self.trial_kwargs['timestep']=0
             self.deriv_kwargs['timestep']=0
