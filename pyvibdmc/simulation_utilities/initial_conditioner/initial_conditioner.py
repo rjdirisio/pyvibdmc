@@ -11,9 +11,10 @@ class InitialConditioner:
     ground state wave function along those  normal modes. Will, in the future, handle other initial conditions.
     """
 
-    def __init__(self, coord, atoms, num_walkers, technique, technique_kwargs):
+    def __init__(self, coord, atoms, num_walkers, technique, technique_kwargs, masses=None):
         self.coord = coord
         self.atoms = atoms
+        self.masses = masses
         self.num_walkers = num_walkers
         self.technique = technique.lower()
         self.technique_kwargs = technique_kwargs
@@ -66,7 +67,10 @@ class InitialConditioner:
         scaling = self.technique_kwargs['scaling_factor']
         ensemble = self.technique_kwargs['ensemble']
 
-        mass_prelim = np.array([Constants.mass(a) for a in self.atoms])
+        if self.masses is None:
+            mass_prelim = np.array([Constants.mass(a) for a in self.atoms])
+        else:
+            masses_prelim = self.masses
 
         # Extract the vibrations from the normal mode calculation, getting rid of the 6 smallest eigenvals/vecs
         freqs_3n_6 = freqs[6:]

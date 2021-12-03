@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 
+
 *.pickle
 *.hdf5
 *.hdf5*
@@ -121,6 +122,10 @@ ENV/
 *.iml
 .idea/*
 
+#VScode
+.vscode/*
+
+#Misc
 # pngs that I don't care about
 *.png
 tests/*.png
