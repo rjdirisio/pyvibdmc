@@ -70,7 +70,7 @@ class InitialConditioner:
         if self.masses is None:
             mass_prelim = np.array([Constants.mass(a) for a in self.atoms])
         else:
-            masses_prelim = self.masses
+            mass_prelim = self.masses
 
         # Extract the vibrations from the normal mode calculation, getting rid of the 6 smallest eigenvals/vecs
         freqs_3n_6 = freqs[6:]
