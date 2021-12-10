@@ -133,7 +133,7 @@ def test_run_dmc_cont():
                        num_walkers=5000,
                        num_timesteps=1000,
                        equil_steps=100,
-                       chkpt_every=100,
+                       chkpt_every=1,
                        wfn_every=100,
                        desc_wt_steps=20,
                        atoms=["X"],
