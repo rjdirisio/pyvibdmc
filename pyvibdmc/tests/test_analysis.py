@@ -199,3 +199,8 @@ def test_adv_plt_2dhistogram():
                           xlabel="ROH 1 (Angstroms)",
                           ylabel="ROH 2 (Angstroms)",
                           save_name=f"{savefigpth}2d_histogram.png")
+
+# def test_parent_wts():
+#     test_sim = pv.SimInfo('exSimResults/harm_osc_test_continuous_sim_info.hdf5')
+#     cdz, wfns, parents = test_sim.get_wfns([100,200,300],ret_ang=True, get_parent_wts=True)
+#     print('hi')

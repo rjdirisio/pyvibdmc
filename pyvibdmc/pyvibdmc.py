@@ -553,6 +553,7 @@ class DMC_Sim:
                 self._logger.write_wfn_save(prop_step)
                 self._desc_wts = np.zeros(len(self._walker_coords))
                 self._parent = np.copy(self._walker_coords)
+                self._parent_wts = np.copy(self._cont_wts)
                 self._who_from = np.arange(len(self._walker_coords))
                 self._desc_wt = True
                 if self._deb_desc_wt_tracker:
@@ -647,10 +648,16 @@ class DMC_Sim:
                 self._logger.write_desc_wt(prop_step)
                 self._desc_wt = False
                 self.calc_desc_wts()
-                SimArchivist.save_h5(
-                    fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step + 1 - self.desc_wt_time_steps}ts.hdf5",
-                    keyz=['coords', 'desc_wts'],
-                    valz=[self._parent, self._desc_wts])
+                if self.weighting == 'continuous':
+                    SimArchivist.save_h5(
+                        fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step + 1 - self.desc_wt_time_steps}ts.hdf5",
+                        keyz=['coords', 'desc_wts', 'parent_wts'],
+                        valz=[self._parent, self._desc_wts, self._parent_wts])
+                else:
+                    SimArchivist.save_h5(
+                        fname=f"{self.output_folder}/wfns/{self.sim_name}_wfn_{prop_step + 1 - self.desc_wt_time_steps}ts.hdf5",
+                        keyz=['coords', 'desc_wts'],
+                        valz=[self._parent, self._desc_wts])
                 if self._deb_desc_wt_tracker:
                     fname = f"{self.output_folder}/wfns/{self.sim_name}_desc_wt_tracker_{prop_step + 1 - self.desc_wt_time_steps}ts.npy"
                     np.save(fname, np.array(desc_wt_history))

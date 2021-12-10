@@ -34,7 +34,7 @@ class SimInfo:
             self.atom_masses = f['atomic_masses'][:]
 
     @staticmethod
-    def get_wfn(wfn_fl, ret_ang=False):
+    def get_wfn(wfn_fl, ret_ang=False, get_parent_wts=False):
         """
         Given a .hdf5 file, return wave function and descendant weights associated with that wave function.
 
@@ -48,27 +48,39 @@ class SimInfo:
                 # Fenris said it was dumb to convert, let the user decide what to do
                 cds = Constants.convert(cds, 'angstroms', to_AU=False)
             dw = f['desc_wts'][:]
+            if get_parent_wts:
+                parent_wts =  f['parent_wts'][:]
+                return cds, dw, parent_wts
         return cds, dw
 
-    def get_wfns(self, time_step_list, ret_ang=False):
+    def get_wfns(self, time_step_list, ret_ang=False, get_parent_wts=False):
         """
         Extract the wave function (walker set) and descendant weights given a time step number or numbers
         :param time_step_list: a list of ints that correspond to the time steps you want the wfn from given the simulation you are working with
         :type time_step_list: int or list
         :param ret_ang: boolean indicating returning the coordinates in angtstroms. Bohr is the default.
-        :return:
+        :param get_parent_wts: Return the continuous weights associated with the walkers at the beginning of descendant weighting.
         """
         time_step_list = [time_step_list] if isinstance(time_step_list, int) else time_step_list
         fl_list = [f'{self._wfn_names}{x}ts.hdf5' for x in time_step_list]
         tot_cds = []
         tot_dw = []
+        parent_wts = []
         for fl in fl_list:
-            cds, dw = self.get_wfn(fl, ret_ang)
+            if get_parent_wts:
+                cds, dw, par_wts = self.get_wfn(fl, ret_ang, get_parent_wts)
+                parent_wts.append(par_wts)
+            else:
+                cds, dw = self.get_wfn(fl, ret_ang, get_parent_wts)
             tot_cds.append(cds)
             tot_dw.append(dw)
         tot_cds = np.concatenate(tot_cds)
         tot_dw = np.concatenate(tot_dw)
-        return tot_cds, tot_dw
+        if get_parent_wts:
+            tot_parent_wts = np.concatenate(parent_wts)
+            return tot_cds, tot_dw, tot_parent_wts
+        else:
+            return tot_cds, tot_dw
 
     def get_vref(self, ret_cm=False):
         """Returns vref_vs_tau array"""
