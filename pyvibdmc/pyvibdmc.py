@@ -79,6 +79,7 @@ class DMC_Sim:
                  potential=None,
                  masses=None,
                  start_structures=None,
+                 start_cont_wts=None,
                  branch_every=1,
                  log_every=1,
                  cur_timestep=0,
@@ -104,6 +105,7 @@ class DMC_Sim:
         self.branch_every = branch_every
         self.delta_t = delta_t
         self.start_structures = start_structures
+        self.start_cont_wts = start_cont_wts
         self.masses = masses
         self.equil_steps = equil_steps
         self.chkpt_every = chkpt_every
@@ -205,7 +207,10 @@ class DMC_Sim:
         # Weighting technique
         if self.weighting == 'continuous':
             self._thresh_upper = None
-            self._cont_wts = np.ones(self.num_walkers)
+            if self.start_cont_wts is not None:
+                self._cont_wts = self.start_cont_wts
+            else:
+                self._cont_wts = np.ones(self.num_walkers)
             if self.cont_wt_thresh is None:
                 self._thresh_lower = 1 / self.num_walkers  # default continuous weighting threshold
             elif isinstance(self.cont_wt_thresh, int) or isinstance(self.cont_wt_thresh, float):
