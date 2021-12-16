@@ -39,6 +39,7 @@ def test_run_dmc_short():
                        atoms=["O-H"],
                        delta_t=1,
                        potential=harm_pot,
+                       second_impsamp_displacement=True,
                        imp_samp=impo,
                        imp_samp_oned=True,
                        log_every=1,

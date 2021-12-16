@@ -86,6 +86,7 @@ class DMC_Sim:
                  cont_wt_thresh=None,
                  imp_samp=None,
                  imp_samp_oned=False,
+                 second_impsamp_displacement=False,
                  adiabatic_dmc=None,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
@@ -115,6 +116,7 @@ class DMC_Sim:
         self.cont_wt_thresh = cont_wt_thresh
         self.impsamp_manager = imp_samp
         self.imp1d = imp_samp_oned
+        self.second_impsamp_displacement = second_impsamp_displacement
         self.adiabatic_dmc = adiabatic_dmc
         self._deb_training_every = DEBUG_save_training_every
         self._deb_save_before_bod = DEBUG_save_before_bod
@@ -483,6 +485,44 @@ class DMC_Sim:
         num_rejctions = len(self._walker_coords) - len(accept)
         return num_rejctions
 
+    def imp_move_randomly_second_type(self):
+        """
+        The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
+        """
+        disps = np.random.normal(0.0,
+                                    self._sigmas,
+                                    size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
+        # The actual term added to cartesian coords
+        self._walker_coords = self._walker_coords + disps
+
+        self.f_x, self.psi_1, self.psi_sec_der = self.impsamp.drift(self._walker_coords)
+        d_x = self.inv_masses_trip * self.f_x  # The actual term added to cartesian coords
+
+        displaced_cds = self._walker_coords + d_x * self.delta_t
+
+        f_y, psi_2, psi_sec_der_disp = self.impsamp.drift(displaced_cds)
+        d_y = self.inv_masses_trip * f_y  # The actual term added to cartesian coords
+
+        met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
+                                            trial_x=self.psi_1,
+                                            trial_y=psi_2,
+                                            disp_x=self._walker_coords,
+                                            disp_y=displaced_cds,
+                                            D_x=d_x,
+                                            D_y=d_y,
+                                            dt=self.delta_t)
+        randos = np.random.random(size=len(self._walker_coords))
+        accept = np.argwhere(met_nums > randos)
+        self.dt_factor = len(accept) / len(self._walker_coords)
+        self._walker_coords[accept] = displaced_cds[accept]
+        self.f_x[accept] = f_y[accept]
+        self.psi_1[accept] = psi_2[accept]
+        self.psi_sec_der[accept] = psi_sec_der_disp[accept]
+
+        num_rejctions = len(self._walker_coords) - len(accept)
+        return num_rejctions
+
+
     def calc_vref(self):  # Use potential of all walkers to calculate self._vref
         """
         Use the energy of all walkers to calculate self._vref with a correction for the fluctuation in the population or weight. Updates Vref
@@ -575,7 +615,10 @@ class DMC_Sim:
                 self.move_randomly()
             else:
                 start = time.time()
-                rejected = self.imp_move_randomly()
+                if self.second_impsamp_displacement:
+                    rejected = self.imp_move_randomly_second_type()
+                else:
+                    rejected = self.imp_move_randomly()
                 if prop_step in self._log_steps:
                     self._logger.write_rejections(rejected, len(self._walker_coords))
                     self._logger.write_imp_disp_time(time.time() - start)
