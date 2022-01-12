@@ -88,6 +88,7 @@ class DMC_Sim:
                  imp_samp_oned=False,
                  second_impsamp_displacement=False,
                  adiabatic_dmc=None,
+                 fixed_node=None,
                  DEBUG_alpha=None,
                  DEBUG_save_desc_wt_tracker=None,
                  DEBUG_save_training_every=None,
@@ -118,6 +119,7 @@ class DMC_Sim:
         self.imp1d = imp_samp_oned
         self.second_impsamp_displacement = second_impsamp_displacement
         self.adiabatic_dmc = adiabatic_dmc
+        self.fixed_node = fixed_node #{'func':function, 'g_matrix':g_mat}
         self._deb_training_every = DEBUG_save_training_every
         self._deb_save_before_bod = DEBUG_save_before_bod
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
@@ -284,6 +286,10 @@ class DMC_Sim:
                           ad_lam + (ad_lam_dx * (self.num_timesteps - ad_eq_time)),
                           ad_lam_dx)
             self.ad_lam_array = np.concatenate((a,b))
+
+        if self.fixed_node is not None:
+            self.fixed_node_func = self.fixed_node['function']
+            self.g_mat = self.fixed_node['g_matrix']
 
     def _init_restart(self, add_ts, impsamp):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
@@ -556,6 +562,14 @@ class DMC_Sim:
         else:
             self._pop_vs_tau[prop_step] = np.sum(self._cont_wts)
 
+    def recrossing(self,q_1, q_2):
+        numerator = -1*4*q_1*q_2
+        sigma_q = np.sqrt(self.delta_t * self.g_mat)
+        denominator = 2 * sigma_q**2
+        p_recross = np.exp(numerator / denominator)
+        randz = np.random.random(size=len(self._walker_coords))
+        self._walker_pots[randz < p_recross] = 100000000
+
     def propagate(self):
         """
              The main DMC loop.
@@ -610,6 +624,10 @@ class DMC_Sim:
                 self._sigmas = np.sqrt(self.delta_t / self.masses)
                 self._mass_counter += 1
 
+            if self.fixed_node is not None:
+                q_beginning = self.fixed_node_func(self._walker_coords)
+                
+
             # 1. Move Randomly
             if self.impsamp_manager is None:
                 self.move_randomly()
@@ -632,6 +650,11 @@ class DMC_Sim:
                 self._logger.write_pot_time(prop_step, pot_time, maxpot, minpot, avgpot)
             else:
                 self._walker_pots = self.potential(self._walker_coords)
+
+            if self.fixed_node is not None:
+                q_end = self.fixed_node_funct(self._walker_coords)
+                self.recrossing(q_beginning, q_end)
+                
 
             # Save training data if it's being collected & collect before bod
             if prop_step in self.deb_train_save_step:
