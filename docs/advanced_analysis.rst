@@ -93,16 +93,14 @@ Advanced and Debug Keyword Arguments in DMC_Sim
   stochastic simulation and should be avoided. There should be a strong fluctuation of vref about the zero-point energy
   for almost the entire simulation.
 
-- ``DEBUG_save_desc_wt_tracker``: This boolean argument will save the "who_from" array. During descendant weighting, one
-  needs to keep track of which new walkers come from branching. In order to accomplish this, a "who_from" array is
-  initalized at the beginning of the descendant weighting cycle, and is used at the end to count up descendants. If one
-  would like this array at every time step within the descendant weighting cycle to be saved, you can turn this on.
-  The only reason you would want to do this is so that you can calculate the descendant weights at each time step during
-  the cycle, i.e. if you were trying to understand how Psi^2 looks different depending on how long you descendant weight
-  for.
+- ``DEBUG_save_desc_wt_tracker``: This boolean argument will save the descendant weights at each time step from the
+  saving of the parent walkers to whatever is provided for ``desc_wt_steps`` . You would want to do this if you
+  want to calculate the descendant weights at each time step during the cycle, i.e. if you were trying to understand how
+  Psi^2 looks different depending on how long you descendant weight for.
 
 - ``DEBUG_save_training_every``: This is a variable that saves the potential energies and coordinates of each walker
-  in the ensemble every x time steps.
+  in the ensemble every x time steps. Setting ``DEBUG_save_before_bod`` to ``True`` means that the walkers and their
+  energies are saved after being displaced but before birth and death.
 
 - ``DEBUG_mass_change``: This changes the mass by a factor of ``factor_per_change`` every ``change_every`` time steps of the
   simulation.  For example, if one starts off the simulation with a massive 50x regular mass atom set, every x time steps

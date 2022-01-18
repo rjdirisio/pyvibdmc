@@ -15,11 +15,19 @@ class MPI_Potential:
                  potential_directory,
                  python_file,
                  pot_kwargs=None,
+                 pass_timestep=False
                  ):
         self.potential_function = potential_function
         self.python_file = python_file
         self.potential_directory = potential_directory
         self.pot_kwargs = pot_kwargs
+        self.pass_timestep = pass_timestep
+        if self.pass_timestep:
+            self.ct = 0
+            if self.pot_kwargs is None:
+                self.pot_kwargs = {'timestep': 0}
+            else:
+                self.pot_kwargs['timestep'] = 0
         self._initialize()
 
     def _initialize(self):
@@ -64,6 +72,10 @@ class MPI_Potential:
                                    chunksize=self.num_mpi)
             v = np.array(list(result))
             v = np.squeeze(v)
+
+        if self.pass_timestep:
+            self.pot_kwargs['timestep'] += 1
+
         if timeit:
             elapsed = time.time() - start
             return v, elapsed

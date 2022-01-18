@@ -22,7 +22,7 @@ class ImpSamp:
         """Internally returns (dpsi/psi), since it's more convenient in the workflow.
         Also returns second derivatives divided by psi"""
         psi_t = self.trial(cds)
-        deriv, sderiv = self.imp_manager.call_derivs(cds)  # num_walkers, num_atoms, 3 array
+        deriv, sderiv = self.imp_manager.call_derivs(cds)  # num_walkers, num_atoms, 3 array [or (num_walkers, 1, 1) for 1D]
         return deriv, psi_t, sderiv
 
     @staticmethod

@@ -17,7 +17,7 @@ Welcome to PyVibDMC's documentation!
    molecular_descriptors
    advanced_analysis
    imp_samp
-
+   excited_states
 
 
 Indices and tables

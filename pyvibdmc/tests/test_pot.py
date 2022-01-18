@@ -34,6 +34,7 @@ def test_arg_pot():
                             python_file=pyFile,
                             potential_directory=potDir,
                             num_cores=2,
+                            pass_timestep=True,
                             pot_kwargs=pot_dict
                             )
     cds = np.random.random((100, 1, 1))

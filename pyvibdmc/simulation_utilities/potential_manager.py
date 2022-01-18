@@ -6,7 +6,7 @@ import importlib
 
 import numpy as np
 
-__all__ = ['Potential', 'Potential_NoMP', 'NN_Potential','Potential_Direct']
+__all__ = ['Potential', 'Potential_NoMP', 'NN_Potential', 'Potential_Direct']
 
 
 class Potential:
@@ -26,13 +26,21 @@ class Potential:
                  potential_directory,
                  python_file,
                  num_cores=1,
+                 pass_timestep=False,
                  pot_kwargs=None,
                  ):
         self.potential_function = potential_function
         self.python_file = python_file
         self.potential_directory = potential_directory
         self.num_cores = num_cores
+        self.pass_timestep = pass_timestep
         self.pot_kwargs = pot_kwargs
+        if self.pass_timestep:
+            self.ct = 0
+            if self.pot_kwargs is None:
+                self.pot_kwargs = {'timestep': 0}
+            else:
+                self.pot_kwargs['timestep'] = 0
         self._init_pool()
 
     def _init_pot(self):
@@ -55,12 +63,11 @@ class Potential:
         self._potPool = mp.Pool(self.num_cores, initializer=self._init_pot())
         os.chdir(self._curdir)
 
-
     @property
     def pool(self):
         """Returns the potential manager's pool so that it can be used internally with Imp Samp or with the user elsewhere"""
         return self._potPool
-        
+
     def getpot(self, cds, timeit=False):
         """
         Uses the potential function we got to call potential
@@ -81,6 +88,10 @@ class Potential:
             v = np.concatenate(res)
         else:
             v = self._pot(cds)
+
+        if self.pass_timestep:
+            self.pot_kwargs['timestep'] += 1
+
         if timeit:
             elapsed = time.time() - start
             return v, elapsed
@@ -100,16 +111,24 @@ class Potential_NoMP:
     loads in a file using a relative path or something), then use ch_dir=True. Not the default since it is
     computationally inefficient to cd during each potential call when not necessary.
     """
+
     def __init__(self,
                  potential_function,
                  potential_directory,
                  python_file,
+                 pass_timestep=False,
                  ch_dir=False,
                  pot_kwargs=None):
         self.potential_function = potential_function
         self.python_file = python_file
+        self.pass_timestep = pass_timestep
         self.potential_directory = potential_directory
         self.pot_kwargs = pot_kwargs
+        if self.pass_timestep:
+            if self.pot_kwargs is None:
+                self.pot_kwargs = {'timestep': 0}
+            else:
+                self.pot_kwargs['timestep'] = 0
         self.ch_dir = ch_dir
         self._init_pot()
 
@@ -146,7 +165,8 @@ class Potential_NoMP:
             else:
                 v = self._pot(cds)
             os.chdir(self._curdir)
-
+        if self.pass_timestep:
+            self.pot_kwargs['timestep'] += 1
         if timeit:
             elapsed = time.time() - start
             return v, elapsed
@@ -158,18 +178,20 @@ class NN_Potential(Potential_NoMP):
     """
     Subclass of Potential_NoMP, where a model argument is provided for convenience
     """
+
     def __init__(self,
                  potential_function,
                  potential_directory,
                  python_file,
                  model,
                  ch_dir=False,
-                 pot_kwargs=None):
-        super().__init__(potential_function, potential_directory, python_file, ch_dir, pot_kwargs)
+                 pot_kwargs=None,
+                 pass_timestep=False):
+        super().__init__(potential_function, potential_directory, python_file, pass_timestep, ch_dir, pot_kwargs)
         self.model = model
         # Kwargs: if passed to NN_Potential, override Potential_NoMP default values vv
         self.ch_dir = ch_dir
-        self.pot_kwards = pot_kwargs
+        self.pot_kwargs = pot_kwargs
 
     def getpot(self, cds, timeit=False):
         """
@@ -181,6 +203,10 @@ class NN_Potential(Potential_NoMP):
             v = self._pot(cds, self.model, self.pot_kwargs)
         else:
             v = self._pot(cds, self.model)
+
+        if self.pass_timestep:
+            self.pot_kwargs['timestep'] += 1
+
         if timeit:
             elapsed = time.time() - start
             return v, elapsed
@@ -193,11 +219,20 @@ class Potential_Direct:
     Version of Potential where the actual Python function is passed rather than
     being imported from an external file. At the request of Mark.
     """
+
     def __init__(self,
                  potential_function,
-                 pot_kwargs=None):
+                 pot_kwargs=None,
+                 pass_timestep=False):
         self.potential_function = potential_function
         self.pot_kwargs = pot_kwargs
+        self.pass_timestep = pass_timestep
+        if self.pass_timestep:
+            self.ct = 0
+            if self.pot_kwargs is None:
+                self.pot_kwargs = {'timestep': 0}
+            else:
+                self.pot_kwargs['timestep'] = 0
 
     def getpot(self, cds, timeit=False):
         if timeit:
@@ -207,6 +242,9 @@ class Potential_Direct:
             v = self.potential_function(cds, self.pot_kwargs)
         else:
             v = self.potential_function(cds)
+
+        if self.pass_timestep:
+            self.pot_kwargs['timestep'] += 1
 
         if timeit:
             elapsed = time.time() - start
