@@ -119,7 +119,7 @@ class DMC_Sim:
         self.imp1d = imp_samp_oned
         self.second_impsamp_displacement = second_impsamp_displacement
         self.adiabatic_dmc = adiabatic_dmc
-        self.fixed_node = fixed_node #{'func':function, 'g_matrix':g_mat}
+        self.fixed_node = fixed_node  # {'func':function, 'g_matrix':g_mat}
         self._deb_training_every = DEBUG_save_training_every
         self._deb_save_before_bod = DEBUG_save_before_bod
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
@@ -285,7 +285,7 @@ class DMC_Sim:
             b = np.arange(ad_lam,
                           ad_lam + (ad_lam_dx * (self.num_timesteps - ad_eq_time)),
                           ad_lam_dx)
-            self.ad_lam_array = np.concatenate((a,b))
+            self.ad_lam_array = np.concatenate((a, b))
 
         if self.fixed_node is not None:
             self.fixed_node_func = self.fixed_node['function']
@@ -496,8 +496,8 @@ class DMC_Sim:
         The random displacement of each of the coordinates of each of the walkers, done in a vectorized fashion. Displaces self._walker_coords
         """
         disps = np.random.normal(0.0,
-                                    self._sigmas,
-                                    size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
+                                 self._sigmas,
+                                 size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
         # The actual term added to cartesian coords
         self._walker_coords = self._walker_coords + disps
 
@@ -510,13 +510,13 @@ class DMC_Sim:
         d_y = self.inv_masses_trip * f_y  # The actual term added to cartesian coords
 
         met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
-                                            trial_x=self.psi_1,
-                                            trial_y=psi_2,
-                                            disp_x=self._walker_coords,
-                                            disp_y=displaced_cds,
-                                            D_x=d_x,
-                                            D_y=d_y,
-                                            dt=self.delta_t)
+                                           trial_x=self.psi_1,
+                                           trial_y=psi_2,
+                                           disp_x=self._walker_coords,
+                                           disp_y=displaced_cds,
+                                           D_x=d_x,
+                                           D_y=d_y,
+                                           dt=self.delta_t)
         randos = np.random.random(size=len(self._walker_coords))
         accept = np.argwhere(met_nums > randos)
         self.dt_factor = len(accept) / len(self._walker_coords)
@@ -527,7 +527,6 @@ class DMC_Sim:
 
         num_rejctions = len(self._walker_coords) - len(accept)
         return num_rejctions
-
 
     def calc_vref(self):  # Use potential of all walkers to calculate self._vref
         """
@@ -562,10 +561,10 @@ class DMC_Sim:
         else:
             self._pop_vs_tau[prop_step] = np.sum(self._cont_wts)
 
-    def recrossing(self,q_1, q_2):
-        numerator = -1*4*q_1*q_2
+    def recrossing(self, q_1, q_2):
+        numerator = -1 * 4 * q_1 * q_2
         sigma_q = np.sqrt(self.delta_t * self.g_mat)
-        denominator = 2 * sigma_q**2
+        denominator = 2 * sigma_q ** 2
         p_recross = np.exp(numerator / denominator)
         randz = np.random.random(size=len(self._walker_coords))
         self._walker_pots[randz < p_recross] = 100000000
@@ -625,8 +624,7 @@ class DMC_Sim:
                 self._mass_counter += 1
 
             if self.fixed_node is not None:
-                q_beginning = self.fixed_node_func(self._walker_coords)
-                
+                q_beginning = self.fixed_node_func(self._walker_coords, prop_step)
 
             # 1. Move Randomly
             if self.impsamp_manager is None:
@@ -652,9 +650,8 @@ class DMC_Sim:
                 self._walker_pots = self.potential(self._walker_coords)
 
             if self.fixed_node is not None:
-                q_end = self.fixed_node_funct(self._walker_coords)
+                q_end = self.fixed_node_func(self._walker_coords, prop_step)
                 self.recrossing(q_beginning, q_end)
-                
 
             # Save training data if it's being collected & collect before bod
             if prop_step in self.deb_train_save_step:
@@ -795,7 +792,8 @@ class DMC_Sim:
         cls = self.__class__
         res = cls.__new__(cls)
         memodict[id(self)] = res
-        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp', 'imp_info','adiabatic_dmc','ad_obs_func']
+        no_gos = ['potential', 'potential_info', 'impsamp_manager', 'impsamp', 'imp_info', 'adiabatic_dmc',
+                  'ad_obs_func']
         for k, v in self.__dict__.items():
             if k not in no_gos:
                 setattr(res, k, copy.deepcopy(v, memodict))
