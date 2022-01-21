@@ -127,6 +127,18 @@ class DMC_Sim:
         self._deb_mass_change = DEBUG_mass_change
         self._initialize()
 
+    def __setstate__(self, state):
+        _varz = ['imp1d',
+                 'impsamp_manager',
+                 'second_impsamp_displacement',
+                 'adiabatic_dmc',
+                 'fixed_node',
+                 '_deb_save_before_bod']
+        for var in _varz:
+            if var not in state:
+                state[var] = None
+        self.__dict__.update(state)
+
     def _initialize(self):
         """
         Initialization of all the arrays and internal simulation parameters.
@@ -325,6 +337,8 @@ class DMC_Sim:
         else:
             self.impsamp_manager = None
         self.adiabatic_dmc = None
+
+        vars(self)
 
     def _branch(self, walkers_below):
         """
@@ -801,7 +815,6 @@ class DMC_Sim:
 
 
 def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsamp=None):
-    """TODO: Need to add in impsamp infrastructure here for restarting..."""
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     # Update simulation parameters based on additional timesteps
     dmc_sim._init_restart(additional_timesteps, impsamp)
@@ -809,8 +822,6 @@ def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsa
     dmc_sim.potential = potential.getpot
     dmc_sim.potential_info = vars(dmc_sim.potential)
     dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
-    # Delete future checkpoints. This shouldn't do anything at this stage, but just to be safe
-    FileManager.delete_future_checkpoints(chkpt_folder, sim_name, dmc_sim.cur_timestep)
     return dmc_sim
 
 
