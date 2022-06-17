@@ -119,25 +119,13 @@ class DMC_Sim:
         self.imp1d = imp_samp_oned
         self.second_impsamp_displacement = second_impsamp_displacement
         self.adiabatic_dmc = adiabatic_dmc
-        self.fixed_node = fixed_node  # {'func':function, 'g_matrix':g_mat}
+        self.fixed_node = fixed_node  # {'function':func, 'g_matrix':g_mat}
         self._deb_training_every = DEBUG_save_training_every
         self._deb_save_before_bod = DEBUG_save_before_bod
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
         self._deb_alpha = DEBUG_alpha
         self._deb_mass_change = DEBUG_mass_change
         self._initialize()
-
-    def __setstate__(self, state):
-        _varz = ['imp1d',
-                 'impsamp_manager',
-                 'second_impsamp_displacement',
-                 'adiabatic_dmc',
-                 'fixed_node',
-                 '_deb_save_before_bod']
-        for var in _varz:
-            if var not in state:
-                state[var] = None
-        self.__dict__.update(state)
 
     def _initialize(self):
         """
@@ -323,7 +311,7 @@ class DMC_Sim:
 
         if impsamp is not None:
             self.impsamp_manager = impsamp
-            self.imp1d = False
+            # self.imp1d = False
             self.imp_info = vars(self.impsamp_manager)
             if self.delta_t != 1:
                 raise ValueError("Delta tau cannot be anything but 1 for importance sampling DMC!!!!")
@@ -334,11 +322,15 @@ class DMC_Sim:
             self.inv_masses_trip = (1 / np.repeat(self.masses, 3)).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.sigma_trip = np.repeat(self._sigmas, 3).reshape(len(self.masses), 3)[np.newaxis, ...]
             self.impsamp = ImpSamp(self.impsamp_manager)
+            self.eff_ts = np.zeros(self.num_timesteps)
+
+            if self.imp1d:
+                # No xyz just one mass and one sigma
+                self.sigma_trip = self._sigmas
+                self.inv_masses_trip = (1 / self.masses)[np.newaxis]
         else:
             self.impsamp_manager = None
         self.adiabatic_dmc = None
-
-        vars(self)
 
     def _branch(self, walkers_below):
         """
@@ -551,7 +543,7 @@ class DMC_Sim:
             correction = (len(self._walker_pots) - self.num_walkers) / self.num_walkers
         else:
             v_bar = np.average(self._walker_pots, weights=self._cont_wts)
-            correction = (np.sum(self._cont_wts - np.ones(self.num_walkers))) / self.num_walkers
+            correction = (np.sum(self._cont_wts) - self.num_walkers) / self.num_walkers
         self._vref = v_bar - (self._alpha * correction)
 
     def calc_desc_wts(self):
@@ -575,13 +567,22 @@ class DMC_Sim:
         else:
             self._pop_vs_tau[prop_step] = np.sum(self._cont_wts)
 
-    def recrossing(self, q_1, q_2):
-        numerator = -1 * 4 * q_1 * q_2
-        sigma_q = np.sqrt(self.delta_t * self.g_mat)
-        denominator = 2 * sigma_q ** 2
+    def recrossing(self, q_1, q_2, cds):
+        try:
+            m1 = 1/self.g_mat(cds)
+            m2 = 1/self.g_mat(self._walker_coords)
+            # diff = m1-m2
+            summed = m1+m2
+            # numerator = q_1**2*diff + q_2**2*diff + 2*q_1*q_2*summed
+            numerator = 2*q_1*q_2*summed
+            denominator = -2 * self.delta_t
+        except:
+            numerator = -1 * 4 * q_1 * q_2
+            sigma_q = np.sqrt(self.delta_t * self.g_mat)
+            denominator = 2 * sigma_q ** 2
         p_recross = np.exp(numerator / denominator)
         randz = np.random.random(size=len(self._walker_coords))
-        self._walker_pots[randz < p_recross] = 100000000
+        self._walker_pots[randz < p_recross] = 10
 
     def propagate(self):
         """
@@ -639,6 +640,20 @@ class DMC_Sim:
 
             if self.fixed_node is not None:
                 q_beginning = self.fixed_node_func(self._walker_coords, prop_step)
+                cds = self._walker_coords
+
+            # First time step exception, calc vref early
+            if prop_step == self._prop_steps[0]:
+                self._walker_pots = self.potential(self._walker_coords)
+
+                if self.impsamp_manager is not None:
+                    f_y, psi_2, psi_sec_der_disp = self.impsamp.drift(self._walker_coords)
+                    self.psi_sec_der = psi_sec_der_disp
+                    local_ke = self.impsamp.local_kin(self.inv_masses_trip, self.psi_sec_der)
+                    self._walker_pots = self._walker_pots + local_ke
+
+                self.calc_vref()
+
 
             # 1. Move Randomly
             if self.impsamp_manager is None:
@@ -665,7 +680,7 @@ class DMC_Sim:
 
             if self.fixed_node is not None:
                 q_end = self.fixed_node_func(self._walker_coords, prop_step)
-                self.recrossing(q_beginning, q_end)
+                self.recrossing(q_beginning, q_end, cds)
 
             # Save training data if it's being collected & collect before bod
             if prop_step in self.deb_train_save_step:
@@ -692,10 +707,6 @@ class DMC_Sim:
                 this_w = self.ad_obs_func(self._walker_coords)
                 # Average? Or just each walker?
                 self._walker_pots = self._walker_pots + this_lam * this_w
-
-            # First time step exception, calc vref early
-            if prop_step == self._prop_steps[0]:
-                self.calc_vref()
 
             # 3. Birth/Death, or branching
             if prop_step in self._branch_step:
@@ -814,14 +825,21 @@ class DMC_Sim:
         return res
 
 
-def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsamp=None):
+def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsamp=None, imp_samp_oned=False):
+    """TODO: Need to add in impsamp infrastructure here for restarting..."""
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     # Update simulation parameters based on additional timesteps
+    dmc_sim.imp1d = imp_samp_oned
     dmc_sim._init_restart(additional_timesteps, impsamp)
     # Re-initialize the potential and the logger, as those are not pickleable
     dmc_sim.potential = potential.getpot
     dmc_sim.potential_info = vars(dmc_sim.potential)
+    # if impsamp is not None:
+    #     dmc_sim.impsamp_manager = impsamp
+    #     dmc_sim.imp1d = imp_samp_oned
     dmc_sim._logger = SimLogger(f"{dmc_sim.output_folder}/{dmc_sim.sim_name}_log.txt")
+    # Delete future checkpoints. This shouldn't do anything at this stage, but just to be safe
+    FileManager.delete_future_checkpoints(chkpt_folder, sim_name, dmc_sim.cur_timestep)
     return dmc_sim
 
 
