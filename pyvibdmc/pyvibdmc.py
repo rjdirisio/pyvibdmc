@@ -87,6 +87,7 @@ class DMC_Sim:
                  imp_samp=None,
                  imp_samp_oned=False,
                  second_impsamp_displacement=False,
+                 excited_state_imp_samp = False,
                  adiabatic_dmc=None,
                  fixed_node=None,
                  DEBUG_alpha=None,
@@ -120,6 +121,7 @@ class DMC_Sim:
         self.second_impsamp_displacement = second_impsamp_displacement
         self.adiabatic_dmc = adiabatic_dmc
         self.fixed_node = fixed_node  # {'function':func, 'g_matrix':g_mat}
+        self.excited_state_imp_samp = excited_state_imp_samp
         self._deb_training_every = DEBUG_save_training_every
         self._deb_save_before_bod = DEBUG_save_before_bod
         self._deb_desc_wt_tracker = DEBUG_save_desc_wt_tracker
@@ -290,6 +292,9 @@ class DMC_Sim:
         if self.fixed_node is not None:
             self.fixed_node_func = self.fixed_node['function']
             self.g_mat = self.fixed_node['g_matrix']
+        
+        if self.excited_state_imp_samp:
+            self.vector_score = None
 
     def _init_restart(self, add_ts, impsamp):
         """ Reset internal DMC parameters based on additional time steps one wants to run for"""
@@ -398,6 +403,8 @@ class DMC_Sim:
                 self.f_x = self.f_x[death_mask]
                 self.psi_1 = self.psi_1[death_mask]
                 self.psi_sec_der = self.psi_sec_der[death_mask]
+                if self.excited_state_imp_samp:
+                    self.vector_score = self.vector_score[death_mask]
             if self._desc_wt:
                 self._who_from = self._who_from[death_mask]
 
@@ -421,6 +428,8 @@ class DMC_Sim:
                     self.f_x = np.concatenate((self.f_x, self.f_x[birth_mask]))
                     self.psi_1 = np.concatenate((self.psi_1, self.psi_1[birth_mask]))
                     self.psi_sec_der = np.concatenate((self.psi_sec_der, self.psi_sec_der[birth_mask]))
+                    if self.excited_state_imp_samp:
+                        self.vector_score = np.concatenate((self.vector_score,self.vector_score[birth_mask]))
 
                 if self._desc_wt:
                     self._who_from = np.concatenate((self._who_from,
@@ -473,10 +482,37 @@ class DMC_Sim:
                                  size=np.shape(self._walker_coords.transpose(0, 2, 1))).transpose(0, 2, 1)
         # The actual term added to cartesian coords
         d_x = self.inv_masses_trip * self.f_x  # The actual term added to cartesian coords
+
+        if self.excited_state_imp_samp:
+            d_x2 = d_x.copy()
+            d_x2 += 1e-50
+            ms = 1/self.inv_masses_trip[:,:,0]
+            v2 = np.linalg.norm(d_x2,axis=2)**2
+            factor = np.divide(-1+np.sqrt(1+2*ms*v2),ms*v2)
+            sh = factor.shape
+            d_x2 = np.broadcast_to(factor[:,:,None],(sh[0],sh[1],3))*d_x2
+            if self.vector_score is None:
+                numer = np.sum(np.linalg.norm(d_x2,axis=2)**2 * self.masses[None,:],axis=1)
+                denom = np.sum(np.linalg.norm(d_x,axis=2)**2 * self.masses[None,:],axis=1)
+                self.vector_score = np.sqrt(numer/denom)
+            d_x=d_x2
+
         displaced_cds = self._walker_coords + disps + d_x * self.delta_t
 
         f_y, psi_2, psi_sec_der_disp = self.impsamp.drift(displaced_cds)
         d_y = self.inv_masses_trip * f_y  # The actual term added to cartesian coords
+
+        if self.excited_state_imp_samp:
+            d_y2 = d_y.copy()
+            d_y2 += 1e-50 #To deal with 0      
+            ms = 1/self.inv_masses_trip[:,:,0]
+            v2 = np.linalg.norm(d_y2,axis=2)**2
+            factor = np.divide(-1+np.sqrt(1+2*ms*v2),ms*v2)
+            d_y2 = np.broadcast_to(factor[:,:,None],(sh[0],sh[1],3))*d_y
+            numer = np.sum(np.linalg.norm(d_y2,axis=2)**2 * self.masses[None,:],axis=1)
+            denom = np.sum(np.linalg.norm(d_y,axis=2)**2 * self.masses[None,:],axis=1)
+            vector_score_new = np.sqrt(numer/denom)
+            d_y = d_y2
 
         met_nums = self.impsamp.metropolis(sigma_trip=self.sigma_trip,
                                            trial_x=self.psi_1,
@@ -493,6 +529,8 @@ class DMC_Sim:
         self.f_x[accept] = f_y[accept]
         self.psi_1[accept] = psi_2[accept]
         self.psi_sec_der[accept] = psi_sec_der_disp[accept]
+        if self.excited_state_imp_samp:
+            self.vector_score[accept] = vector_score_new[accept]
 
         num_rejctions = len(self._walker_coords) - len(accept)
         return num_rejctions
@@ -693,6 +731,8 @@ class DMC_Sim:
             if self.impsamp_manager is not None:
                 local_ke = self.impsamp.local_kin(self.inv_masses_trip, self.psi_sec_der)
                 self._walker_pots = self._walker_pots + local_ke
+                if self.excited_state_imp_samp:
+                    self._walker_pots = self._vref - (self._vref - self._walker_pots) * self.vector_score
                 self._logger.write_local(np.average(self._walker_pots))
 
             # Uncomment if you want to collect the local energy as well as the potential energy for training data
