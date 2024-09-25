@@ -6,7 +6,7 @@ While DMC is a ground state method, we can use some methods to obtain excited st
 Fixed-node DMC
 --------------------------------
 
-For theory of Fixed-node method, please refer to `McCoy group's tutorial on Fixed-node method <https://mccoygroup.github.io/References/References/Spectrum%20Generation/FixedNodeSpectra.html>`
+For theory of Fixed-node method, please refer to `McCoy group's tutorial on Fixed-node method <https://mccoygroup.github.io/References/References/Spectrum%20Generation/FixedNodeSpectra.html>`_.
 
 PyVibDMC supports the usage of Fixed Node DMC to obtain the first excited state calculation along one coordinate. The coordinate and the Wilson's G-matrix diagonal element must be supplied by users.
 
@@ -39,6 +39,6 @@ The Wilson's G-matrix diagonal element can be taken as a number as well::
 Importance Sampling for Excited State
 ---------------------------------------
 
-Another way of obtaining excited state information is to use importance sampling using excited state trial wave function. The problem is that the first and second derivative of the trial wave function diverged at the node. The potential fixed is proposed in a peper by `Umrigar, Nightingale and Runge <https://doi.org/10.1063/1.465195>` where the first and second derivative of the trial wave function is capped at some value.
+Another way of obtaining excited state information is to use importance sampling using excited state trial wave function. The problem is that the first and second derivative of the trial wave function diverged at the node. The potential fixed is proposed in a peper by `Umrigar, Nightingale and Runge <https://doi.org/10.1063/1.465195>`_ where the first and second derivative of the trial wave function is capped at some value.
 
 PyVibDMC also supports the implementation of the derivative capped which can be done by toggleing the flag ``excited_state_imp_samp = True`` in ``DMC_Sim(...)`` function.
