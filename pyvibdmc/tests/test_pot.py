@@ -66,7 +66,7 @@ def test_no_mp_pot():
 def test_nn_pot():
     from ..simulation_utilities.tensorflow_descriptors.distance_descriptors import DistIt
     import tensorflow as tf
-    from tensorflow.keras.src.legacy.saving import legacy_h5_format
+    from tensorflow.keras.legacy.saving import legacy_h5_format
 
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__),
