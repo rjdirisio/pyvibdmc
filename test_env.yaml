@@ -1,5 +1,7 @@
-name: test
+name: testEnv
 channels:
+  - conda-forge
+  - defaults
 dependencies:
     # Package dependencies
   - numpy

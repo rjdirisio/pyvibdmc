@@ -29,8 +29,9 @@ jobs:
         miniconda-version: "latest"
         environment-file: test_env.yaml
 
-        activate-environment: test
-        auto-update-conda: false
+        auto-update-conda: true
+        auto-activate-base: true
+        activate-environment: testEnv
         show-channel-urls: true
 
     - name: Install package
