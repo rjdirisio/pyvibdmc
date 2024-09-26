@@ -31,8 +31,8 @@ jobs:
         channels: conda-forge,defaults
 
         activate-environment: test
-        auto-update-conda: true
-        auto-activate-base: false
+        auto-update-conda: false
+        auto-activate-base: true
         show-channel-urls: true
 
     - name: Install package
