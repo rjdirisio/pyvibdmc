@@ -1,14 +1,8 @@
 name: CI_pytest
 
 on:
-  push:
-    branches:
-      - "master"
-      - "main"
-  pull_request:
-    branches:
-      - "master"
-      - "main"
+  - push
+  - pull_request
 
 jobs:
   test:
@@ -37,7 +31,7 @@ jobs:
         channels: conda-forge,defaults
 
         activate-environment: test
-        auto-update-conda: false
+        auto-update-conda: true
         auto-activate-base: false
         show-channel-urls: true
 
