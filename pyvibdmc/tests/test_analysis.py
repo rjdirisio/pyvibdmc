@@ -97,7 +97,7 @@ def test_dihedral():
     improp = np.degrees(analyzer_form.dihedral(3 - 1, 1 - 1, 4 - 1, 2 - 1))
     assert pytest.approx(improp, abs=1) == 177
     improp2 = np.degrees(analyzer_form.dihedral(2 - 1, 1 - 1, 4 - 1, 3 - 1))
-    assert pytest.approx(improp2, , abs=1) ==-177
+    assert pytest.approx(improp2, abs=1) ==-177
 
 
 # Plotting and analyzing tests
