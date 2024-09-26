@@ -85,19 +85,19 @@ def test_dihedral():
     analyzer_dim = pv.AnalyzeWfn(dimie)
     # dim_nums = [3,1,4,5]
     angle = np.degrees(analyzer_dim.dihedral(3 - 1, 1 - 1, 4 - 1, 5 - 1))
-    assert pytest.approx(angle, 122.56)
+    assert pytest.approx(angle) == 122.56
 
     angle2 = np.degrees(analyzer_dim.dihedral(3 - 1, 1 - 1, 4 - 1, 6 - 1))
-    assert pytest.approx(angle2, -123.14)
+    assert pytest.approx(angle2) == -123.14
 
     # Improper Dihedral
     analyzer_form = pv.AnalyzeWfn(formie)
 
     # form_nums = [3,1,4,2]
     improp = np.degrees(analyzer_form.dihedral(3 - 1, 1 - 1, 4 - 1, 2 - 1))
-    assert pytest.approx(improp, 177)
+    assert pytest.approx(improp) == 177
     improp2 = np.degrees(analyzer_form.dihedral(2 - 1, 1 - 1, 4 - 1, 3 - 1))
-    assert pytest.approx(improp2, -177)
+    assert pytest.approx(improp2) ==-177
 
 
 # Plotting and analyzing tests
