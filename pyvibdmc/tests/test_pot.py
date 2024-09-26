@@ -66,7 +66,6 @@ def test_no_mp_pot():
 def test_nn_pot():
     from ..simulation_utilities.tensorflow_descriptors.distance_descriptors import DistIt
     import tensorflow as tf
-    from tensorflow.keras.legacy.saving import legacy_h5_format
 
     # initialize potential
     potDir = os.path.join(os.path.dirname(__file__),
@@ -78,8 +77,7 @@ def test_nn_pot():
     pot_dict = {'descriptor': coulomb,
                 'batch_size': 100}
     model_path = f'{potDir}/sample_h4o2_nn.h5'
-    # model = tf.keras.models.load_model(model_path)
-    model = legacy_h5_format.load_model_from_hdf5(model_path, custom_objects={'mse': 'mse'})
+    model = tf.keras.models.load_model(model_path, custom_objects={'mse': 'mse'})
 
     harm_pot = pv.NN_Potential(potential_function=potFunc,
                                python_file=pyFile,
