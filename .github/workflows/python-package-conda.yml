@@ -29,7 +29,6 @@ jobs:
         miniconda-version: "latest"
         environment-file: test_env.yaml
 
-        channels: conda-forge,defaults
         activate-environment: test
         auto-update-conda: false
         show-channel-urls: true

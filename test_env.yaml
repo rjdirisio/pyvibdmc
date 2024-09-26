@@ -7,7 +7,6 @@ dependencies:
   - matplotlib
   - tensorflow
   - mpi4py
-    # Testing
   - pytest
   - pytest-cov
   - codecov
