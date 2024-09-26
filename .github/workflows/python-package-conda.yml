@@ -1,14 +1,8 @@
 name: CI_pytest
 
 on:
-  push:
-    branches:
-      - "master"
-      - "main"
-  pull_request:
-    branches:
-      - "master"
-      - "main"
+  - push
+  - pull_request
 
 jobs:
   test:
@@ -29,16 +23,15 @@ jobs:
         df -h
         ulimit -a
     # More info on options: https://github.com/conda-incubator/setup-miniconda
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: ${{ matrix.python-version }}
+        miniconda-version: "latest"
         environment-file: test_env.yaml
 
-        channels: conda-forge,defaults
-
-        activate-environment: test
         auto-update-conda: false
         auto-activate-base: false
+        activate-environment: testEnv
         show-channel-urls: true
 
     - name: Install package

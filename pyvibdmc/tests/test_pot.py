@@ -77,7 +77,8 @@ def test_nn_pot():
     pot_dict = {'descriptor': coulomb,
                 'batch_size': 100}
     model_path = f'{potDir}/sample_h4o2_nn.h5'
-    model = tf.keras.models.load_model(model_path)
+    model = tf.keras.models.load_model(model_path, custom_objects={'mse': 'mse'})
+
     harm_pot = pv.NN_Potential(potential_function=potFunc,
                                python_file=pyFile,
                                potential_directory=potDir,

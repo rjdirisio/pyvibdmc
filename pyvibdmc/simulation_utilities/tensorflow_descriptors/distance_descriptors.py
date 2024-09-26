@@ -56,7 +56,7 @@ class DistIt:
 
         # Just check if all atoms are included in the sorted things
         if self.sorted_atoms is not None:
-            flat_like = self.xp.concatenate(self.xp.asarray(self.sorted_atoms)).ravel()
+            flat_like = self.xp.concatenate(self.xp.asarray(self.sorted_atoms, dtype="object")).ravel()
             if len(flat_like) != self.num_atoms:
                 raise ValueError("Please put all atoms in sorted_atoms list")
 
