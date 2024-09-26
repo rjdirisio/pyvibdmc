@@ -864,12 +864,12 @@ class DMC_Sim:
                 setattr(res, k, copy.deepcopy(v, memodict))
         return res
 
-
-def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsamp=None, imp_samp_oned=False):
+def dmc_restart(potential, chkpt_folder, sim_name, additional_timesteps=0, impsamp=None, imp_samp_oned=False, fixed_node=None):
     """TODO: Need to add in impsamp infrastructure here for restarting..."""
     dmc_sim = SimArchivist.reload_sim(chkpt_folder, sim_name)
     # Update simulation parameters based on additional timesteps
     dmc_sim.imp1d = imp_samp_oned
+    dmc_sim.fixed_node = fixed_node
     dmc_sim._init_restart(additional_timesteps, impsamp)
     # Re-initialize the potential and the logger, as those are not pickleable
     dmc_sim.potential = potential.getpot
