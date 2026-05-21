@@ -390,6 +390,82 @@ class DMC_Sim:
 
         if self.weighting == 'discrete':
             rand_nums = np.random.random(len(self._walker_coords))
+            weights = np.exp(-1. * (self._walker_pots - self._vref) * dt)
+            # Guard before converting weights to integer counts. Non-finite or extremely
+            # large weights can overflow during casting/summing, or later cause np.repeat
+            # to allocate an unbounded walker array before a useful checkpoint is written.
+            if not np.all(np.isfinite(weights)) or np.any(weights > self._pop_thresh[1] + 1):
+                # run() normally checkpoints in finally, this catches the bad, large weight
+                # before count conversion/allocation can fail, causing an allocation or OOM failure.
+                raise ValueError("Massive walker birth or death event!!!!!!! Dying...")
+
+            counts = np.floor(weights).astype(np.int64)
+            counts += rand_nums < (weights - counts)
+
+            num_deaths = int(np.count_nonzero(counts == 0))
+            num_births = int(np.sum(np.maximum(counts - 1, 0)))
+            final_pop = int(np.sum(counts))
+
+            if final_pop < self._pop_thresh[0] or final_pop > self._pop_thresh[1]:
+                # run() normally checkpoints in finally, so we simply raise an error here to
+                # let the checkpointing code in "finally" to save a checkpoint if there is too
+                # many (or too little) walkers to spawn.
+                raise ValueError("Massive walker birth or death event!!!!!!! Dying...")
+
+            # Build the birth/death mapping once and reuse it for every
+            # walker-aligned array, instead of recomputing np.repeat per array.
+            walker_idx = np.repeat(np.arange(len(counts)), counts)
+            # TODO: Remove after testing
+            assert len(walker_idx) == final_pop, "Repeated walker index does not match final population."
+
+            self._walker_coords = self._walker_coords[walker_idx]
+            self._walker_pots = self._walker_pots[walker_idx]
+            if self.impsamp_manager is not None:
+                self.f_x = self.f_x[walker_idx]
+                self.psi_1 = self.psi_1[walker_idx]
+                self.psi_sec_der = self.psi_sec_der[walker_idx]
+                if self.excited_state_imp_samp:
+                    self.vector_score = self.vector_score[walker_idx]
+            if self._desc_wt:
+                self._who_from = self._who_from[walker_idx]
+            return num_births, num_deaths, final_pop
+        else:
+            self._cont_wts *= np.exp(-1.0 * (self._walker_pots - self._vref) * dt)
+
+            # branch if weights are too low
+            kill_mark = np.where(self._cont_wts < self._thresh_lower)[0]
+            self._branch(kill_mark)
+
+            # branch more if there are weights that are too high
+            if self._thresh_upper is not None:
+                num_above_thresh = np.sum(
+                    self._cont_wts > self._thresh_upper)  # now, see if any weights are still too big
+                kill_mark_upper = np.argpartition(self._cont_wts, num_above_thresh)[
+                                  :num_above_thresh]  # get the num_above_thresh smallest wts
+                self._branch(kill_mark_upper)
+            else:
+                kill_mark_upper = []
+
+            # logging info
+            num_branched = len(kill_mark) + len(kill_mark_upper)
+            max_weght = np.amax(self._cont_wts)
+            min_weght = np.amin(self._cont_wts)
+
+            return num_branched, max_weght, min_weght
+
+    def birth_or_death_old(self):
+        """
+        Chooses whether or not the walker made a bad enough random walk to be removed from the simulation.
+        For discrete weighting, this leads to removal or duplication of the walkers.  For continuous, this leads
+        to an update of the weights and a potential branching of a large weight walker to the smallest one
+        :return: Updated Continus Weights , the "who from" array for desc_wt_timeendent weighting, walker coords, and pot vals.
+         """
+        dt = self.delta_t
+        if self.impsamp_manager is not None:
+            dt = self.update_effetive_timestep()
+
+        if self.weighting == 'discrete':
+            rand_nums = np.random.random(len(self._walker_coords))
 
             death_mask = np.logical_or((1 - np.exp(-1. * (self._walker_pots - self._vref) * dt)) < rand_nums,
                                        self._walker_pots < self._vref)
@@ -801,7 +877,10 @@ class DMC_Sim:
 
     def run(self):
         """This function calls propagate and saves simulation results"""
-        print("Starting Simulation...")
+        try:
+            print("Starting Simulation...")
+        except OSError:
+            pass
         dmc_time_start = time.time()
         try:
             throw_error = None
@@ -824,8 +903,11 @@ class DMC_Sim:
             # Convert vref vs tau to wavenumbers
             _vref_wvn = Constants.convert(self._vref_vs_tau, "wavenumbers", to_AU=False)
 
-            print("Simulation Complete")
-            print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
+            try:
+                print("Simulation Complete")
+                print('Approximate ZPE', np.average(_vref_wvn[len(_vref_wvn) // 4:]))
+            except OSError:
+                pass
             if self.impsamp_manager is not None:
                 """Replace discrete integers with the effective time step put forth by the metropolis criteria"""
                 ts = self.eff_ts
